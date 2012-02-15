@@ -5,6 +5,11 @@ Up-to-date instructions to build a working Linux system for a Nios2 system:
 - Get linux-nios2 tarball (e.g. from:
    http://www.niosftp.com/pub/linux/nios2-linux-20100621.tar )
 
+- Also get sopc2dts - a tool to generate devicetree files (dts) from
+  the sopc or qsys info files. It's not bulletproof, but generates something
+  suitable for manual fixing.
+   git clone git://sopc.et.ntust.edu.tw/git/tools.git
+
 - Run ./checkout
 
 - Run ./update
