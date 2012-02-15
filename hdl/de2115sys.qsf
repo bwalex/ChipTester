@@ -1,0 +1,783 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 1991-2011 Altera Corporation
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, Altera MegaCore Function License 
+# Agreement, or other applicable license agreement, including, 
+# without limitation, that your use is for the sole purpose of 
+# programming logic devices manufactured by Altera and sold by 
+# Altera or its authorized distributors.  Please refer to the 
+# applicable agreement for further details.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus II
+# Version 10.1 Build 197 01/19/2011 Service Pack 1 SJ Full Version
+# Date created = 16:21:31  January 21, 2012
+#
+# -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		de2115sys_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus II software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
+
+
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE115F29C7
+set_global_assignment -name TOP_LEVEL_ENTITY de2115sys
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "10.1 SP1"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "16:21:31  JANUARY 21, 2012"
+set_global_assignment -name LAST_QUARTUS_VERSION "11.1 SP1"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+
+
+#============================================================
+# LCD
+#============================================================
+set_location_assignment PIN_L3 -to LCD_DATA[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_DATA[0]
+set_location_assignment PIN_L1 -to LCD_DATA[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_DATA[1]
+set_location_assignment PIN_L2 -to LCD_DATA[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_DATA[2]
+set_location_assignment PIN_K7 -to LCD_DATA[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_DATA[3]
+set_location_assignment PIN_K1 -to LCD_DATA[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_DATA[4]
+set_location_assignment PIN_K2 -to LCD_DATA[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_DATA[5]
+set_location_assignment PIN_M3 -to LCD_DATA[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_DATA[6]
+set_location_assignment PIN_M5 -to LCD_DATA[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_DATA[7]
+set_location_assignment PIN_L6 -to LCD_BLON
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_BLON
+set_location_assignment PIN_M1 -to LCD_RW
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_RW
+set_location_assignment PIN_L4 -to LCD_EN
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_EN
+set_location_assignment PIN_M2 -to LCD_RS
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_RS
+set_location_assignment PIN_L5 -to LCD_ON
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LCD_ON
+
+#============================================================
+# SDCARD
+#============================================================
+set_location_assignment PIN_AD14 -to SD_CMD
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_CMD
+set_location_assignment PIN_AE13 -to SD_CLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_CLK
+set_location_assignment PIN_AF14 -to SD_WP_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_WP_N
+set_location_assignment PIN_AE14 -to SD_DAT0
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_DAT0
+set_location_assignment PIN_AF13 -to SD_DAT1
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_DAT1
+set_location_assignment PIN_AB14 -to SD_DAT2
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_DAT2
+set_location_assignment PIN_AC14 -to SD_DAT3
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SD_DAT3
+
+#============================================================
+# I2C for EEPROM
+#============================================================
+set_location_assignment PIN_D14 -to EEP_I2C_SCLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to EEP_I2C_SCLK
+set_location_assignment PIN_E14 -to EEP_I2C_SDAT
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to EEP_I2C_SDAT
+
+
+
+
+#============================================================
+# USB 2.0 OTG
+#============================================================
+set_location_assignment PIN_J6 -to OTG_DATA[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[0]
+set_location_assignment PIN_K4 -to OTG_DATA[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[1]
+set_location_assignment PIN_J5 -to OTG_DATA[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[2]
+set_location_assignment PIN_K3 -to OTG_DATA[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[3]
+set_location_assignment PIN_J4 -to OTG_DATA[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[4]
+set_location_assignment PIN_J3 -to OTG_DATA[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[5]
+set_location_assignment PIN_J7 -to OTG_DATA[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[6]
+set_location_assignment PIN_H6 -to OTG_DATA[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[7]
+set_location_assignment PIN_H3 -to OTG_DATA[8]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[8]
+set_location_assignment PIN_H4 -to OTG_DATA[9]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[9]
+set_location_assignment PIN_G1 -to OTG_DATA[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[10]
+set_location_assignment PIN_G2 -to OTG_DATA[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[11]
+set_location_assignment PIN_G3 -to OTG_DATA[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[12]
+set_location_assignment PIN_F1 -to OTG_DATA[13]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[13]
+set_location_assignment PIN_F3 -to OTG_DATA[14]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[14]
+set_location_assignment PIN_G4 -to OTG_DATA[15]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DATA[15]
+set_location_assignment PIN_H7 -to OTG_ADDR[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_ADDR[0]
+set_location_assignment PIN_C3 -to OTG_ADDR[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_ADDR[1]
+set_location_assignment PIN_A6 -to OTG_INT[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_INT[0]
+set_location_assignment PIN_D5 -to OTG_INT[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_INT[1]
+set_location_assignment PIN_J1 -to OTG_DREQ[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DREQ[0]
+set_location_assignment PIN_B4 -to OTG_DREQ[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DREQ[1]
+set_location_assignment PIN_C4 -to OTG_DACK_N[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DACK_N[0]
+set_location_assignment PIN_D4 -to OTG_DACK_N[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_DACK_N[1]
+set_location_assignment PIN_C6 -to OTG_FSPEED
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_FSPEED
+set_location_assignment PIN_B6 -to OTG_LSPEED
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_LSPEED
+set_location_assignment PIN_C5 -to OTG_RST_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_RST_N
+set_location_assignment PIN_A3 -to OTG_CS_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_CS_N
+set_location_assignment PIN_B3 -to OTG_RD_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_RD_N
+set_location_assignment PIN_A4 -to OTG_WR_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to OTG_WR_N
+
+
+
+
+
+#============================================================
+# SRAM
+#============================================================
+set_location_assignment PIN_AB7 -to SRAM_ADDR[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[0]
+set_location_assignment PIN_AD7 -to SRAM_ADDR[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[1]
+set_location_assignment PIN_AE7 -to SRAM_ADDR[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[2]
+set_location_assignment PIN_AC7 -to SRAM_ADDR[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[3]
+set_location_assignment PIN_AB6 -to SRAM_ADDR[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[4]
+set_location_assignment PIN_AE6 -to SRAM_ADDR[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[5]
+set_location_assignment PIN_AB5 -to SRAM_ADDR[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[6]
+set_location_assignment PIN_AC5 -to SRAM_ADDR[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[7]
+set_location_assignment PIN_AF5 -to SRAM_ADDR[8]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[8]
+set_location_assignment PIN_T7 -to SRAM_ADDR[9]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[9]
+set_location_assignment PIN_AF2 -to SRAM_ADDR[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[10]
+set_location_assignment PIN_AD3 -to SRAM_ADDR[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[11]
+set_location_assignment PIN_AB4 -to SRAM_ADDR[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[12]
+set_location_assignment PIN_AC3 -to SRAM_ADDR[13]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[13]
+set_location_assignment PIN_AA4 -to SRAM_ADDR[14]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[14]
+set_location_assignment PIN_AB11 -to SRAM_ADDR[15]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[15]
+set_location_assignment PIN_AC11 -to SRAM_ADDR[16]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[16]
+set_location_assignment PIN_AB9 -to SRAM_ADDR[17]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[17]
+set_location_assignment PIN_AB8 -to SRAM_ADDR[18]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[18]
+set_location_assignment PIN_T8 -to SRAM_ADDR[19]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_ADDR[19]
+set_location_assignment PIN_AH3 -to SRAM_DQ[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[0]
+set_location_assignment PIN_AF4 -to SRAM_DQ[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[1]
+set_location_assignment PIN_AG4 -to SRAM_DQ[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[2]
+set_location_assignment PIN_AH4 -to SRAM_DQ[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[3]
+set_location_assignment PIN_AF6 -to SRAM_DQ[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[4]
+set_location_assignment PIN_AG6 -to SRAM_DQ[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[5]
+set_location_assignment PIN_AH6 -to SRAM_DQ[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[6]
+set_location_assignment PIN_AF7 -to SRAM_DQ[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[7]
+set_location_assignment PIN_AD1 -to SRAM_DQ[8]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[8]
+set_location_assignment PIN_AD2 -to SRAM_DQ[9]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[9]
+set_location_assignment PIN_AE2 -to SRAM_DQ[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[10]
+set_location_assignment PIN_AE1 -to SRAM_DQ[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[11]
+set_location_assignment PIN_AE3 -to SRAM_DQ[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[12]
+set_location_assignment PIN_AE4 -to SRAM_DQ[13]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[13]
+set_location_assignment PIN_AF3 -to SRAM_DQ[14]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[14]
+set_location_assignment PIN_AG3 -to SRAM_DQ[15]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_DQ[15]
+set_location_assignment PIN_AC4 -to SRAM_UB_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_UB_N
+set_location_assignment PIN_AD4 -to SRAM_LB_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_LB_N
+set_location_assignment PIN_AF8 -to SRAM_CE_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_CE_N
+set_location_assignment PIN_AD5 -to SRAM_OE_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_OE_N
+set_location_assignment PIN_AE8 -to SRAM_WE_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SRAM_WE_N
+
+#============================================================
+# Flash
+#============================================================
+set_location_assignment PIN_AG12 -to FL_ADDR[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[0]
+set_location_assignment PIN_AH7 -to FL_ADDR[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[1]
+set_location_assignment PIN_Y13 -to FL_ADDR[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[2]
+set_location_assignment PIN_Y14 -to FL_ADDR[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[3]
+set_location_assignment PIN_Y12 -to FL_ADDR[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[4]
+set_location_assignment PIN_AA13 -to FL_ADDR[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[5]
+set_location_assignment PIN_AA12 -to FL_ADDR[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[6]
+set_location_assignment PIN_AB13 -to FL_ADDR[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[7]
+set_location_assignment PIN_AB12 -to FL_ADDR[8]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[8]
+set_location_assignment PIN_AB10 -to FL_ADDR[9]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[9]
+set_location_assignment PIN_AE9 -to FL_ADDR[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[10]
+set_location_assignment PIN_AF9 -to FL_ADDR[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[11]
+set_location_assignment PIN_AA10 -to FL_ADDR[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[12]
+set_location_assignment PIN_AD8 -to FL_ADDR[13]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[13]
+set_location_assignment PIN_AC8 -to FL_ADDR[14]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[14]
+set_location_assignment PIN_Y10 -to FL_ADDR[15]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[15]
+set_location_assignment PIN_AA8 -to FL_ADDR[16]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[16]
+set_location_assignment PIN_AH12 -to FL_ADDR[17]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[17]
+set_location_assignment PIN_AC12 -to FL_ADDR[18]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[18]
+set_location_assignment PIN_AD12 -to FL_ADDR[19]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[19]
+set_location_assignment PIN_AE10 -to FL_ADDR[20]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[20]
+set_location_assignment PIN_AD10 -to FL_ADDR[21]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[21]
+set_location_assignment PIN_AD11 -to FL_ADDR[22]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_ADDR[22]
+set_location_assignment PIN_AH8 -to FL_DQ[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_DQ[0]
+set_location_assignment PIN_AF10 -to FL_DQ[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_DQ[1]
+set_location_assignment PIN_AG10 -to FL_DQ[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_DQ[2]
+set_location_assignment PIN_AH10 -to FL_DQ[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_DQ[3]
+set_location_assignment PIN_AF11 -to FL_DQ[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_DQ[4]
+set_location_assignment PIN_AG11 -to FL_DQ[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_DQ[5]
+set_location_assignment PIN_AH11 -to FL_DQ[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_DQ[6]
+set_location_assignment PIN_AF12 -to FL_DQ[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_DQ[7]
+set_location_assignment PIN_AG7 -to FL_CE_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_CE_N
+set_location_assignment PIN_AG8 -to FL_OE_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_OE_N
+set_location_assignment PIN_AE11 -to FL_RST_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_RST_N
+set_location_assignment PIN_Y1 -to FL_RY
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_RY
+set_location_assignment PIN_AC10 -to FL_WE_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_WE_N
+set_location_assignment PIN_AE12 -to FL_WP_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FL_WP_N
+
+
+
+
+#============================================================
+# Ethernet 0
+#============================================================
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_TX_DATA[0]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_RX_DATA[0]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_TX_DATA[1]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_RX_DATA[1]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_RX_DATA[2]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_TX_DATA[3]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_RX_DATA[3]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_GTX_CLK
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_TX_EN
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_TX_ER
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_RST_N
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_RX_DV
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_RX_ER
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_RX_CRS
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_RX_COL
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_RX_CLK
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_TX_CLK
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_MDC
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_MDIO
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_TX_DATA[2]
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ENET0_INT_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ENET0_LINK100
+
+#============================================================
+# CLOCK
+#============================================================
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clock_50
+
+#============================================================
+# SDRAM
+#============================================================
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_BA[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_BA[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQM[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQM[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQM[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQM[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_RAS_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_CAS_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_CKE
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_CLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_WE_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_CS_N
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[8]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[9]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[13]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[14]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[15]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[16]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[17]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[18]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[19]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[20]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[21]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[22]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[23]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[24]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[25]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[26]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[27]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[28]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[29]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[30]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_DQ[31]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[8]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[9]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to DRAM_ADDR[12]
+
+#============================================================
+# KEY
+#============================================================
+set_instance_assignment -name IO_STANDARD "2.5 V" -to reset_n
+
+set_location_assignment PIN_Y2 -to clock_50
+set_location_assignment PIN_AE5 -to DRAM_CLK
+
+set_location_assignment PIN_U1 -to DRAM_DQ[31]
+set_location_assignment PIN_U4 -to DRAM_DQ[30]
+set_location_assignment PIN_T3 -to DRAM_DQ[29]
+set_location_assignment PIN_R3 -to DRAM_DQ[28]
+set_location_assignment PIN_R2 -to DRAM_DQ[27]
+set_location_assignment PIN_R1 -to DRAM_DQ[26]
+set_location_assignment PIN_R7 -to DRAM_DQ[25]
+set_location_assignment PIN_U5 -to DRAM_DQ[24]
+set_location_assignment PIN_M8 -to DRAM_DQ[16]
+set_location_assignment PIN_L8 -to DRAM_DQ[17]
+set_location_assignment PIN_P2 -to DRAM_DQ[18]
+set_location_assignment PIN_N3 -to DRAM_DQ[19]
+set_location_assignment PIN_N4 -to DRAM_DQ[20]
+set_location_assignment PIN_M4 -to DRAM_DQ[21]
+set_location_assignment PIN_M7 -to DRAM_DQ[22]
+set_location_assignment PIN_L7 -to DRAM_DQ[23]
+set_location_assignment PIN_Y3 -to DRAM_DQ[8]
+set_location_assignment PIN_Y4 -to DRAM_DQ[9]
+set_location_assignment PIN_AB1 -to DRAM_DQ[10]
+set_location_assignment PIN_AA3 -to DRAM_DQ[11]
+set_location_assignment PIN_AB2 -to DRAM_DQ[12]
+set_location_assignment PIN_AC1 -to DRAM_DQ[13]
+set_location_assignment PIN_AB3 -to DRAM_DQ[14]
+set_location_assignment PIN_AC2 -to DRAM_DQ[15]
+set_location_assignment PIN_W3 -to DRAM_DQ[0]
+set_location_assignment PIN_W2 -to DRAM_DQ[1]
+set_location_assignment PIN_V4 -to DRAM_DQ[2]
+set_location_assignment PIN_W1 -to DRAM_DQ[3]
+set_location_assignment PIN_V3 -to DRAM_DQ[4]
+set_location_assignment PIN_V2 -to DRAM_DQ[5]
+set_location_assignment PIN_V1 -to DRAM_DQ[6]
+set_location_assignment PIN_U3 -to DRAM_DQ[7]
+set_location_assignment PIN_W4 -to DRAM_DQM[1]
+set_location_assignment PIN_K8 -to DRAM_DQM[2]
+set_location_assignment PIN_U2 -to DRAM_DQM[0]
+set_location_assignment PIN_N8 -to DRAM_DQM[3]
+set_location_assignment PIN_U6 -to DRAM_RAS_N
+set_location_assignment PIN_V7 -to DRAM_CAS_N
+set_location_assignment PIN_AA6 -to DRAM_CKE
+set_location_assignment PIN_V6 -to DRAM_WE_N
+set_location_assignment PIN_T4 -to DRAM_CS_N
+set_location_assignment PIN_U7 -to DRAM_BA[0]
+set_location_assignment PIN_R4 -to DRAM_BA[1]
+set_location_assignment PIN_Y7 -to DRAM_ADDR[12]
+set_location_assignment PIN_AA5 -to DRAM_ADDR[11]
+set_location_assignment PIN_R5 -to DRAM_ADDR[10]
+set_location_assignment PIN_Y6 -to DRAM_ADDR[9]
+set_location_assignment PIN_Y5 -to DRAM_ADDR[8]
+set_location_assignment PIN_AA7 -to DRAM_ADDR[7]
+set_location_assignment PIN_W7 -to DRAM_ADDR[6]
+set_location_assignment PIN_W8 -to DRAM_ADDR[5]
+set_location_assignment PIN_V5 -to DRAM_ADDR[4]
+set_location_assignment PIN_R6 -to DRAM_ADDR[0]
+set_location_assignment PIN_V8 -to DRAM_ADDR[1]
+set_location_assignment PIN_U8 -to DRAM_ADDR[2]
+set_location_assignment PIN_P1 -to DRAM_ADDR[3]
+
+set_location_assignment PIN_M23 -to reset_n
+
+set_location_assignment PIN_A17 -to ENET0_GTX_CLK
+set_location_assignment PIN_A21 -to ENET0_INT_N
+set_location_assignment PIN_C20 -to ENET0_MDC
+set_location_assignment PIN_B21 -to ENET0_MDIO
+set_location_assignment PIN_C19 -to ENET0_RST_N
+set_location_assignment PIN_A15 -to ENET0_RX_CLK
+set_location_assignment PIN_E15 -to ENET0_RX_COL
+set_location_assignment PIN_D15 -to ENET0_RX_CRS
+set_location_assignment PIN_C16 -to ENET0_RX_DATA[0]
+set_location_assignment PIN_D16 -to ENET0_RX_DATA[1]
+set_location_assignment PIN_D17 -to ENET0_RX_DATA[2]
+set_location_assignment PIN_C15 -to ENET0_RX_DATA[3]
+set_location_assignment PIN_C17 -to ENET0_RX_DV
+set_location_assignment PIN_D18 -to ENET0_RX_ER
+set_location_assignment PIN_B17 -to ENET0_TX_CLK
+set_location_assignment PIN_C18 -to ENET0_TX_DATA[0]
+set_location_assignment PIN_D19 -to ENET0_TX_DATA[1]
+set_location_assignment PIN_A19 -to ENET0_TX_DATA[2]
+set_location_assignment PIN_B19 -to ENET0_TX_DATA[3]
+set_location_assignment PIN_A18 -to ENET0_TX_EN
+set_location_assignment PIN_B18 -to ENET0_TX_ER
+set_location_assignment PIN_C14 -to ENET0_LINK100
+
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+
+
+
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_rsp_xbar_demux_017.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_id_router_007.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_id_router_017.sv
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cpu_oci_test_bench.v
+set_global_assignment -name SOURCE_FILE de2115sys.qsf
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/linuxsys.v
+set_global_assignment -name VERILOG_FILE gen_reset_n.v
+set_global_assignment -name VERILOG_FILE enet_rx_clk_pll.v
+set_global_assignment -name VERILOG_FILE ddr_o.v
+set_global_assignment -name VERILOG_FILE de2115sys.v
+set_global_assignment -name SDC_FILE de2115sys.sdc
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_tse_mac_loopback.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_tse_mac.v
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_tri_state_bridge_flash_pinSharer_0_pin_sharer.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_tri_state_bridge_flash_pinSharer_0_arbiter.sv
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_tri_state_bridge_flash_pinSharer_0.v
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_tri_state_bridge_flash_bridge_0.sv
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_timer.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_sysid_qsys_0.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_spi_0.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_sgdma_tx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_sgdma_rx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_sdram_0.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_sd_wp_n.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_sd_dat.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_sd_cmd.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_sd_clk.v
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_rsp_xbar_mux_008.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_rsp_xbar_mux_001.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_rsp_xbar_mux.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_rsp_xbar_demux_016.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_rsp_xbar_demux_002.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_rsp_xbar_demux_001.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_rsp_xbar_demux.sv
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_onchip_memory2_0.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_lcd_0.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_jtag_uart.v
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_irq_mapper.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_id_router_016.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_id_router_006.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_id_router_003.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_id_router_002.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_id_router_001.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_id_router.sv
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_descriptor_memory.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cpu_test_bench.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cpu_mult_cell.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cpu_jtag_debug_module_wrapper.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cpu_jtag_debug_module_tck.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cpu_jtag_debug_module_sysclk.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cpu.v
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cmd_xbar_mux_002.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cmd_xbar_mux_001.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cmd_xbar_mux.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cmd_xbar_demux_008.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cmd_xbar_demux_003.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cmd_xbar_demux_002.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cmd_xbar_demux_001.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cmd_xbar_demux.sv
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_cfi_flash_0.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_altpll_0.v
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_addr_router_008.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_addr_router_006.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_addr_router_002.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_addr_router_001.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_addr_router.sv
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/ISP1362_IF.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_xcvr_resync.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_stat_extract.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_min_ff.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_ff_read_cntl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_ff_length.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_ff_cntrl_32_shift16.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_ff_cntrl_32.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_ff_cntrl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_ff.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_encapsulation.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_counter_cntl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_tx_converter.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_wo_fifo_10_100_1000.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_wo_fifo.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_w_fifo_10_100_1000.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_w_fifo.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_tx_converter.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_tx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_sgmii_strx_gx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_sgmii.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_rx_converter.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_rx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_pcs_strx_gx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_pcs.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_multi_mac_pcs_gige.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_multi_mac_pcs.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_multi_mac.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_mdio.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_gen_host.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_fifoless_1geth.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_autoneg.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_1000_base_x_strx_gx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_1000_base_x.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_top_1geth.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_timing_adapter_fifo32.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_timing_adapter_fifo8.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_timing_adapter32.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_timing_adapter8.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_shared_register_map.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_shared_mac_control.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_sgmii_clk_scheduler.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_sgmii_clk_enable.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_sgmii_clk_div.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_sgmii_clk_cntl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_sdpm_gen.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_sdpm_altsyncram.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_sync.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_stat_extract.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_min_ff.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_fifo_rd.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_ff_length.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_ff_cntrl_32_shift16.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_ff_cntrl_32.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_ff_cntrl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_ff.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_encapsulation_strx_gx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_encapsulation.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_counter_cntl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rx_converter.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rgmii_out4.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rgmii_out1.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rgmii_module.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rgmii_in4.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_rgmii_in1.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_retransmit_cntl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_reset_synchronizer.v
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_tse_reset_sequencer.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_tse_reset_ctrl_lego.sv
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_register_map_small.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_register_map.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_quad_16x32.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_quad_8x32.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_pma_lvds_tx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_pma_lvds_rx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_pcs_pma_gige_phyip.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_pcs_pma_gige.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_pcs_pma.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_pcs_host_control.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_pcs_control.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_pcs.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_multi_mac_pcs_pma_gige_phyip.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_multi_mac_pcs_pma_gige.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_multi_mac_pcs_pma.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_multi_mac_pcs.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_multi_mac.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_multi_channel_arbiter.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mii_tx_if_pcs.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mii_tx_if.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mii_rx_if_pcs.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mii_rx_if.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mdio_reg.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mdio_cntl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mdio_clk_gen.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mdio.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_magic_detection.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_woff.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_tx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_rx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_pcs_woff.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_pcs_pma_strx_gx_ena.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_pcs_pma_gige_phyip.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_pcs_pma_gige.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_pcs_pma_ena.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_pcs_pma.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_pcs_gige_woff.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_pcs.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac_control.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_mac.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_lvds_reset_sequencer.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_loopback_ff.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_lfsr_10.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_lb_wrt_cntl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_lb_read_cntl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_host_control_small.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_host_control.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_hashing.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_gxb_gige_phyip_inst.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_gxb_gige_inst.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_gxb_aligned_rxsync.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_gray_cnt.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_gmii_io.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_gige_reset_ctrl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_geth_pcs_wo_ratematch.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_fifoless_retransmit_cntl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_fifoless_mac_tx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_fifoless_mac_rx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_enc8b10b.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_dpram_16x32.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_dpram_8x32.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_dec_func.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_dec10b8b.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_dc_fifo.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_crc328generator.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_crc328checker.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_crc32galois8.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_crc32ctl8.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_colision_detect.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_clk_gen.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_clk_cntl.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_carrier_sense.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_bin_cnt.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_altsyncram_dpm_fifo.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_altshifttaps.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_altgx_civgx_gige_wo_rmfifo.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_altgx_civgx_gige.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_alt4gxb_gige_wo_rmfifo.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_alt4gxb_gige.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_alt2gxb_gige_wo_rmfifo.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_alt2gxb_gige.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_alt2gxb_basic.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_alt2gxb_arriagx.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_align_sync.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_a_fifo_opt_1246.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_a_fifo_opt_36_10.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_a_fifo_opt_14_44.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_a_fifo_34.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_a_fifo_24.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_tse_a_fifo_13.v
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_tristate_controller_translator.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_tristate_controller_aggregator.sv
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_reset_synchronizer.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_reset_controller.v
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_merlin_width_adapter.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_merlin_traffic_limiter.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_merlin_std_arbitrator_core.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_merlin_slave_translator.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_merlin_slave_agent.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_merlin_master_translator.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_merlin_master_agent.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_merlin_burst_uncompressor.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_merlin_burst_adapter.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_merlin_arbitrator.sv
+set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/altera_irq_clock_crosser.sv
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_dcfifo_synchronizer_bundle.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_avalon_st_pipeline_base.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_avalon_st_handshake_clock_crosser.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_avalon_st_clock_crosser.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_avalon_sc_fifo.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_avalon_mm_clock_crossing_bridge.v
+set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/altera_avalon_dc_fifo.v
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

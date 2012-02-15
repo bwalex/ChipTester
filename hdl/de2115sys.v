@@ -1,0 +1,247 @@
+module de2115sys(
+  input         clock_50,
+  input         reset_n,
+
+  // SDRAM
+  output [12:0] DRAM_ADDR,
+  output [ 1:0] DRAM_BA,
+  output        DRAM_CAS_N,
+  output        DRAM_CKE,
+  output        DRAM_CLK,
+  output        DRAM_CS_N,
+  inout  [31:0] DRAM_DQ,
+  output [ 3:0] DRAM_DQM,
+  output        DRAM_RAS_N,
+  output        DRAM_WE_N, 
+
+  //////////// I2C for EEPROM //////////
+  output        EEP_I2C_SCLK,
+  inout         EEP_I2C_SDAT,
+
+  //////////// SDCARD //////////
+  output        SD_CLK,
+  output        SD_CMD,
+  input         SD_DAT0,
+  output        SD_DAT3,
+  input         SD_WP_N,
+
+ //////////// LCD //////////
+  output        LCD_BLON,
+  inout  [ 7:0] LCD_DATA,
+  output        LCD_EN,
+  output        LCD_ON,
+  output        LCD_RS,
+  output        LCD_RW,
+
+ //////////// Flash //////////
+  output [22:0] FL_ADDR,
+  output        FL_CE_N,
+  inout  [ 7:0] FL_DQ,
+  output        FL_OE_N,
+  output        FL_RST_N,
+  input         FL_RY,
+  output        FL_WE_N,
+  output        FL_WP_N,
+
+ //////////// USB OTG controller //////////
+  inout  [15:0] OTG_DATA,
+  output [ 1:0] OTG_ADDR,
+  output        OTG_CS_N,
+  output        OTG_WR_N,
+  output        OTG_RD_N,
+  input  [ 1:0] OTG_INT,
+  output        OTG_RST_N,
+  input  [ 1:0] OTG_DREQ,
+  output [ 1:0] OTG_DACK_N,
+  inout         OTG_FSPEED,
+  inout         OTG_LSPEED,
+
+  // Ethernet
+  output        ENET0_GTX_CLK,
+  input         ENET0_INT_N,
+  output        ENET0_MDC,
+  inout         ENET0_MDIO,
+  output        ENET0_RST_N,
+  input         ENET0_RX_CLK,
+  input         ENET0_RX_COL,
+  input         ENET0_RX_CRS,
+  input  [ 3:0] ENET0_RX_DATA,
+  input         ENET0_RX_DV,
+  input         ENET0_RX_ER,
+  input         ENET0_TX_CLK,
+  output [ 3:0] ENET0_TX_DATA,
+  output        ENET0_TX_EN,
+  output        ENET0_TX_ER,
+  input         ENET0_LINK100
+);
+
+  wire          global_reset_n;
+
+  wire          enet_tx_clk_mac;
+  wire          enet_tx_clk_phy;
+  wire          enet_rx_clk_270deg;
+
+  wire          enet_gtx_clk;
+  wire          enet_rx_clk;
+
+  wire          enet_resetn;
+  
+  wire          NET0_mdio_in;
+  wire          NET0_mdio_oen;
+  wire          NET0_mdio_out;
+  
+  wire          ena_10_from_the_tse_mac;
+  wire          eth_mode_from_the_tse_mac;
+  wire          set_1000_to_the_tse_mac;
+  wire          set_10_to_the_tse_mac;
+
+
+  // Ethernet
+  assign enet_rx_clk             = ENET0_RX_CLK;
+  assign ENET0_GTX_CLK           = enet_gtx_clk;
+  assign NET0_mdio_in            = ENET0_MDIO;
+  assign ENET0_MDIO              = NET0_mdio_oen ? 1'bz : NET0_mdio_out;
+  assign ENET0_RST_N             = enet_resetn;
+  assign set_1000_to_the_tse_mac = 1'b0;
+  assign set_10_to_the_tse_mac   = 1'b0;
+
+
+  // Flash
+  assign FL_RST_N   = global_reset_n;
+  assign FL_WP_N    = 1'b1;
+
+
+  // USB (OTG)
+  assign OTG_DACK_N = OTG_DREQ;
+  assign OTG_FSPEED = 1'b1;
+  assign OTG_LSPEED = 1'b0;
+
+
+  // LCD
+  assign LCD_BLON   = 0;    // not supported
+  assign LCD_ON     = 1'b1; // alwasy on
+
+
+  ddr_o phy_ckgen
+  (
+    .datain_h (1'b1),
+    .datain_l (1'b0),
+    .outclock (enet_tx_clk_phy),
+    .dataout  (enet_gtx_clk)
+  );
+
+  enet_rx_clk_pll enet_rx_clk_pll
+  (
+    .inclk0 (enet_rx_clk),
+    .c0     (enet_rx_clk_270deg),
+    .c1     (enet_tx_clk_mac),
+    .c2     (enet_tx_clk_phy)
+  );
+
+  gen_reset_n system_gen_reset_n (
+    .tx_clk      (clock_50),
+    .reset_n_in  (1'b1),
+    .reset_n_out (global_reset_n)
+  );
+
+  gen_reset_n net_gen_reset_n(
+    .tx_clk      (clock_50),
+    .reset_n_in  (global_reset_n),
+    .reset_n_out (enet_resetn)
+  );
+
+  linuxsys u0 (
+    .clk_0                                  (clock_50),
+    .reset_n                                (global_reset_n),
+//  .altpll_sys                             (<connected-to-altpll_sys>),
+//  .phasedone_from_the_altpll_0            (<connected-to-phasedone_from_the_altpll_0>),
+//  .c0_out_clk_out                         (<connected-to-c0_out_clk_out>),
+//  .areset_to_the_altpll_0                 (<connected-to-areset_to_the_altpll_0>),
+//  .locked_from_the_altpll_0               (<connected-to-locked_from_the_altpll_0>),
+
+    .altpll_sdram                           (DRAM_CLK),
+    .zs_addr_from_the_sdram_0               (DRAM_ADDR),
+    .zs_ba_from_the_sdram_0                 (DRAM_BA),
+    .zs_cas_n_from_the_sdram_0              (DRAM_CAS_N),
+    .zs_cke_from_the_sdram_0                (DRAM_CKE),
+    .zs_cs_n_from_the_sdram_0               (DRAM_CS_N),
+    .zs_dq_to_and_from_the_sdram_0          (DRAM_DQ),
+    .zs_dqm_from_the_sdram_0                (DRAM_DQM),
+    .zs_ras_n_from_the_sdram_0              (DRAM_RAS_N),
+    .zs_we_n_from_the_sdram_0               (DRAM_WE_N),
+    
+    .address_to_the_cfi_flash_0             (FL_ADDR),
+    .write_n_to_the_cfi_flash_0             (FL_WE_N),
+    .data_to_and_from_the_cfi_flash_0       (FL_DQ),
+    .read_n_to_the_cfi_flash_0              (FL_OE_N),
+    .select_n_to_the_cfi_flash_0            (FL_CE_N),
+
+    .USB_DATA_to_and_from_the_usb           (OTG_DATA),
+    .USB_ADDR_from_the_usb                  (OTG_ADDR),
+    .USB_RD_N_from_the_usb                  (OTG_RD_N),
+    .USB_WR_N_from_the_usb                  (OTG_WR_N),
+    .USB_CS_N_from_the_usb                  (OTG_CS_N),
+    .USB_RST_N_from_the_usb                 (OTG_RST_N),
+    .USB_INT0_to_the_usb                    (OTG_INT[0]),
+    .USB_INT1_to_the_usb                    (OTG_INT[1]),
+
+//  .tse_mac_conduit_connection_m_rx_d      (ENET0_RX_DATA),
+//  .tse_mac_conduit_connection_m_rx_en     (ENET0_RX_DV),
+//  .tse_mac_conduit_connection_m_rx_err    (ENET0_RX_ER),
+//  .tse_mac_conduit_connection_m_tx_d      (ENET0_TX_DATA),
+//  .tse_mac_conduit_connection_m_tx_en     (ENET0_TX_EN),
+//  .tse_mac_conduit_connection_m_tx_err    (ENET0_TX_ER),
+////.tse_mac_conduit_connection_m_rx_col    (ENET0_RX_COL),
+////.tse_mac_conduit_connection_m_rx_crs    (ENET0_RX_CRS),
+//  .tx_clk_to_the_tse_mac                  (enet_tx_clk_mac),
+//  .rx_clk_to_the_tse_mac                  (enet_rx_clk_270deg),
+//  .set_10_to_the_tse_mac                  (set_10_to_the_tse_mac),
+//  .set_1000_to_the_tse_mac                (set_1000_to_the_tse_mac),
+//  .ena_10_from_the_tse_mac                (ena_10_from_the_tse_mac),
+//  .eth_mode_from_the_tse_mac              (eth_mode_from_the_tse_mac),
+//  .mdio_out_from_the_tse_mac              (NET0_mdio_out),
+//  .mdio_oen_from_the_tse_mac              (NET0_mdio_oen),
+//  .mdio_in_to_the_tse_mac                 (NET0_mdio_in),
+//  .mdc_from_the_tse_mac                   (ENET0_MDC),
+
+//  .rgmii_in_to_the_tse_mac                (ENET0_RX_DATA),
+//  .rgmii_out_from_the_tse_mac             (ENET0_TX_DATA),
+//  .rx_control_to_the_tse_mac              (ENET0_RX_DV),
+//  .tx_control_from_the_tse_mac            (ENET0_TX_EN),
+
+    .tse_mac_conduit_connection_rgmii_in    (ENET0_RX_DATA),
+    .tse_mac_conduit_connection_rgmii_out   (ENET0_TX_DATA),
+    .tse_mac_conduit_connection_rx_control  (ENET0_RX_DV),
+    .tse_mac_conduit_connection_tx_control  (ENET0_TX_EN),
+
+    .tx_clk_to_the_tse_mac                  (enet_tx_clk_mac),
+    .rx_clk_to_the_tse_mac                  (enet_rx_clk_270deg),
+    .set_10_to_the_tse_mac                  (set_10_to_the_tse_mac),
+    .set_1000_to_the_tse_mac                (set_1000_to_the_tse_mac),
+    .ena_10_from_the_tse_mac                (ena_10_from_the_tse_mac),
+    .eth_mode_from_the_tse_mac              (eth_mode_from_the_tse_mac),
+    .mdio_out_from_the_tse_mac              (NET0_mdio_out),
+    .mdio_oen_from_the_tse_mac              (NET0_mdio_oen),
+    .mdio_in_to_the_tse_mac                 (NET0_mdio_in),
+    .mdc_from_the_tse_mac                   (ENET0_MDC),
+
+    .lcd_external_data                      (LCD_DATA),
+    .lcd_external_E                         (LCD_EN),
+    .lcd_external_RS                        (LCD_RS),
+    .lcd_external_RW                        (LCD_RW),
+
+//  .sd_clk_external_connection_export      (SD_CLK),
+//  .sd_cmd_external_connection_export      (SD_CMD),
+//  .sd_dat_external_connection_export      (SD_DAT),
+//  .sd_wp_n_external_connection_export     (SD_WP_N),
+
+    .spi_0_external_MISO                    (SD_DAT0),
+    .spi_0_external_MOSI                    (SD_CMD),
+    .spi_0_external_SCLK                    (SD_CLK),
+    .spi_0_external_SS_n                    (SD_DAT3),
+
+    .eep_i2c_scl_external_connection_export (EEP_I2C_SCLK),
+    .eep_i2c_sda_external_connection_export (EEP_I2C_SDAT)
+  );
+
+endmodule
