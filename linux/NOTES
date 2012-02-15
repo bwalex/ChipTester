@@ -1,0 +1,28 @@
+Up-to-date instructions to build a working Linux system for a Nios2 system:
+
+==========================
+
+- Get linux-nios2 tarball (e.g. from:
+   http://www.niosftp.com/pub/linux/nios2-linux-20100621.tar )
+
+- Run ./checkout
+
+- Run ./update
+
+- Switch branches to nios2 in the linux-2.6 and trunk in uClinux-dist
+
+
+(( (only do this if the 'make' later fails)
+- in nios2-linux/linux-2.6/include, do 
+     ln -s asm-generic asm
+))
+
+- Add the nios2-linux/toolchain-mmu/x86-linux2/bin directory to PATH for
+  cross-compilation.
+
+- make menuconfig in uClinux-dist
+
+- copy the .config from the linux dir from this repo to the linux-2.6.x/ folder
+  in uCLinux-dist.
+
+- make in uClinux-dist
