@@ -189,11 +189,11 @@
 					  &eep_i2c_scl >;
 				scl-is-output-only;
 //				speed-hz = < 2500000 >;
-			};
 
-			eeprom@a0 {
-			        compatible = "atmel,24c32";
-			        reg = < 0xa0 >;
+				eeprom@a0 {
+					compatible = "at,24c32";
+					reg = < 0xa0 >;
+				};
 			};
 
 
@@ -212,11 +212,12 @@
 			#address-cells = < 1 >;
 			#size-cells = < 0 >;
 
-			name@0 {
+			mmc_spi@0 {
 				compatible = "mmc-spi-slot";
 				spi-max-frequency = < 2000000 >;
 				reg = < 0x00000000 >;
-			}; //end name@0
+				voltage-ranges = < 3300 3300 >;
+			}; //end mmc_spi@0
 		}; //end spi@0xba10000 (spi_0)
 	}; //end sopc@0
 
