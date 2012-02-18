@@ -40,6 +40,6 @@ module sram_bridge #(
   assign readdata     = m_readdata;
   assign m_write      = write;
   assign m_writedata  = writedata;
-  assign waitrequest  = ~m_waitrequest;
+  assign waitrequest  = m_waitrequest;
 
 endmodule

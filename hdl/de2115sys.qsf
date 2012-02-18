@@ -116,6 +116,10 @@ set_location_assignment PIN_E19 -to LEDR[2]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[2]
 set_location_assignment PIN_F21 -to LEDR[3]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[3]
+set_location_assignment PIN_G21 -to LEDG
+set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDG
+set_location_assignment PIN_E21 -to LEDG0
+set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDG0
 
 
 #============================================================

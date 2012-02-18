@@ -28,6 +28,8 @@ module de2115sys(
 
   // LED
   output [ 3:0] LEDR,
+  output        LEDG,
+  output        LEDG0,
   
   //////////// I2C for EEPROM //////////
   output        EEP_I2C_SCLK,
@@ -178,6 +180,8 @@ module de2115sys(
     .reset_n_out (enet_resetn)
   );
 
+  assign LEDG = sopc_sram_waitrequest;
+  assign LEDG0 = tr_sram_waitrequest;
 
   sram_arb#(
     .ADDR_WIDTH (20),
