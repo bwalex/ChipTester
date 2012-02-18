@@ -143,19 +143,19 @@
          type = "boolean";
       }
    }
-   element sgdma_rx.csr
-   {
-      datum baseAddress
-      {
-         value = "134231104";
-         type = "long";
-      }
-   }
    element sgdma_tx.csr
    {
       datum baseAddress
       {
          value = "134231040";
+         type = "long";
+      }
+   }
+   element sgdma_rx.csr
+   {
+      datum baseAddress
+      {
+         value = "134231104";
          type = "long";
       }
    }
@@ -295,11 +295,11 @@
          type = "long";
       }
    }
-   element timer.s1
+   element descriptor_memory.s1
    {
       datum baseAddress
       {
-         value = "134231168";
+         value = "134221824";
          type = "long";
       }
    }
@@ -316,11 +316,11 @@
          type = "long";
       }
    }
-   element descriptor_memory.s1
+   element timer.s1
    {
       datum baseAddress
       {
-         value = "134221824";
+         value = "134231168";
          type = "long";
       }
    }
@@ -403,7 +403,7 @@
       }
       datum sopceditor_expanded
       {
-         value = "1";
+         value = "0";
          type = "boolean";
       }
    }
@@ -416,7 +416,7 @@
       }
       datum sopceditor_expanded
       {
-         value = "1";
+         value = "0";
          type = "boolean";
       }
    }
@@ -429,7 +429,20 @@
       }
       datum sopceditor_expanded
       {
-         value = "1";
+         value = "0";
+         type = "boolean";
+      }
+   }
+   element sram_bridge
+   {
+      datum _sortIndex
+      {
+         value = "28";
+         type = "int";
+      }
+      datum sopceditor_expanded
+      {
+         value = "0";
          type = "boolean";
       }
    }
@@ -499,7 +512,7 @@
       }
       datum sopceditor_expanded
       {
-         value = "1";
+         value = "0";
          type = "boolean";
       }
    }
@@ -531,7 +544,7 @@
  <parameter name="projectName" value="de2115sys.qpf" />
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="1" />
- <parameter name="timeStamp" value="1329327599183" />
+ <parameter name="timeStamp" value="1329582059917" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="altpll_0_c1" internal="altpll_0.c1" type="clock" dir="start">
@@ -690,6 +703,11 @@
  <interface
    name="spi_0_external"
    internal="spi_0.external"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="sram_conduit"
+   internal="sram_bridge.avalon_mm_master_conduit"
    type="conduit"
    dir="end" />
  <module kind="clock_source" version="11.1" enabled="1" name="clk_0">
@@ -1141,8 +1159,8 @@
   <parameter name="tightlyCoupledInstructionMaster1AddrWidth" value="1" />
   <parameter name="tightlyCoupledInstructionMaster2AddrWidth" value="1" />
   <parameter name="tightlyCoupledInstructionMaster3AddrWidth" value="1" />
-  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='sdram_0.s1' start='0x0' end='0x8000000' /><slave name='descriptor_memory.s1' start='0x8001000' end='0x8002000' /><slave name='cpu.jtag_debug_module' start='0x8002800' end='0x8003000' /><slave name='cfi_flash_0.uas' start='0xA000000' end='0xA800000' /><slave name='lcd_0.control_slave' start='0xB000010' end='0xB000020' /><slave name='eep_i2c_scl.s1' start='0xB0000C0' end='0xB0000D0' /><slave name='eep_i2c_sda.s1' start='0xB0000D0' end='0xB0000E0' /><slave name='sd_clk.s1' start='0xB000100' end='0xB000110' /><slave name='sd_cmd.s1' start='0xB000110' end='0xB000120' /><slave name='sd_dat.s1' start='0xB000120' end='0xB000130' /><slave name='sd_wp_n.s1' start='0xB000130' end='0xB000140' /><slave name='sysid_qsys_0.control_slave' start='0xBA00000' end='0xBA00008' /><slave name='spi_0.spi_control_port' start='0xBA10000' end='0xBA10020' /></address-map>]]></parameter>
-  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='sdram_0.s1' start='0x0' end='0x8000000' /><slave name='descriptor_memory.s1' start='0x8001000' end='0x8002000' /><slave name='cpu.jtag_debug_module' start='0x8002800' end='0x8003000' /><slave name='tse_mac.control_port' start='0x8003000' end='0x8003400' /><slave name='sgdma_tx.csr' start='0x8003400' end='0x8003440' /><slave name='sgdma_rx.csr' start='0x8003440' end='0x8003480' /><slave name='timer.s1' start='0x8003480' end='0x80034A0' /><slave name='altpll_0.pll_slave' start='0x80034A0' end='0x80034B0' /><slave name='jtag_uart.avalon_jtag_slave' start='0x80034B0' end='0x80034B8' /><slave name='ISP1362_IF_0.hc' start='0x8221000' end='0x8221008' /><slave name='ISP1362_IF_0.dc' start='0x8221008' end='0x8221010' /><slave name='usb.hc' start='0x82224D8' end='0x82224E0' /><slave name='usb.dc' start='0x82224E0' end='0x82224E8' /><slave name='cfi_flash_0.uas' start='0xA000000' end='0xA800000' /><slave name='lcd_0.control_slave' start='0xB000010' end='0xB000020' /><slave name='eep_i2c_scl.s1' start='0xB0000C0' end='0xB0000D0' /><slave name='eep_i2c_sda.s1' start='0xB0000D0' end='0xB0000E0' /><slave name='sd_clk.s1' start='0xB000100' end='0xB000110' /><slave name='sd_cmd.s1' start='0xB000110' end='0xB000120' /><slave name='sd_dat.s1' start='0xB000120' end='0xB000130' /><slave name='sd_wp_n.s1' start='0xB000130' end='0xB000140' /><slave name='sysid_qsys_0.control_slave' start='0xBA00000' end='0xBA00008' /><slave name='spi_0.spi_control_port' start='0xBA10000' end='0xBA10020' /></address-map>]]></parameter>
+  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='sdram_0.s1' start='0x0' end='0x8000000' /><slave name='descriptor_memory.s1' start='0x8001000' end='0x8002000' /><slave name='cpu.jtag_debug_module' start='0x8002800' end='0x8003000' /><slave name='cfi_flash_0.uas' start='0xA000000' end='0xA800000' /><slave name='lcd_0.control_slave' start='0xB000010' end='0xB000020' /><slave name='eep_i2c_scl.s1' start='0xB0000C0' end='0xB0000D0' /><slave name='eep_i2c_sda.s1' start='0xB0000D0' end='0xB0000E0' /><slave name='sd_clk.s1' start='0xB000100' end='0xB000110' /><slave name='sd_cmd.s1' start='0xB000110' end='0xB000120' /><slave name='sd_dat.s1' start='0xB000120' end='0xB000130' /><slave name='sd_wp_n.s1' start='0xB000130' end='0xB000140' /><slave name='sysid_qsys_0.control_slave' start='0xBA00000' end='0xBA00008' /><slave name='spi_0.spi_control_port' start='0xBA10000' end='0xBA10020' /><slave name='sram_bridge.avalon_slave_0' start='0xC000000' end='0xC200000' /></address-map>]]></parameter>
+  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='sdram_0.s1' start='0x0' end='0x8000000' /><slave name='descriptor_memory.s1' start='0x8001000' end='0x8002000' /><slave name='cpu.jtag_debug_module' start='0x8002800' end='0x8003000' /><slave name='tse_mac.control_port' start='0x8003000' end='0x8003400' /><slave name='sgdma_tx.csr' start='0x8003400' end='0x8003440' /><slave name='sgdma_rx.csr' start='0x8003440' end='0x8003480' /><slave name='timer.s1' start='0x8003480' end='0x80034A0' /><slave name='altpll_0.pll_slave' start='0x80034A0' end='0x80034B0' /><slave name='jtag_uart.avalon_jtag_slave' start='0x80034B0' end='0x80034B8' /><slave name='ISP1362_IF_0.hc' start='0x8221000' end='0x8221008' /><slave name='ISP1362_IF_0.dc' start='0x8221008' end='0x8221010' /><slave name='usb.hc' start='0x82224D8' end='0x82224E0' /><slave name='usb.dc' start='0x82224E0' end='0x82224E8' /><slave name='cfi_flash_0.uas' start='0xA000000' end='0xA800000' /><slave name='lcd_0.control_slave' start='0xB000010' end='0xB000020' /><slave name='eep_i2c_scl.s1' start='0xB0000C0' end='0xB0000D0' /><slave name='eep_i2c_sda.s1' start='0xB0000D0' end='0xB0000E0' /><slave name='sd_clk.s1' start='0xB000100' end='0xB000110' /><slave name='sd_cmd.s1' start='0xB000110' end='0xB000120' /><slave name='sd_dat.s1' start='0xB000120' end='0xB000130' /><slave name='sd_wp_n.s1' start='0xB000130' end='0xB000140' /><slave name='sysid_qsys_0.control_slave' start='0xBA00000' end='0xBA00008' /><slave name='spi_0.spi_control_port' start='0xBA10000' end='0xBA10020' /><slave name='sram_bridge.avalon_slave_0' start='0xC000000' end='0xC200000' /></address-map>]]></parameter>
   <parameter name="clockFrequency" value="100000000" />
   <parameter name="deviceFamilyName" value="Cyclone IV E" />
   <parameter name="internalIrqMaskSystemInfo" value="1663" />
@@ -1420,6 +1438,10 @@
   <parameter name="syncRegDepth" value="2" />
   <parameter name="targetClockRate" value="2000000" />
   <parameter name="targetSlaveSelectToSClkDelay" value="0.0" />
+ </module>
+ <module kind="sram_bridge_16" version="1.0" enabled="1" name="sram_bridge">
+  <parameter name="ADDR_WIDTH" value="20" />
+  <parameter name="AUTO_CLOCK_SINK_CLOCK_RATE" value="100000000" />
  </module>
  <connection
    kind="avalon"
@@ -2078,5 +2100,31 @@
    end="spi_0.spi_control_port">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0ba10000" />
+ </connection>
+ <connection
+   kind="clock"
+   version="11.1"
+   start="altpll_0.c0"
+   end="sram_bridge.clock_sink" />
+ <connection
+   kind="reset"
+   version="11.1"
+   start="clk_0.clk_reset"
+   end="sram_bridge.reset_sink" />
+ <connection
+   kind="avalon"
+   version="11.1"
+   start="cpu.data_master"
+   end="sram_bridge.avalon_slave_0">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0c000000" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="11.1"
+   start="cpu.instruction_master"
+   end="sram_bridge.avalon_slave_0">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0c000000" />
  </connection>
 </system>
