@@ -1,3 +1,4 @@
+// XXX: revise Avalon MM standard to see if stuff is held stable long enough
 module sram_arb #(
   parameter ADDR_WIDTH = 20,
             DATA_WIDTH = 16,
@@ -78,6 +79,6 @@ module sram_arb #(
 
 
   assign sram_address  = address;
-  assign sram_data     = (write && ~read ) ? writedata : DATA_WIDTH'bz;
-  assign readdata      = (read  && ~write) ? sram_data : DATA_WIDTH'b0;
+  assign sram_data     = (write && ~read ) ? writedata : 'bz;
+  assign readdata      = (read  && ~write) ? sram_data : 'b0;
 endmodule

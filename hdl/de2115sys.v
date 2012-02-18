@@ -12,8 +12,23 @@ module de2115sys(
   inout  [31:0] DRAM_DQ,
   output [ 3:0] DRAM_DQM,
   output        DRAM_RAS_N,
-  output        DRAM_WE_N, 
+  output        DRAM_WE_N,
 
+  // SRAM
+  output [19:0] SRAM_ADDR,
+  inout  [15:0] SRAM_DQ,
+  output        SRAM_CE_N,
+  output        SRAM_OE_N,
+  output        SRAM_WE_N,
+  output [ 1:0] SRAM_BE_N,
+
+  // Switch
+  input         SW_SEL,
+
+
+  // LED
+  output [ 3:0] LEDR,
+  
   //////////// I2C for EEPROM //////////
   output        EEP_I2C_SCLK,
   inout         EEP_I2C_SDAT,
@@ -96,6 +111,19 @@ module de2115sys(
   wire          set_10_to_the_tse_mac;
 
 
+  wire          sopc_sram_clock;
+  wire   [19:0] sopc_sram_address;
+  wire   [ 1:0] sopc_sram_byteenable;
+  wire          sopc_sram_read;
+  wire   [15:0] sopc_sram_readdata;
+  wire          sopc_sram_write;
+  wire   [15:0] sopc_sram_writedata;
+  wire          sopc_sram_waitrequest;
+  
+  wire          tr_sram_waitrequest;
+  wire   [ 3:0] func_sel;
+
+
   // Ethernet
   assign enet_rx_clk             = ENET0_RX_CLK;
   assign ENET0_GTX_CLK           = enet_gtx_clk;
@@ -149,6 +177,43 @@ module de2115sys(
     .reset_n_in  (global_reset_n),
     .reset_n_out (enet_resetn)
   );
+
+
+  sram_arb#(
+    .ADDR_WIDTH (20),
+	 .DATA_WIDTH (16),
+	 .SEL_WIDTH  (1)
+  ) sram_arb
+  (
+    .clock               (sopc_sram_clock),
+    .reset_n             (global_reset_n),
+
+    .sel                 (SW_SEL),
+
+    .sram_address        (SRAM_ADDR),
+    .sram_data           (SRAM_DQ),
+    .sram_ce_n           (SRAM_CE_N),
+    .sram_oe_n           (SRAM_OE_N),
+    .sram_we_n           (SRAM_WE_N),
+    .sram_be_n           (SRAM_BE_N),
+
+    .sopc_address        (sopc_sram_address),
+    .sopc_byteenable     (sopc_sram_byteenable),
+    .sopc_read           (sopc_sram_read),
+    .sopc_readdata       (sopc_sram_readdata),
+    .sopc_write          (sopc_sram_write),
+    .sopc_writedata      (sopc_sram_writedata),
+    .sopc_waitrequest    (sopc_sram_waitrequest),
+
+	 /* XXX */
+    .tr_address        (sopc_sram_address),
+    .tr_byteenable     (sopc_sram_byteenable),
+    .tr_read           (sopc_sram_read),
+    .tr_write          (sopc_sram_write),
+    .tr_writedata      (sopc_sram_writedata),
+    .tr_waitrequest    (tr_sram_waitrequest)
+  );
+
 
   linuxsys u0 (
     .clk_0                                  (clock_50),
@@ -241,7 +306,17 @@ module de2115sys(
     .spi_0_external_SS_n                    (SD_DAT3),
 
     .eep_i2c_scl_external_connection_export (EEP_I2C_SCLK),
-    .eep_i2c_sda_external_connection_export (EEP_I2C_SDAT)
+    .eep_i2c_sda_external_connection_export (EEP_I2C_SDAT),
+
+    .sram_conduit_clock                     (sopc_sram_clock),
+    .sram_conduit_address                   (sopc_sram_address),
+    .sram_conduit_byteenable                (sopc_sram_byteenable),
+    .sram_conduit_readdata                  (sopc_sram_readdata),
+    .sram_conduit_read                      (sopc_sram_read),
+    .sram_conduit_write                     (sopc_sram_write),
+    .sram_conduit_writedata                 (sopc_sram_writedata),
+    .sram_conduit_waitrequest               (sopc_sram_waitrequest),
+    .func_sel_external_connection_export    (LEDR)
   );
 
 endmodule

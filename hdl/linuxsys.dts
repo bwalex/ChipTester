@@ -132,7 +132,8 @@
 				0x00000120 0x0B000120 0x00000010
 				0x00000130 0x0B000130 0x00000010
 				0x000000C0 0x0B0000C0 0x00000010
-				0x000000D0 0x0B0000D0 0x00000010 >;
+				0x000000D0 0x0B0000D0 0x00000010
+				0x000000E0 0x0B0000E0 0x00000010 >;
 
 			lcd_0: unknown@0x10 {
 				compatible = "unknown,unknown-11.1";
@@ -196,6 +197,12 @@
 				};
 			};
 
+			func_sel: gpio@0xe0 {
+				compatible = "ALTR,pio-11.1", "ALTR,pio-1.0";
+				reg = < 0x000000E0 0x00000010 >;
+				width = < 4 >;	/* width type NUMBER */
+				resetvalue = < 0 >;	/* resetValue type NUMBER */
+			}; //end gpio@0xe0 (func_sel)
 
 		}; //end bridge@0xb000000 (mm_clock_crossing_bridge_0)
 
