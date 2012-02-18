@@ -219,6 +219,11 @@
 				voltage-ranges = < 3300 3300 >;
 			}; //end mmc_spi@0
 		}; //end spi@0xba10000 (spi_0)
+
+		sram_bridge: sram_bridge@0xc000000 {
+			compatible = "sram-bridge";
+			reg = < 0x0C000000 0x00200000 >;
+		}; //end sram_bridge@0xc000000 (sram_bridge)
 	}; //end sopc@0
 
 	chosen {
