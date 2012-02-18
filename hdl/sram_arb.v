@@ -1,8 +1,8 @@
 module sram_arb #(
   parameter ADDR_WIDTH = 20,
             DATA_WIDTH = 16,
-				SEL_WIDTH  = 1,
-				BE_WIDTH   = DATA_WIDTH/8
+            SEL_WIDTH  = 1,
+            BE_WIDTH   = DATA_WIDTH/8
 )(
   input                   clock,
   input                   reset_n,
