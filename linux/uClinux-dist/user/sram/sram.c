@@ -13,14 +13,25 @@ int main(int argc, char *argv[])
 	size_t map_len;
 	off_t map_off;
 	int fd;
-	int16_t *mem, *p;
+	uint16_t *mem, *p;
+	uint16_t ored;
 	int i;
+	int n;
+	int stepsz;
 	int write;
 
-	if (argc < 4) {
-		fprintf(stderr, "Usage: sram <hex base addr> <hex len>\n");
+	if (argc < 6) {
+		fprintf(stderr, "Usage: sram <r/w> <hex base addr> <hex len> <n> <stepsz> [orv]\n");
 		exit(1);
 	}
+
+	if (argc == 7)
+		ored = (int16_t)strtol(argv[6], NULL, 16);
+	else
+		ored = 0;
+
+	n = atoi(argv[4]);
+	stepsz = atoi(argv[5]);
 
 	printf("open /dev/mem\n");
 
@@ -54,12 +65,17 @@ int main(int argc, char *argv[])
 	p = mem;
 	printf("Memory mapped!\n");
 	sleep(1);
-	for (i = 0; i < 16; i++) {
-		printf("loop: %d\n", i);
+	for (i = 0; i < n; i++) {
+		printf("Loop: %d, accessing %#x\n", i, (unsigned long)map_off + i*(stepsz << 1));
+		printf("p=%p\n", p);
+
 		if (write)
-			*p++ = i;
+			*p = (uint16_t)((i<<1) | ored);
 		else
-			printf("@%#x: %x\n", (unsigned long)map_off + i*2, *p++);
+			printf("@%#x: %hx\n", (unsigned long)map_off + i*(stepsz <<1 ), *p);
+
+		p += stepsz;
+		sleep(1);
 	}
 
 	sleep(1);
