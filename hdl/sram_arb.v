@@ -80,5 +80,5 @@ module sram_arb #(
 
   assign sram_address  = address;
   assign sram_data     = (write && ~read ) ? writedata : 'bz;
-  assign readdata      = (read  && ~write) ? sram_data : 'b0;
+  assign readdata      = sram_data;
 endmodule
