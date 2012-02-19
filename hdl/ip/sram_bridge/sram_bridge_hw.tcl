@@ -71,22 +71,24 @@ set_parameter_property ADDR_WIDTH HDL_PARAMETER true
 # | connection point avalon_slave_0
 # | 
 add_interface avalon_slave_0 avalon end
-set_interface_property avalon_slave_0 addressUnits WORDS
+set_interface_property avalon_slave addressAlignment DYNAMIC
 set_interface_property avalon_slave_0 associatedClock clock_sink
 set_interface_property avalon_slave_0 associatedReset reset_sink
-set_interface_property avalon_slave_0 bitsPerSymbol 8
 set_interface_property avalon_slave_0 burstOnBurstBoundariesOnly false
-set_interface_property avalon_slave_0 burstcountUnits WORDS
 set_interface_property avalon_slave_0 explicitAddressSpan 0
 set_interface_property avalon_slave_0 holdTime 0
+set_interface_property avalon_slave isMemoryDevice true
+set_interface_property avalon_slave isNonVolatileStorage false
 set_interface_property avalon_slave_0 linewrapBursts false
 set_interface_property avalon_slave_0 maximumPendingReadTransactions 0
+set_interface_property avalon_slave printableDevice false
 set_interface_property avalon_slave_0 readLatency 0
 set_interface_property avalon_slave_0 readWaitTime 1
 set_interface_property avalon_slave_0 setupTime 0
 set_interface_property avalon_slave_0 timingUnits Cycles
 set_interface_property avalon_slave_0 writeWaitTime 0
 
+set_interface_property avalon_slave ASSOCIATED_CLOCK clock_sink
 set_interface_property avalon_slave_0 ENABLED true
 
 add_interface_port avalon_slave_0 byteenable byteenable Input 2
