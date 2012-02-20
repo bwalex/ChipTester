@@ -75,6 +75,16 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS 1
 #define CONFIG_SYS_MAX_FLASH_SECT 1024
 
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MTDPARTS     /* mtdparts command line support */
+#define CONFIG_MTD_DEVICE       /* needed for mtdparts commands */
+#define CONFIG_FLASH_CFI_MTD
+#define MTDIDS_DEFAULT          "nor0=flash-0"
+
+/* default mtd partition table */
+#define MTDPARTS_DEFAULT        "mtdparts=flash-0:1m(uboot),"\
+                                "6m(linux),1m(config)"
+
 
 #define MMC_SPI_BASE 0xEBA10000
 #define CONFIG_SYS_ALTERA_SPI_LIST { MMC_SPI_BASE }
@@ -101,5 +111,15 @@
 
 /* sram_bridge.avalon_slave_0 is a sram_bridge_16 */
 #define SRAM_BRIDGE_BASE	0xEC000000
+
+
+
+
+#define CONFIG_EXTRA_ENV_SETTINGS       "unlock=yes\0" \
+                                        "nor0=flash-0\0"\
+                                        "mtdparts=mtdparts=flash-0:"\
+					"1m(uboot),6m(linux),1m(config)\0"
+
+
 
 #endif	//CUSTOM_FPGA_H_

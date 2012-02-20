@@ -117,9 +117,18 @@
 			#address-cells = < 1 >;
 			#size-cells = < 1 >;
 
-			flash8@a000000 {
-				reg = < 0x0A000000 0x00000000 >;
-			}; //end flash8@a000000
+			// MTD partitions (1MB, 6MB, 1MB)
+			uboot@0 {
+				reg = < 0x00000000 0x00100000 >;
+			}; //end uboot@0
+
+			linux@100000 {
+				reg = < 0x00100000 0x00600000 >;
+			}; //end linux@0x100000
+
+			config@700000 {
+				reg = < 0x00700000 0x00100000 >;
+			}; //end config@0x600000
 		}; //end flash@0xa000000 (cfi_flash_0)
 
 		mm_clock_crossing_bridge_0: bridge@0xb000000 {
@@ -191,6 +200,8 @@
 					  &eep_i2c_scl >;
 				scl-is-output-only;
 //				speed-hz = < 2500000 >;
+				#address-cells = < 1 >;
+				#size-cells = < 0 >;
 
 				eeprom@a0 {
 					compatible = "at,24c32";
