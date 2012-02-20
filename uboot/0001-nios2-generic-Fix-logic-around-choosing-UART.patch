@@ -1,0 +1,38 @@
+From 8d616c75b4e45907d66de057146c7991deb442dc Mon Sep 17 00:00:00 2001
+From: Alex Hornung <alex@alexhornung.com>
+Date: Mon, 20 Feb 2012 07:26:18 +0000
+Subject: [PATCH 1/1] nios2-generic: Fix logic around choosing UART
+
+ * Before, the normal altera UART driver was compiled in unconditionally
+   and the JTAG UART was missed out.
+
+ * Work around this by conditionalizing the driver to use based on the
+   UART choice in the user's custom FPGA header file. If both were to be
+   present, the JTAG UART would have preference.
+
+Signed-off-by: Alex Hornung <alex@alexhornung.com>
+---
+ include/configs/nios2-generic.h |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/nios2-generic.h b/include/configs/nios2-generic.h
+index 9ba35e8..6f4d166 100644
+--- a/include/configs/nios2-generic.h
++++ b/include/configs/nios2-generic.h
+@@ -36,10 +36,11 @@
+ /*
+  * SERIAL
+  */
+-#define CONFIG_ALTERA_UART
+-#if defined(CONFIG_ALTERA_JTAG_UART)
++#if defined(CONFIG_SYS_JTAG_UART_BASE)
++# define CONFIG_ALTERA_JTAG_UART
+ # define CONFIG_SYS_NIOS_CONSOLE	CONFIG_SYS_JTAG_UART_BASE
+ #else
++# define CONFIG_ALTERA_UART
+ # define CONFIG_SYS_NIOS_CONSOLE	CONFIG_SYS_UART_BASE
+ #endif
+ 
+-- 
+1.7.3.4
+
