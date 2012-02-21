@@ -1169,7 +1169,7 @@
   <parameter name="icache_numTCIM" value="1" />
   <parameter name="icache_burstType" value="None" />
   <parameter name="dcache_bursts" value="false" />
-  <parameter name="debug_level" value="Level2" />
+  <parameter name="debug_level" value="Level1" />
   <parameter name="debug_OCIOnchipTrace" value="_128" />
   <parameter name="dcache_size" value="4096" />
   <parameter name="dcache_ramBlockType" value="Automatic" />
