@@ -117,18 +117,26 @@
 			#address-cells = < 1 >;
 			#size-cells = < 1 >;
 
-			// MTD partitions (1MB, 6MB, 1MB)
-			uboot@0 {
-				reg = < 0x00000000 0x00100000 >;
-			}; //end uboot@0
+			// MTD partitions (256k, 64k, 1728k, 5632k, 512k)
+			u-boot@0 {
+				reg = < 0x00000000 0x00040000 >;
+			}; //end u-boot@0
 
-			linux@100000 {
-				reg = < 0x00100000 0x00600000 >;
-			}; //end linux@0x100000
+			u-boot_cfg@40000 {
+				reg = < 0x00040000 0x00010000 >;
+			}; //end u-boot_cfg@40000
 
-			config@700000 {
-				reg = < 0x00700000 0x00100000 >;
-			}; //end config@0x600000
+			kernel@50000 {
+				reg = < 0x00050000 0x001C0000 >;
+			}; //end linux@50000
+
+			rootfs@200000 {
+				reg = < 0x00200000 0x00580000 >;
+			}; //end rootfs@200000
+
+			config@780000 {
+				reg = < 0x00780000 0x00080000 >;
+			}; //end config@780000
 		}; //end flash@0xa000000 (cfi_flash_0)
 
 		mm_clock_crossing_bridge_0: bridge@0xb000000 {

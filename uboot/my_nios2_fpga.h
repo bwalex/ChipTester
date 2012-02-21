@@ -82,8 +82,8 @@
 #define MTDIDS_DEFAULT          "nor0=flash-0"
 
 /* default mtd partition table */
-#define MTDPARTS_DEFAULT        "mtdparts=flash-0:1m(uboot),"\
-                                "6m(linux),1m(config)"
+#define MTDPARTS_DEFAULT        "mtdparts=flash-0:256k(u-boot),"\
+                                "64k(u-boot_cfg),1728k(kernel),5632k(rootfs),512k(config)"
 
 
 #define MMC_SPI_BASE 0xEBA10000
@@ -97,7 +97,7 @@
 #define CONFIG_MMC_SPI
 #define CONFIG_MMC_SPI_BUS 0
 #define CONFIG_MMC_SPI_CS 0
-#define CONFIG_MMC_SPI_SPEED 30000000
+#define CONFIG_MMC_SPI_SPEED 2000000
 #define CONFIG_MMC_SPI_MODE SPI_MODE_3
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
@@ -118,8 +118,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS       "unlock=yes\0" \
                                         "nor0=flash-0\0"\
                                         "mtdparts=mtdparts=flash-0:"\
-					"1m(uboot),6m(linux),1m(config)\0"
-
+					"256k(u-boot),64k(u-boot_cfg),1728k(kernel),5632k(rootfs),512k(config)\0"
 
 
 #endif	//CUSTOM_FPGA_H_
