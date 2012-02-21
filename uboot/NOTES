@@ -6,3 +6,22 @@
 3) make clean
 4) make my_nios2_config
 5) make
+
+
+
+
+
+== ENV (stored on flash in u-boot_cfg)
+==> printenv
+baudrate=115200
+bootargs=root=/dev/mtdblock3 ro rootfstype=jffs2 earlyprintk
+ethact=ALTERA_TSE-0
+mtdparts=mtdparts=flash-0:256k(u-boot),64k(u-boot_cfg),1728k(kernel),5632k(rootfs),512k(config)
+nor0=flash-0
+stderr=serial
+stdin=serial
+stdout=serial
+unlock=yes
+
+Environment size: 277/65532 bytes
+
