@@ -1,5 +1,5 @@
-EXEC = sram_test_old
-OBJS = sram_test_old.o 
+EXEC = sram_test
+OBJS = sram.o sram_test.o 
 
 CFLAGS += -DPARANOID_TTYS -DTERMCAP -DUSE_TERMIO -DKLUDGELINEMODE -D_GNU_SOURCE
 
