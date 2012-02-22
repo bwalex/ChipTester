@@ -1,0 +1,81 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity BitRecogn8 is
+    port( clk, rst, DataIn    :   in  std_logic;
+          MatchBit, MatchAll  :   out std_logic);
+end BitRecogn8;
+
+architecture Behavioral of BitRecogn8 is
+  signal state, next_state : std_logic_vector (3 downto 0);
+  signal Match : std_logic_vector (1 downto 0);
+begin
+  MatchBit <= Match(0);
+  Matchall <= Match(1);
+  process (DataIn, state)
+  begin
+    --default
+    next_state <= "0000";
+    case state is
+    when "0000" => 
+      if DataIn = '1' then next_state <= "0001";
+      else  next_state <= "0000";
+      end if;
+    when "0001" => 
+      if DataIn = '0' then next_state <= "0010";
+      else next_state <="0000";
+      end if;
+    when "0010" => 
+      if DataIn = '1' then next_state <= "0011";
+      else next_state <="0000";
+      end if;
+    when "0011" => 
+      if DataIn = '0' then next_state <= "0100";
+      else next_state <="0000";
+      end if;
+      
+    when "0100" => 
+      if DataIn = '0' then next_state <= "0101";
+      else next_state <="0000";
+      end if;
+    when "0101" => 
+      if DataIn = '0' then next_state <= "0110";
+      else next_state <="0000";
+      end if;
+    when "0110" => 
+      if DataIn = '0' then next_state <= "0111";
+      else next_state <="0000";
+      end if;
+    when "0111" => 
+      if DataIn = '0' then next_state <= "1000";
+      else next_state <="0000";
+      end if;
+    
+    when others => next_state <= "0000";
+    end case;
+  end process;
+  
+  process (clk, rst)
+  begin
+    if rst = '0' then
+      state <= "000";
+    elsif clk='1' and clk'event then
+      state <= next_state;
+    end if;
+  end process;
+  
+  process (state)
+  begin
+    --default
+    Match <= "00";
+    
+    case state is
+    when "0001"|"0010"|"0011"|"0100"|"0101"|"0110"|"0111" =>  Match <= "01";
+    when "1000"  => Match <= "11";
+    when others  => Match <= "00";
+    end case;
+  end process;
+end Behavioral;
+    

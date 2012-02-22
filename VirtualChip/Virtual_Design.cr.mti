@@ -1,0 +1,69 @@
+H:/SuperChip/BitRecogn8.vhd {1 {vcom -work work -2002 -explicit -vopt H:/SuperChip/BitRecogn8.vhd
+Model Technology ModelSim SE-64 vcom 10.0c Compiler 2011.07 Jul 21 2011
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package STD_LOGIC_UNSIGNED
+-- Compiling entity BitRecogn8
+-- Compiling architecture Behavioral of BitRecogn8
+
+} {} {}} H:/SuperChip/VirtualChip.vhd {1 {vcom -work work -2002 -explicit -vopt H:/SuperChip/VirtualChip.vhd
+Model Technology ModelSim SE-64 vcom 10.0c Compiler 2011.07 Jul 21 2011
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package STD_LOGIC_UNSIGNED
+-- Compiling entity VirtualChip
+-- Compiling architecture Behavioral of VirtualChip
+
+} {} {}} H:/SuperChip/FullAdder4.vhd {1 {vcom -work work -2002 -explicit -vopt H:/SuperChip/FullAdder4.vhd
+Model Technology ModelSim SE-64 vcom 10.0c Compiler 2011.07 Jul 21 2011
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package STD_LOGIC_UNSIGNED
+-- Compiling entity FullAdder4
+-- Compiling architecture Behavioral of FullAdder4
+
+} {} {}} H:/SuperChip/Inverter.vhd {1 {vcom -work work -2002 -explicit -vopt H:/SuperChip/Inverter.vhd
+Model Technology ModelSim SE-64 vcom 10.0c Compiler 2011.07 Jul 21 2011
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package STD_LOGIC_UNSIGNED
+-- Compiling entity Inverter
+-- Compiling architecture Behavioral of Inverter
+
+} {} {}} H:/SuperChip/TestChip.vhd {2 {vcom -work work -2002 -explicit -vopt H:/SuperChip/TestChip.vhd
+Model Technology ModelSim SE-64 vcom 10.0c Compiler 2011.07 Jul 21 2011
+-- Loading package STANDARD
+-- Compiling entity TestChip
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Compiling architecture Bench of TestChip
+** Warning: [4] H:/SuperChip/TestChip.vhd(54): (vcom-1207) An abstract literal and an identifier must have a separator between them.
+** Warning: [4] H:/SuperChip/TestChip.vhd(56): (vcom-1207) An abstract literal and an identifier must have a separator between them.
+
+} {} {}} H:/SuperChip/TestAdder.vhd {1 {vcom -work work -2002 -explicit -vopt H:/SuperChip/TestAdder.vhd
+Model Technology ModelSim SE-64 vcom 10.0c Compiler 2011.07 Jul 21 2011
+-- Loading package STANDARD
+-- Compiling entity TestAdder
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Compiling architecture Bench of TestAdder
+
+} {} {}} H:/SuperChip/RingOscillator.vhd {1 {vcom -work work -2002 -explicit -vopt H:/SuperChip/RingOscillator.vhd
+Model Technology ModelSim SE-64 vcom 10.0c Compiler 2011.07 Jul 21 2011
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package std_logic_arith
+-- Loading package STD_LOGIC_UNSIGNED
+-- Compiling entity RingOscillator
+-- Compiling architecture Behavioral of RingOscillator
+
+} {} {}}

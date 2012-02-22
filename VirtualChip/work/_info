@@ -1,0 +1,253 @@
+m255
+K3
+13
+cModel Technology
+dC:\modeltech64_10.0c\examples
+Ebitrecogn8
+Z0 w1329921896
+Z1 DPx4 ieee 18 std_logic_unsigned 0 22 RYmj;=TK`k=k>D@Cz`zoB3
+Z2 DPx4 ieee 15 std_logic_arith 0 22 4`Y?g_lkdn;7UL9IiJck01
+Z3 DPx3 std 6 textio 0 22 G^o2zK;Vh4eVdKTVo98653
+Z4 DPx4 ieee 14 std_logic_1164 0 22 5=aWaoGZSMWIcH0i^f`XF1
+Z5 dH:\SuperChip
+Z6 8H:/SuperChip/BitRecogn8.vhd
+Z7 FH:/SuperChip/BitRecogn8.vhd
+l0
+L6
+Vbhc2I^__AIF>M66YLVHM93
+Z8 OL;C;10.0c;49
+32
+Z9 !s108 1329922603.113000
+Z10 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|H:/SuperChip/BitRecogn8.vhd|
+Z11 !s107 H:/SuperChip/BitRecogn8.vhd|
+Z12 o-work work -2002 -explicit
+Z13 tExplicit 1
+!s100 b@>CAMg:dRCEoeCQl>96h0
+Abehavioral
+R1
+R2
+R3
+R4
+DEx4 work 10 bitrecogn8 0 22 bhc2I^__AIF>M66YLVHM93
+32
+l14
+L11
+VJj6hm5XhS_[Z_IPiB5BO:3
+R8
+R9
+R10
+R11
+R12
+R13
+!s100 T;liKEoO;9_A5;8M[4W?J3
+Efulladder4
+Z14 w1329922411
+R1
+R2
+R3
+R4
+R5
+Z15 8H:/SuperChip/FullAdder4.vhd
+Z16 FH:/SuperChip/FullAdder4.vhd
+l0
+L6
+VUh^f6[FM>dYZK]:NM2[N]2
+R8
+32
+Z17 !s108 1329922603.426000
+Z18 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|H:/SuperChip/FullAdder4.vhd|
+Z19 !s107 H:/SuperChip/FullAdder4.vhd|
+R12
+R13
+!s100 BWQ8kKE_zVd@fGahD3cZe0
+Abehavioral
+R1
+R2
+R3
+R4
+DEx4 work 10 fulladder4 0 22 Uh^f6[FM>dYZK]:NM2[N]2
+32
+l15
+L13
+VKCMSMUN@@[0R3QmdagLmK2
+R8
+R17
+R18
+R19
+R12
+R13
+!s100 1lmWh@BF`98Sc@mKzPl4I0
+Einverter
+Z20 w1329916150
+R1
+R2
+R3
+R4
+R5
+Z21 8H:/SuperChip/Inverter.vhd
+Z22 FH:/SuperChip/Inverter.vhd
+l0
+L6
+VCg<URTER?:54BNnDA9kik3
+R8
+32
+Z23 !s108 1329922602.543000
+Z24 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|H:/SuperChip/Inverter.vhd|
+Z25 !s107 H:/SuperChip/Inverter.vhd|
+R12
+R13
+!s100 ^@K2GE;HA@d9kYKK8?1Ye0
+Abehavioral
+R1
+R2
+R3
+R4
+DEx4 work 8 inverter 0 22 Cg<URTER?:54BNnDA9kik3
+32
+l13
+L11
+VNR[O1HJmHSU4S0FIzfz;S0
+R8
+R23
+R24
+R25
+R12
+R13
+!s100 >RhQ6Q]7cB<=i0bhKC[6I0
+Eringoscillator
+Z26 w1329918916
+R1
+R2
+R3
+R4
+R5
+Z27 8H:/SuperChip/RingOscillator.vhd
+Z28 FH:/SuperChip/RingOscillator.vhd
+l0
+L6
+VO0_549b@T93BJOl4eVO_Y0
+R8
+32
+Z29 !s108 1329922602.848000
+Z30 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|H:/SuperChip/RingOscillator.vhd|
+Z31 !s107 H:/SuperChip/RingOscillator.vhd|
+R12
+R13
+!s100 3i?9KlozMdB]ADYY0_nGO2
+Abehavioral
+R1
+R2
+R3
+R4
+DEx4 work 14 ringoscillator 0 22 O0_549b@T93BJOl4eVO_Y0
+32
+l13
+L11
+Vf6L@`GOC[=]0T0nWlX8F60
+R8
+R29
+R30
+R31
+R12
+R13
+!s100 N045Yl<@HMlmF;XeZMJf:2
+Etestadder
+w1329927626
+R5
+Z32 8H:/SuperChip/TestChip.vhd
+Z33 FH:/SuperChip/TestChip.vhd
+l0
+L1
+VZ5cUTFB69TU3=3QCVDLe00
+R8
+32
+Z34 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|H:/SuperChip/TestChip.vhd|
+Z35 !s107 H:/SuperChip/TestChip.vhd|
+R12
+R13
+!s108 1329927627.672000
+!s100 UNizUjoIfBEX68D]Q3>Az1
+Abench
+w1329927695
+DEx4 work 9 testadder 0 22 Z5cUTFB69TU3=3QCVDLe00
+R3
+R4
+l23
+L7
+VWo[k:ecQC61]Qd`4YlS<e1
+R8
+32
+R34
+R35
+R12
+R13
+!s108 1329927695.954000
+!s100 QE3D3^^UBCdU4oAz;VnjR3
+Etestchip
+Z36 w1329927738
+R5
+R32
+R33
+l0
+L1
+V_XdYl4FS`@F@Cn^bTa0;Y3
+R8
+32
+Z37 !s108 1329927740.050000
+R34
+R35
+R12
+R13
+!s100 Y?Un[_U;K@O01?;LNVZIK1
+Abench
+DEx4 work 8 testchip 0 22 _XdYl4FS`@F@Cn^bTa0;Y3
+R3
+R4
+32
+l23
+L7
+V[9ESZzK9n`8A5SBnz0>T93
+R8
+R37
+R34
+R35
+R12
+R13
+!s100 ^L94F=>95GIN0HPAL>f=m1
+Evirtualchip
+Z38 w1329922591
+R1
+R2
+R3
+R4
+R5
+Z39 8H:/SuperChip/VirtualChip.vhd
+Z40 FH:/SuperChip/VirtualChip.vhd
+l0
+L7
+VZR1@doXRz[RdQzO0B[hL>0
+R8
+32
+Z41 !s108 1329922602.340000
+Z42 !s90 -reportprogress|300|-work|work|-2002|-explicit|-vopt|H:/SuperChip/VirtualChip.vhd|
+Z43 !s107 H:/SuperChip/VirtualChip.vhd|
+R12
+R13
+!s100 1[Fle4<cgW^VkB]Yc^;W21
+Abehavioral
+R1
+R2
+R3
+R4
+DEx4 work 11 virtualchip 0 22 ZR1@doXRz[RdQzO0B[hL>0
+32
+l38
+L13
+V<DXXLR=^S44@=EBMQCC^L1
+R8
+R41
+R42
+R43
+R12
+R13
+!s100 T;SeePli[Wk:cQhN=ooZL3
