@@ -7,42 +7,34 @@ module check #(
             RTF_WIDTH  = 24,
             ORV_WIDTH  = 8,
             CHF_WIDTH  = RTF_WIDTH+ORV_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
-            RTFU_WIDTH = 4,
-            CHFU_WIDTH = 4,
             SCC_WIDTH  = 5,
             SCD_WIDTH  = 24
 )(
   input                       clock,
   input                       reset_n,
 
-
   /* Avalon MM master interface to mem_if */
   output     [ADDR_WIDTH-1:0] mem_address,
   output     [  BE_WIDTH-1:0] mem_byteenable,
-
-  output                      mem_write,     /* comb */
+  output                      mem_write,
   output     [DATA_WIDTH-1:0] mem_writedata,
-
   input                       mem_waitrequest,
-
 
   /* STIM_FIFO interface */
   input      [ RTF_WIDTH-1:0] rfifo_data,
-  output                      rfifo_rdreq, /* comb */
-  input      [RTFU_WIDTH-1:0] rfifo_rdusedw,
+  output                      rfifo_rdreq,
   input                       rfifo_rdfull,
   input                       rfifo_rdempty,
   
   /* CHECK_FIFO interface */
   input      [ CHF_WIDTH-1:0] cfifo_data,
-  output                      cfifo_rdreq, /* comb */
-  input      [CHFU_WIDTH-1:0] cfifo_rdusedw,
+  output                      cfifo_rdreq,
   input                       cfifo_rdfull,
   input                       cfifo_rdempty,
 
   /* CHECK <=> STIM interface */
-  input      [ SCC_WIDTH-1:0] sc_cmd,  /* comb */
-  input      [ SCD_WIDTH-1:0] sc_data, /* comb */
+  input      [ SCC_WIDTH-1:0] sc_cmd,
+  input      [ SCD_WIDTH-1:0] sc_data,
   input                       sc_switching,
   output                      sc_ready
 );
@@ -92,6 +84,7 @@ module check #(
     else
       state <= next_state;
 
+
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
       res_len <= 2;
@@ -113,8 +106,6 @@ module check #(
        words_stored <= 0;
     else if (inc_address)
       words_stored <= words_stored + 1;
-
-
 
 
   always @(posedge clock, negedge reset_n)

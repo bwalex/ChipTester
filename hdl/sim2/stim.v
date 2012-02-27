@@ -7,8 +7,6 @@ module stim #(
             STF_WIDTH  = 24,
             ORV_WIDTH  = 8,
             CHF_WIDTH  = STF_WIDTH+ORV_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
-            STFU_WIDTH = 4,
-            CHFU_WIDTH = 4,
             SCC_WIDTH  = 5,
             SCD_WIDTH  = 24,
             WAIT_WIDTH = 16,
@@ -17,14 +15,11 @@ module stim #(
   input                       clock,
   input                       reset_n,
 
-
   /* Avalon MM master interface to mem_if */
   output     [ADDR_WIDTH-1:0] mem_address,
   output     [  BE_WIDTH-1:0] mem_byteenable,
-
-  output                      mem_read,     /* comb */
+  output                      mem_read,
   input      [DATA_WIDTH-1:0] mem_readdata,
-
   input                       mem_waitrequest,
 
   /* target interface */
@@ -32,21 +27,19 @@ module stim #(
 
   /* STIM_FIFO interface */
   output     [ STF_WIDTH-1:0] sfifo_data,
-  output                      sfifo_wrreq, /* comb */
-  input      [STFU_WIDTH-1:0] sfifo_wrusedw,
+  output                      sfifo_wrreq,
   input                       sfifo_wrfull,
   input                       sfifo_wrempty,
   
   /* CHECK_FIFO interface */
   output     [ CHF_WIDTH-1:0] cfifo_data,
-  output                      cfifo_wrreq, /* comb */
-  input      [CHFU_WIDTH-1:0] cfifo_wrusedw,
+  output                      cfifo_wrreq,
   input                       cfifo_wrfull,
   input                       cfifo_wrempty,
 
   /* CHECK <=> STIM interface */
-  output reg [ SCC_WIDTH-1:0] sc_cmd,  /* comb */
-  output reg [ SCD_WIDTH-1:0] sc_data, /* comb */
+  output reg [ SCC_WIDTH-1:0] sc_cmd,
+  output reg [ SCD_WIDTH-1:0] sc_data,
   output                      sc_switching,
   input                       sc_ready
 );
