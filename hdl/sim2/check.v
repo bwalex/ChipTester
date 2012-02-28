@@ -20,16 +20,14 @@ module check #(
   output     [DATA_WIDTH-1:0] mem_writedata,
   input                       mem_waitrequest,
 
-  /* STIM_FIFO interface */
+  /* RES_FIFO interface */
   input      [ RTF_WIDTH-1:0] rfifo_data,
   output                      rfifo_rdreq,
-  input                       rfifo_rdfull,
   input                       rfifo_rdempty,
   
   /* CHECK_FIFO interface */
   input      [ CHF_WIDTH-1:0] cfifo_data,
   output                      cfifo_rdreq,
-  input                       cfifo_rdfull,
   input                       cfifo_rdempty,
 
   /* CHECK <=> STIM interface */
@@ -67,10 +65,8 @@ module check #(
   wire                     load_address;
   wire                     load_bitmask;
 
-  reg    [  0:BUF_WIDTH-1] buffer;
   reg    [ BOFF_WIDTH-1:0] words_stored;
   wire                     reset_wstored; /* comb */
-  wire   [ BOFF_WIDTH-1:0] buffer_offset;
   wire   [DATA_WIDTH/2-1:0] meta_info;
   reg                      check_fail_r;
   wire                     check_fail;
@@ -117,18 +113,19 @@ module check #(
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
-      result_bitmask <= 0;
+      result_bitmask <= 'hFFFFFFFF;
     else if (load_bitmask)
       result_bitmask <= bitmask;
 
 
   assign sc_ready       =    (state == IDLE && rfifo_rdempty && cfifo_rdempty);
+  assign reset_wstored  =    (state == IDLE);
 
   assign mem_address    = address;
   assign mem_byteenable = 2'b11;
   assign mem_write      =    (state == WRITEBACK);
 
-  assign sfifo_rdreq    =    (state == RD_FIFOS);
+  assign rfifo_rdreq    =    (state == RD_FIFOS);
   assign cfifo_rdreq    =    (state == RD_FIFOS);
   assign load_address   =    (state == CMP_AND_MASK);
 
@@ -146,7 +143,7 @@ module check #(
   assign c_or_value       = cfifo_data[CHF_WIDTH-RTF_WIDTH-ADDR_WIDTH-1 -: ORV_WIDTH ];
   assign meta_info        = 8'b0 | META_RUN | check_fail_r;
   assign result_vector    = rfifo_data & result_bitmask;
-  assign store_value      = (words_stored == 0) ?
+  assign mem_writedata    = (words_stored == 0) ?
                                   result_vector[RTF_WIDTH-1            -: DATA_WIDTH  ] :
                                 { result_vector[RTF_WIDTH-DATA_WIDTH-1 -: DATA_WIDTH/2], meta_info };
 

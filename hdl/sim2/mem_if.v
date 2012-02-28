@@ -11,6 +11,7 @@ module mem_if #(
   output [  BE_WIDTH-1:0] mem_byteenable,
   output                  mem_read,
   input  [DATA_WIDTH-1:0] mem_readdata,
+  input                   mem_readdataready,
   output                  mem_write,
   output [DATA_WIDTH-1:0] mem_writedata,
   input                   mem_waitrequest,
@@ -20,6 +21,7 @@ module mem_if #(
   input  [  BE_WIDTH-1:0] stim_byteenable,
   input                   stim_read,
   output [DATA_WIDTH-1:0] stim_readdata,
+  output                  stim_readdataready,
   output                  stim_waitrequest,
 
   /* Avalon MM slave interface for check */
@@ -47,8 +49,9 @@ module mem_if #(
    */
   assign sel               = (stim_read) ? 1'b0 : 1'b1;
 
-  assign stim_waitrequest  = (mem_waitrequest || (sel == 1'b1));
-  assign check_waitrequest = (mem_waitrequest || (sel == 1'b0));
+  assign stim_waitrequest   = (mem_waitrequest || (sel == 1'b1));
+  assign check_waitrequest  = (mem_waitrequest || (sel == 1'b0));
+  assign stim_readdataready = mem_readdataready;
 
   assign mem_address       =  (sel == 1'b0) ? stim_address    : check_address;
   assign mem_byteenable    =  (sel == 1'b0) ? stim_byteenable : check_byteenable;

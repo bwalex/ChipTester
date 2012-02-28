@@ -20,6 +20,7 @@ module stim #(
   output     [  BE_WIDTH-1:0] mem_byteenable,
   output                      mem_read,
   input      [DATA_WIDTH-1:0] mem_readdata,
+  input                       mem_readdataready,
   input                       mem_waitrequest,
 
   /* target interface */
@@ -76,6 +77,8 @@ module stim #(
   wire                     change_target;
 
   reg    [  0:BUF_WIDTH-1] buffer;
+  reg    [ BOFF_WIDTH-1:0] reads_requested;
+  wire                     reset_rdrequested; /* comb */
   reg    [ BOFF_WIDTH-1:0] words_stored;
   wire                     reset_wstored; /* comb */
   wire   [ BOFF_WIDTH-1:0] buffer_offset;
@@ -107,8 +110,17 @@ module stim #(
       words_stored <= 0;
     else if (reset_wstored)
        words_stored <= 0;
-    else if (inc_address)
+    else if (mem_readdataready)
       words_stored <= words_stored + 1;
+
+
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      reads_requested <= 0;
+    else if (reset_rdrequested)
+       reads_requested <= 0;
+    else if (inc_address)
+      reads_requested <= reads_requested + 1;
 
 
   always @(posedge clock, negedge reset_n)
@@ -130,17 +142,16 @@ module stim #(
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
       buffer <= 'b0;
-    else if (mem_read && ~mem_waitrequest)
+    else if (mem_readdataready)
       buffer[(buffer_offset << 4) +: DATA_WIDTH] <= mem_readdata;
 
 
   assign mem_address    = address;
   assign mem_byteenable = 2'b11;
   assign mem_read       =    (state == IDLE          && (~sfifo_wrfull && ~cfifo_wrfull))
-                          || (state == READ_META     && (req_type == REQ_TEST_VECTOR))
-                          || (state == READ_META     && (req_type == REQ_SETUP_BITMASK))
-                          || (state == SETUP_BITMASK && (words_stored != 2))
-                          || (state == READ_TV       && (words_stored != tv_len));
+                          || (state == READ_META)
+                          || (state == SETUP_BITMASK && (reads_requested < 2))
+                          || (state == READ_TV       && (reads_requested < tv_len));
 
   assign switching      =    (state == SWITCH_TARGET)
                           || (state == SWITCH_VDD);
@@ -150,8 +161,9 @@ module stim #(
 
   assign reset_waitcnt  =    (state == SWITCH_TARGET && next_state == SWITCH_VDD);
 
-  assign reset_wstored  = (next_state == IDLE);
-  assign change_target  = (next_state == SWITCH_VDD);
+  assign reset_wstored     = (next_state == IDLE);
+  assign reset_rdrequested = (next_state == IDLE);
+  assign change_target     = (next_state == SWITCH_VDD);
 
 
   assign inc_address    = (mem_read && ~mem_waitrequest);
@@ -197,12 +209,14 @@ module stim #(
 
 
       READ_META:
-        case (req_type)
-          REQ_SWITCH_TARGET:  next_state = SWITCH_TARGET;
-          REQ_TEST_VECTOR:    next_state = READ_TV;
-          REQ_SETUP_BITMASK:  next_state = SETUP_BITMASK;
-          default:            next_state = IDLE;
-        endcase
+        if (words_stored == 1) begin
+          case (req_type)
+            REQ_SWITCH_TARGET:  next_state = SWITCH_TARGET;
+            REQ_TEST_VECTOR:    next_state = READ_TV;
+            REQ_SETUP_BITMASK:  next_state = SETUP_BITMASK;
+            default:            next_state = IDLE;
+          endcase
+        end
 
 
       SWITCH_TARGET: begin

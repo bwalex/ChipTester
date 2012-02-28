@@ -45,6 +45,8 @@ parameter Toha  = 2.5;
 parameter Thzce = 3;
 parameter Tsa   = 0;
 parameter Thzwe = 3.5;
+parameter INIT_FILE = "sram.txt";
+parameter USE_INIT  = 0;
 
 input CE_, OE_, WE_, LB_, UB_;
 input [(addbits - 1) : 0] A;
@@ -53,6 +55,7 @@ inout [(dqbits - 1) : 0] IO;
 wire [(dqbits - 1) : 0] dout;
 reg  [(dqbits/2 - 1) : 0] bank0 [0 : memdepth];
 reg  [(dqbits/2 - 1) : 0] bank1 [0 : memdepth];
+reg  [(dqbits - 1) : 0] tmp_reg [0 : memdepth];
 // wire [(dqbits - 1) : 0] memprobe = {bank1[A], bank0[A]};
 
 wire r_en = WE_ & (~CE_) & (~OE_);
@@ -72,7 +75,21 @@ always @(A or w_en)
         bank1[A] = UB_ ? bank1[A] : IO [(dqbits - 1)   : (dqbits/2)];
       end
   end
- 
+
+integer i;
+  
+initial begin
+  if (USE_INIT)
+  begin
+    $readmemh(INIT_FILE, tmp_reg);
+    for (i = 0; i < memdepth; i++)
+    begin
+      bank0[i] = tmp_reg[i][7 :0];
+      bank1[i] = tmp_reg[i][15:8];
+    end
+  end
+end
+
 specify
 
   specparam
