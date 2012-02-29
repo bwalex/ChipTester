@@ -5,7 +5,6 @@ proc ensure_lib { lib } { if ![file isdirectory $lib] { vlib $lib } }
 ensure_lib      ./libraries/     
 ensure_lib      ./libraries/work/
 vmap work       ./libraries/work/
-#vlib            altera_mf
 
 # Compile the additional test files
 vlog -sv ./async_sram.v
@@ -19,7 +18,7 @@ vlog     ./stfifo.v
 vlog     ./loopback.v
 vlog -sv ./top.sv
 # Elaborate the top-level design
-vsim -t ps -L work -L altera_mf $TOP_LEVEL_NAME
+vsim -t ps -L work -L altera_mf_ver $TOP_LEVEL_NAME
 
 # Load the waveform "do file" macro script
 do ./wave2.do
