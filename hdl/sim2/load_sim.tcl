@@ -5,6 +5,7 @@ proc ensure_lib { lib } { if ![file isdirectory $lib] { vlib $lib } }
 ensure_lib      ./libraries/     
 ensure_lib      ./libraries/work/
 vmap work       ./libraries/work/
+#vlib            altera_mf
 
 # Compile the additional test files
 vlog -sv ./async_sram.v
