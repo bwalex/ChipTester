@@ -282,35 +282,39 @@ parse_line_design(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 }
 
 
+static
 void
-print_struct(void *buf, int sz)
+print_struct(uint8_t *buf, int sz)
 {
 	change_target *ct;
 	change_bitmask *cb;
 	test_vector *tv;
 	uint8_t *metadatap;
-	
-	metadatap = buf;
 
 	while (sz > 0) {
+		metadatap = buf;
+
 		switch (*metadatap >> 5) {
 		case REQ_SWITCH_TARGET:
-			ct = buf;
+			ct = (change_target *)buf;
 			sz -= sizeof(*ct);
+			buf += sizeof(*ct);
 			printf("REQ_SWITCH_TARGET: target=%d\n", (int)ct->design_number);
 			break;
 
 		case REQ_SETUP_BITMASK:
-			cb = buf;
+			cb = (change_bitmask *)buf;
 			sz -= sizeof(*cb);
+			buf += sizeof(*cb);
 			printf("REQ_SETUP_BITMASK: bitmask=");
 			bprint(cb->bit_mask, sizeof(cb->bit_mask));
 			putchar('\n');
 			break;
 
 		case REQ_TEST_VECTOR:
-			tv = buf;
+			tv = (test_vector *)buf;
 			sz -= sizeof(*tv);
+			buf += sizeof(*tv);
 			printf("REQ_TEST_VECTOR: iv=");
 			bprint(tv->input_vector, sizeof(tv->input_vector));
 			printf(", ov=");
