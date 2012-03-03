@@ -10,6 +10,7 @@ module stim #(
             SCC_WIDTH  = 5,
             SCD_WIDTH  = 24,
             WAIT_WIDTH = 16,
+            TEST_VECTOR_WORDS = 4,
             DSEL_WIDTH = 5 /* Target design select */
 )(
   input                       clock,
@@ -95,7 +96,7 @@ module stim #(
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
-      tv_len <= 4;
+      tv_len <= TEST_VECTOR_WORDS;
 
 
   always @(posedge clock, negedge reset_n)
@@ -195,7 +196,7 @@ module stim #(
     or cfifo_wrempty
     or sfifo_wrempty
     or waitcnt
-	or sc_ready/* XXX */)
+    or sc_ready/* XXX */)
   begin
     next_state    = state;
     sc_cmd        = SC_CMD_IDLE;

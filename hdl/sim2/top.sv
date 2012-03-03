@@ -3,69 +3,69 @@ module top();
 
 // synthesis translate_off
   
-  logic       clock;
-  logic       clock_10;
-  logic       reset_n;
-  wire        reset;
+  logic        clock;
+  logic        clock_10;
+  logic        reset_n;
+  wire         reset;
 
-  event       start_test;
+  event        start_test;
 
-  wire [19:0] address;
-  wire [1:0]  byteenable;
-  wire [15:0] readdata;
-  wire        read;
-  wire        readdataready;
-  wire        write;
-  wire [15:0] writedata;
-  wire        waitrequest;
+  wire  [19:0] address;
+  wire  [ 1:0] byteenable;
+  wire  [15:0] readdata;
+  wire         read;
+  wire         readdataready;
+  wire         write;
+  wire  [15:0] writedata;
+  wire         waitrequest;
 
-  wire [19:0] stim_address;
-  wire [1:0]  stim_byteenable;
-  wire [15:0] stim_readdata;
-  wire        stim_read;
-  wire        stim_readdataready;
-  wire        stim_waitrequest;
+  wire  [19:0] stim_address;
+  wire  [ 1:0] stim_byteenable;
+  wire  [15:0] stim_readdata;
+  wire         stim_read;
+  wire         stim_readdataready;
+  wire         stim_waitrequest;
 
-  wire [19:0] check_address;
-  wire [1:0]  check_byteenable;
-  wire [15:0] check_writedata;
-  wire        check_write;
-  wire        check_waitrequest;
+  wire  [19:0] check_address;
+  wire  [ 1:0] check_byteenable;
+  wire  [15:0] check_writedata;
+  wire         check_write;
+  wire         check_waitrequest;
   
-  wire [19:0] sram_address;
-  wire [15:0] sram_data;
-  wire        sram_ce_n;
-  wire        sram_oe_n;
-  wire        sram_we_n;
-  wire [ 1:0] sram_be_n;
+  wire  [19:0] sram_address;
+  wire  [15:0] sram_data;
+  wire         sram_ce_n;
+  wire         sram_oe_n;
+  wire         sram_we_n;
+  wire  [ 1:0] sram_be_n;
 
-  wire [23:0] sfifo_data;
-  wire        sfifo_wrreq;
-  logic       sfifo_wrfull;
-  logic       sfifo_wrempty;
-  wire        sfifo_rdreq;
-  wire        sfifo_rdempty;
-  wire [23:0] sfifo_dataq;
+  wire  [23:0] sfifo_data;
+  wire         sfifo_wrreq;
+  logic        sfifo_wrfull;
+  logic        sfifo_wrempty;
+  wire         sfifo_rdreq;
+  wire         sfifo_rdempty;
+  wire  [23:0] sfifo_dataq;
 
-  wire [23:0] rfifo_data;
-  wire        rfifo_wrreq;
-  wire        rfifo_wrfull;
-  wire        rfifo_rdreq;
-  wire        rfifo_rdempty;
-  wire [23:0] rfifo_dataq;
+  wire  [23:0] rfifo_data;
+  wire         rfifo_wrreq;
+  wire         rfifo_wrfull;
+  wire         rfifo_rdreq;
+  wire         rfifo_rdempty;
+  wire  [23:0] rfifo_dataq;
 
-  wire [51:0] cfifo_data;
-  wire        cfifo_wrreq;
-  logic       cfifo_wrfull;
-  logic       cfifo_wrempty;
-  wire        cfifo_rdreq;
-  wire        cfifo_rdempty;
-  wire [51:0] cfifo_dataq;
+  wire  [51:0] cfifo_data;
+  wire         cfifo_wrreq;
+  logic        cfifo_wrfull;
+  logic        cfifo_wrempty;
+  wire         cfifo_rdreq;
+  wire         cfifo_rdempty;
+  wire  [51:0] cfifo_dataq;
 
 
-  wire [ 4:0] sc_cmd;
-  wire [23:0] sc_data;
-  wire        sc_switching;
+  wire  [ 4:0] sc_cmd;
+  wire  [23:0] sc_data;
+  wire         sc_switching;
   
   
   assign reset = ~reset_n;

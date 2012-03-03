@@ -8,7 +8,8 @@ module check #(
             ORV_WIDTH  = 8,
             CHF_WIDTH  = RTF_WIDTH+ORV_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
             SCC_WIDTH  = 5,
-            SCD_WIDTH  = 24
+            SCD_WIDTH  = 24,
+            RESULT_VECTOR_WORDS = 2
 )(
   input                       clock,
   input                       reset_n,
@@ -50,28 +51,28 @@ module check #(
   parameter WRITEBACK         = 6'b000100;
   parameter SETUP_BITMASK     = 6'b000110;
 
-  reg    [STATE_WIDTH-1:0] state;
-  reg    [STATE_WIDTH-1:0] next_state; /* comb */
+  reg    [ STATE_WIDTH-1:0] state;
+  reg    [ STATE_WIDTH-1:0] next_state; /* comb */
 
-  reg    [ ADDR_WIDTH-1:0] address;
-  wire   [ ADDR_WIDTH-1:0] c_address;
+  reg    [  ADDR_WIDTH-1:0] address;
+  wire   [  ADDR_WIDTH-1:0] c_address;
 
-  wire   [  RTF_WIDTH-1:0] c_result_vector;
-  wire   [  RTF_WIDTH-1:0] result_vector;
-  reg    [  RTF_WIDTH-1:0] result_bitmask;
-  wire   [  RTF_WIDTH-1:0] bitmask;
-  wire   [  ORV_WIDTH-1:0] c_or_value;
-  wire                     inc_address;
-  wire                     load_address;
-  wire                     load_bitmask;
+  wire   [   RTF_WIDTH-1:0] c_result_vector;
+  wire   [   RTF_WIDTH-1:0] result_vector;
+  reg    [   RTF_WIDTH-1:0] result_bitmask;
+  wire   [   RTF_WIDTH-1:0] bitmask;
+  wire   [   ORV_WIDTH-1:0] c_or_value;
+  wire                      inc_address;
+  wire                      load_address;
+  wire                      load_bitmask;
 
-  reg    [ BOFF_WIDTH-1:0] words_stored;
-  wire                     reset_wstored; /* comb */
+  reg    [  BOFF_WIDTH-1:0] words_stored;
+  wire                      reset_wstored; /* comb */
   wire   [DATA_WIDTH/2-1:0] meta_info;
-  reg                      check_fail_r;
-  wire                     check_fail;
-  wire                     load_fail;
-  reg    [            5:0] res_len;
+  reg                       check_fail_r;
+  wire                      check_fail;
+  wire                      load_fail;
+  reg    [             5:0] res_len;
 
 
   always @(posedge clock, negedge reset_n)
@@ -83,7 +84,7 @@ module check #(
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
-      res_len <= 2;
+      res_len <= RESULT_VECTOR_WORDS;
 
 
   always @(posedge clock, negedge reset_n)
@@ -174,7 +175,7 @@ module check #(
       end
 
       WRITEBACK: begin
-        if (words_stored == (res_len - 1)) /* XXX: ??? */
+        if (words_stored == (res_len - 1))
           next_state = IDLE;
       end
     endcase
