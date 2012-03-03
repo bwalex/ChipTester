@@ -1,294 +1,450 @@
-/*
- ============================================================================
- Name        : ConfigurationReader.c
- Author      : Romel Torres
- Version     :
- Copyright   : No copyright
- Description : Reading a vector file to store them on the ram, Ansi-style
- ============================================================================
- */
-
+#include <sys/types.h>
 #include <stdio.h>
+#include <limits.h>
 #include <string.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <assert.h>
+#include <unistd.h>
 #include <dirent.h>
-
-/*Configuration definitions*/
-#define CHAR_NUMBER 80 //Number of characters
-#define FOLDER_CONFIG_FILE "/home/romel/workspace/ConfigFiles/" //The folder where the testvectors are found
-#define DESIGN_NUMBER "<DesignNumber>"//Initial parsing DESIGN_NUMBER
-#define DESIGN_NUMBER_END "</DesignNumber>" //Final parsing /DESIGN_NUMBER
-#define PIN_DEF "<PinDef>" //Initial parsing PIN_DEF
-#define PIN_DEF_END "</PinDef>"//Final parsing /PIN_DEF
-#define TEST_VECTOR "<TestVector>"//Initial parsing TEST_VECTOR
-#define TEST_VECTOR_END "</TestVector>" //Final parsing /TEST_VECTOR
-#define COMMENT_CHAR '#' //Comment definition
-#define INPUT_PIN 'A' //Input pin definition
-#define OUTPUT_PIN 'Q' //Output pin definition
-#define MAX_INPUT_OUTPUT_SIZE 24
-#define DESIGN_NUMBER_MASK 31
-#define REQ_SWITCH_TARGET 0
-#define REQ_TEST_VECTOR 1
-#define REQ_SETUP_BITMASK 2
-#define REQ_TYPE(r) ((r & 7) << 5)
-
-	typedef struct test_info{
-		uint8_t metadata1;
-		uint8_t input_vector[3];
-		uint8_t output_vector[3];
-		uint8_t metadata2;
-	}test_info;
-
-	typedef struct change_target {
-		uint8_t metadata;
-		uint8_t design_number;
-	}change_target;
-
-	typedef struct change_bitmask {
-		uint8_t metadata;
-		uint8_t bit_mask[3];
-	}change_bitmask;
+#include <errno.h>
 
 
-	/*
-	 * 		This function is used to calculate the number of
-	 * 		the last input or output pin declared in the file
-	 * */
-	int vector_declared_size(char *vector) {
-		int i,k =0;
-		for(i = 0; i < MAX_INPUT_OUTPUT_SIZE;i++) {
-			if(vector[i] == '1') {
-				k = i;
-			}
-		}
-		return k;
-	}
+#define COMMENT_CHAR		'#' //Comment definition
+//#define INPUT_PIN		'A' //Input pin definition
+//#define OUTPUT_PIN		'Q' //Output pin definition
 
-	/*
-	 *  Converts a char array into its correspondent integer value
-	 * */
-	uint8_t convert_to_integer(char *vector) {
-		uint8_t i,real = 0,result = 0;
-		while(vector[real]!=0 && vector[real] >= 48 && vector[real] <=57) {
-			real++;
-		}
-		int real2 = real;
-		for(i = 0; i < real; i++) {
-			if(vector[i]!=0 && vector[i] >= 48 && vector[i] <=57) {
-				result = result + pow(10,(real2 - 1))*(vector[i] - 48);
-				real2--;
-			}
+#define MAX_INPUT_OUTPUT_SIZE	24
+#define MAX_INPUT_PIN		(MAX_INPUT_OUTPUT_SIZE-1)
+#define MAX_OUTPUT_PIN		(MAX_INPUT_OUTPUT_SIZE-1)
+#define BITMASK_BYTES		MAX_INPUT_OUTPUT_SIZE
+#define MAX_PINS		(2*MAX_INPUT_OUTPUT_SIZE)
 
-		}
-		return result;
-	}
+#define DESIGN_NUMBER_MASK 	0x1f
 
-	void printint2bin(int n) {
-		unsigned int i, k = 32;
-		i = 1 << (sizeof(n)*8-1);
-		while(i > 0) {
-			if(k<=8) {
-				if(n & i)
-					printf("1");
-				else
-					printf("0");
-			}
-			i >>= 1;
-			k--;
-		}
+#define REQ_SWITCH_TARGET	0x00
+#define REQ_TEST_VECTOR		0x01
+#define REQ_SETUP_BITMASK	0x02
 
-		}
-	/*
-		Exiting with error 0 means that the file could not be open.
-		Exiting with error 1 means that the operation was successful.
-	*/
-int main(void)
+#define REQ_TYPE(r)		((r & 0x07) << 5)
+
+#define iswhitespace(c)		((c == ' ') || (c == '\t'))
+
+typedef enum pin_type {
+	INPUT_PIN = 'A', OUTPUT_PIN = 'Q'
+} pin_type_t;
+
+
+typedef struct test_vector {
+	uint8_t metadata;
+	uint8_t input_vector[3];
+	uint8_t output_vector[3];
+	uint8_t metadata2;
+} test_vector;
+
+
+typedef struct change_target {
+	uint8_t metadata;
+	uint8_t design_number;
+} change_target;
+
+
+typedef struct change_bitmask {
+	uint8_t metadata;
+	uint8_t bit_mask[3];
+} change_bitmask;
+
+
+typedef struct pininfo {
+	pin_type_t	type;
+	int		pin_no;
+	int		bidx;
+	int		shiftl;
+} *pininfo_t;
+
+
+typedef struct parserinfo {
+	int pin_count;
+	uint8_t bitmask[BITMASK_BYTES];
+
+	struct pininfo pins[MAX_PINS];
+} *parserinfo_t;
+
+
+typedef int (*line_parser)(char *, parserinfo_t, void *, size_t);
+
+
+typedef struct keyword {
+	const char	*keyword;
+	line_parser	lp;
+} *keyword_t;
+
+
+static int parse_line_design(char *, parserinfo_t, void *, size_t);
+static int parse_line_pindef(char *, parserinfo_t, void *, size_t);
+static int parse_line_vectors(char *, parserinfo_t, void *, size_t);
+
+
+
+struct keyword keywords[] = {
+	{ .keyword = "design"	, .lp = parse_line_design  },
+	{ .keyword = "pindef"	, .lp = parse_line_pindef  },
+	{ .keyword = "vectors"	, .lp = parse_line_vectors },
+	{ .keyword = NULL	, .lp = NULL }
+};
+
+
+static
+void
+bprint(uint8_t *n, size_t len)
 {
-         FILE *fp; 					//For reading the file
-         char line [CHAR_NUMBER];
-         char is_design_number = 0;
-         char is_pin_def = 0;		//Booleans for the program
-         char is_test_vector = 0;
-         char input_vector_def [MAX_INPUT_OUTPUT_SIZE] = {0};
-         char output_vector_def [MAX_INPUT_OUTPUT_SIZE] = {0};
-         char result [1];
-         test_info test;
-         change_target target;
-         change_bitmask bit_mask_change;
-         uint32_t bit_masking = 0;
+	uint8_t mask;
+	size_t i;
 
-         /*This set everything of the structs to zero*/
-         memset(&test,0,sizeof(test));
-         memset(&target,0,sizeof(target));
-         memset(&bit_mask_change,0,sizeof(bit_mask_change));
-
-	     DIR *mydir = opendir(FOLDER_CONFIG_FILE);
-
-	     struct dirent *entry = NULL;
-
-	     while((entry = readdir(mydir))) {
-	     char filename[CHAR_NUMBER] = FOLDER_CONFIG_FILE;
-	     strcat(filename, entry->d_name);
-	     printf("%s\n", filename);
-         //Pointer for opening the file
-         fp = fopen(filename,"r");
-         if( fp == NULL )
-               printf("The file %s cannot be opened\n",entry->d_name);
-         else {
-        	 while(fgets(line, CHAR_NUMBER, fp) != NULL) {
-        		 //Defining the position within the test
-        		 if(strstr(line,DESIGN_NUMBER)!= NULL)
-        			 is_design_number = 1;
-        		 else if(strstr(line,DESIGN_NUMBER_END)!= NULL)
-        			 is_design_number = 0;
-        		 else if(strstr(line,PIN_DEF)!= NULL)
-        			 is_pin_def = 1;
-        		 //The string exists in the line
-        		 else if (strstr(line,PIN_DEF_END)!= NULL)
-        			 is_pin_def = 0;
-        		 //The string exists in the line
-        		 else if (strstr(line,TEST_VECTOR)!= NULL)
-        			 is_test_vector = 1;
-        		 //The string exists in the line
-        		 else if (strstr(line,TEST_VECTOR_END)!= NULL)
-        			 is_test_vector = 0;
-        		 if(is_design_number && strchr(line, (int)COMMENT_CHAR) == NULL
-        			 && strstr(line,DESIGN_NUMBER) == NULL
-        			 	 && strstr(line,DESIGN_NUMBER_END) == NULL) {
-        			 target.metadata = REQ_TYPE(REQ_SWITCH_TARGET);
-        			 target.design_number = convert_to_integer(line) & DESIGN_NUMBER_MASK;
-        		 	 }
-        		 if(is_pin_def && strchr(line, (int)COMMENT_CHAR) == NULL
-        			 && strstr(line,PIN_DEF) == NULL
-        			 && strstr(line,PIN_DEF_END) == NULL) {
-        		 //If we are in the pin definition and it is not a comment
-        			 char *pointer_i, *pointer_o = NULL;
-        		 	 pointer_i = strchr(line, (int)INPUT_PIN);
-        		 	 pointer_o = strchr(line, (int)OUTPUT_PIN);
-
-        		 	 bit_mask_change.metadata = REQ_TYPE(REQ_SETUP_BITMASK);
-        		 	 	 //We have an output pin defined first
-        		 	 while(pointer_i != NULL) {
-        			 	 	//Initialise to 0
-        			 	 	result[0] = 0;
-        			 	 	result[1]= 0;
-            		 	 	pointer_i = strchr(pointer_i, (int)INPUT_PIN);
-            		 	 	 //We have an input pin defined
-            		 	 	if(pointer_i != NULL) {
-            		 	 		pointer_i = pointer_i + 1;
-            		 	 		if(*(pointer_i + 1) >= 48 && *(pointer_i + 1) <= 57)
-            		 	 			strncpy(result,pointer_i, 2);
-            		 	 		//There is more than one digit number for the pin defined
-            		 	 		else {
-            		 	 			strncpy(result,pointer_i, 1);
-            		 	 			result[1] = 0;
-            		 	 		}
-            		 	 		//Only one digit number
-            		 	 		if(convert_to_integer(result) < MAX_INPUT_OUTPUT_SIZE)
-            		 	 			input_vector_def[convert_to_integer(result)] = '1';
-            		 	 		/*The '1' means that the output pin has been declared*/
-            		 	 	}
-            		 	 }
-        		 	 while(pointer_o != NULL) {
-        			 	 	//Initialise to 0
-        			 	 	result[0] = 0;
-        			 	 	result[1]= 0;
-
-            		 	 	pointer_o = strchr(pointer_o, (int)OUTPUT_PIN);
-            		 	 	 //We have an output pin defined
-            		 	 	if(pointer_o != NULL) {
-            		 	 		pointer_o = pointer_o + 1;
-            		 	 		if(*(pointer_o + 1) >= 48 && *(pointer_o + 1) <= 57)
-            		 	 			strncpy(result,pointer_o, 2);
-            		 	 		//There is more than one digit number for the pin defined
-            		 	 		else {
-            		 	 			strncpy(result,pointer_o, 1);
-            		 	 			result[1] = 0;
-            		 	 		}
-            		 	 		//Only one digit number
-            		 	 		if(convert_to_integer(result) < MAX_INPUT_OUTPUT_SIZE) {
-            		 	 			bit_masking = 1 << (MAX_INPUT_OUTPUT_SIZE - convert_to_integer(result));
-            		 	 			bit_mask_change.bit_mask[0] = (uint8_t) (bit_masking >> 16) | bit_mask_change.bit_mask[0];
-            		 	 			bit_mask_change.bit_mask[1] = (uint8_t) (bit_masking >> 8) | bit_mask_change.bit_mask[1];
-            		 	 			bit_mask_change.bit_mask[2] = (uint8_t) bit_masking | bit_mask_change.bit_mask[2];
-            		 	 			output_vector_def[convert_to_integer(result)] = '1';
-            		 	 		}
-            		 	 		/*The '1' means that the output pin has been declared*/
-            		 	 	}
-            		 }
-
-        	 }
-        		 if(is_test_vector && strchr(line, (int)COMMENT_CHAR) == NULL
-        			 && strstr(line,TEST_VECTOR) == NULL
-        			 && strstr(line,TEST_VECTOR_END) == NULL) {
-        		 //If we are in the test vector pattern and it is not a comment
-        			 int i,j = 0,w = 0;
-        			 bit_masking = 0;
-        			 test.metadata1 = REQ_TYPE(REQ_TEST_VECTOR);
-        			 for (i = 0; i < CHAR_NUMBER; i++) {
-        			 	 if(line[i]=='0' || line [i] == '1') {
-        			 		 while(j > vector_declared_size(input_vector_def) &&
-        			 		       output_vector_def[w] !='1' &&
-        			 		       	   w <= vector_declared_size(output_vector_def))
-        			 		      w++;
-        			 		 if(j > vector_declared_size(input_vector_def) &&
-        			 				 w <= vector_declared_size(output_vector_def)) {
-        			 			  //This generates the proper number set into the memory
-			 			 		  uint32_t aux = bit_masking;
-        			 			  bit_masking = (line[i] - 48) << (MAX_INPUT_OUTPUT_SIZE - w - 1);
-        			 			  test.output_vector[0] = (uint8_t) (test.output_vector[0] | aux >> 16);
-        			 			  test.output_vector[1] = (uint8_t) (test.output_vector[1] | aux >> 8);
-        			 			  test.output_vector[2] = (uint8_t) (test.output_vector[2] | aux);
-        			 		      //Remember to erase this
-        			 		      w++;
-        			 		      }
-			 			 	 while(input_vector_def[j] !='1' &&
-			 			 		j <= vector_declared_size(input_vector_def))
-			 			 		j++;
-			 			 	 if(j <= vector_declared_size(input_vector_def)) {
-			 			 		 bit_masking = (uint32_t)(line[i] - 48) << (MAX_INPUT_OUTPUT_SIZE - j -1);
-			 			 		 uint32_t aux = bit_masking;
-			 			 		 test.input_vector[0] = (uint8_t) (test.input_vector[0] | aux >> 16);
-			 			 		 test.input_vector[1] = (uint8_t) (test.input_vector[1] | aux >> 8);
-			 			 		 test.input_vector[2] = (uint8_t) (test.input_vector[2] | aux);
-			 			 		 j++;
-			 			 	 }
-
-        			 	 }
-        		 }
-
-
-        		 /*Just checking stuff*/
-        		 printf("Metadata Target\n");
-        		 printf("x%X\n",target.metadata);
-        		 printf("Design Number:\n");
-        		 printf("%d\n",target.design_number);
-        		 printf("Metadata Test\n");
-        		 printf("x%X\n",test.metadata1);
-        		 //convert_to_vector(test,input_vector,output_vector);
-                 printf("Input Vector (to memory)\n");
-                 printint2bin(test.input_vector[0]);
-                 printint2bin(test.input_vector[1]);
-                 printint2bin(test.input_vector[2]);
-                 printf("\nOutput Vector (to memory)\n");
-                 printint2bin(test.output_vector[0]);
-                 printint2bin(test.output_vector[1]);
-                 printint2bin(test.output_vector[2]);
-                 printf("\n BitMask (to memory)\n");
-                 printint2bin(bit_mask_change.bit_mask[0]);
-                 printint2bin(bit_mask_change.bit_mask[1]);
-                 printint2bin(bit_mask_change.bit_mask[2]);
-         		 printf("\n");
-
-        	 }
-
-        	 }
-         fclose(fp);
-         }
-	     }
-         //Close the file
-         closedir(mydir);
-         return 1;
+	for (i = 0; i < len; i++) {  
+		mask = 1 << (8*sizeof(*n) - 1);
+		do {
+			putchar((n[i] & mask) ? '1' : '0');
+			mask >>= 1;
+		} while (mask != 0);
+	}
 }
 
+
+static
+int
+tokenizer(char *s, char **tokens, int max_tokens)
+{
+	int ntokens = 0;
+
+	tokens[ntokens++] = s;
+
+	for (; *s != '\0'; s++) {
+		if (iswhitespace(*s) || *s == ',') {
+			*s++ = '\0';
+			for (; (*s == ',' || iswhitespace(*s)) && (*s != '\0'); s++)
+				;
+
+			tokens[ntokens++] = s;
+
+			if (ntokens == max_tokens)
+				return -1;
+		}
+	}
+
+	tokens[ntokens] = NULL;
+
+	return ntokens;
+}
+
+
+
+
+
+
+
+static
+int
+parse_line_vectors(char *s, parserinfo_t pi, void *buf, size_t bufsz)
+{
+	test_vector *tv;
+	int n = 0;
+
+	assert(sizeof(*tv) <= bufsz);
+	tv = buf;
+	memset(tv, 0, sizeof(*tv));
+
+	while (*s != '\0') {
+		if (*s != '0' && *s != '1') {
+			fprintf(stderr, "Syntax error: Vector contains invalid "
+			    "character: %c\n", *s);
+			return -1;
+		}
+
+		if (n >= pi->pin_count) {
+			fprintf(stderr, "Syntax error: Vector contains too "
+			    "many pins\n");
+			return -1;
+		}
+
+		if (pi->pins[n].type == INPUT_PIN)
+			tv->input_vector[pi->pins[n].bidx] |=
+			    (*s - '0') << pi->pins[n].shiftl;
+		else
+			tv->output_vector[pi->pins[n].bidx] |=
+			    (*s - '0') << pi->pins[n].shiftl;
+
+		++n;
+
+		++s;
+		for (; *s != '\0' && (iswhitespace(*s) || *s == ','); s++)
+			;
+	}
+
+	if (n < pi->pin_count) {
+		fprintf(stderr, "Syntax error: Vector contains too few "
+		    "pins\n");
+		return -1;
+	}
+
+	tv->metadata = REQ_TYPE(REQ_TEST_VECTOR);
+
+	return (int)sizeof(*tv);
+}
+
+
+static
+int
+parse_line_pindef(char *s, parserinfo_t pi, void *buf, size_t bufsz)
+{
+	change_bitmask *cb;
+	pin_type_t type;
+	char *pins[MAX_PINS];
+	char *e;
+	int pin_no, bidx, shiftl;
+	int ntoks, i;
+
+	assert(sizeof(*cb) <= bufsz);
+	cb = buf;
+	memset(cb, 0, sizeof(*cb));
+
+	cb->metadata = REQ_TYPE(REQ_SETUP_BITMASK);
+
+	pi->pin_count = 0;
+	memset(pi->bitmask, 0, sizeof(pi->bitmask));
+
+	if ((ntoks = tokenizer(s, pins, MAX_PINS)) == -1) {
+		fprintf(stderr, "Syntax error: maximum number of pins "
+		    "exceeded\n");
+		return -1;
+	}
+
+	for (i = 0; i < ntoks; i++) {
+		/* XXX: Use shorter named local variables, only assign to the pininfo, etc, in the end */
+		type =
+		    (pins[i][0] == INPUT_PIN) ? INPUT_PIN : OUTPUT_PIN;
+
+		pin_no = strtol(&(pins[i][1]), &e, 10);
+		if (*e != '\0') {
+			fprintf(stderr, "Syntax error: pin number must consist "
+			    "of only decimal digits\n");
+			return -1;
+		}
+
+		if (pin_no > ((type == INPUT_PIN) ? MAX_INPUT_PIN : MAX_OUTPUT_PIN)) {
+			fprintf(stderr, "Syntax error: pin number %d is out "
+			    "of range\n", pin_no);
+		}
+
+		bidx = 2 /* XXX, magical constant */ - pin_no / 8;
+		shiftl = pin_no % 8;
+
+		if (type == OUTPUT_PIN)
+			pi->bitmask[bidx] |= (1 << shiftl);
+
+		pi->pins[i].pin_no = pin_no;
+		pi->pins[i].type = type;
+		pi->pins[i].bidx = bidx;
+		pi->pins[i].shiftl = shiftl;
+
+		++pi->pin_count;
+	}
+
+	memcpy(cb->bit_mask, pi->bitmask, sizeof(cb->bit_mask));
+	return (int)sizeof(*cb);
+}
+
+
+
+static
+int
+parse_line_design(char *s, parserinfo_t pi, void *buf, size_t bufsz)
+{
+	change_target *ct;
+	char *e;
+
+	assert(sizeof(*ct) <= bufsz);
+	ct = buf;
+	memset(ct, 0, sizeof(*ct));
+
+	ct->metadata = REQ_TYPE(REQ_SWITCH_TARGET);
+
+	ct->design_number = (int)strtol(s, &e, 10);
+	if (s == e || *e != '\0') {
+		fprintf(stderr, "Syntax error: design number must contain only "
+		    "decimal digits\n");
+		return -1;
+	}
+
+	ct->design_number &= DESIGN_NUMBER_MASK;
+	return (int)sizeof(*ct);
+}
+
+
+void
+print_struct(void *buf, int sz)
+{
+	change_target *ct;
+	change_bitmask *cb;
+	test_vector *tv;
+	uint8_t *metadatap;
+	
+	metadatap = buf;
+
+	while (sz > 0) {
+		switch (*metadatap >> 5) {
+		case REQ_SWITCH_TARGET:
+			ct = buf;
+			sz -= sizeof(*ct);
+			printf("REQ_SWITCH_TARGET: target=%d\n", (int)ct->design_number);
+			break;
+
+		case REQ_SETUP_BITMASK:
+			cb = buf;
+			sz -= sizeof(*cb);
+			printf("REQ_SETUP_BITMASK: bitmask=");
+			bprint(cb->bit_mask, sizeof(cb->bit_mask));
+			putchar('\n');
+			break;
+
+		case REQ_TEST_VECTOR:
+			tv = buf;
+			sz -= sizeof(*tv);
+			printf("REQ_TEST_VECTOR: iv=");
+			bprint(tv->input_vector, sizeof(tv->input_vector));
+			printf(", ov=");
+			bprint(tv->output_vector, sizeof(tv->output_vector));
+			printf(", metadata2=%#x\n", (unsigned int)tv->metadata2);
+			break;
+
+		default:
+			printf("INVALID REQUEST TYPE: %#x\n",
+			    (unsigned int)(*metadatap >> 5));
+			return;
+		}
+	}
+}
+
+
+
+static
+int
+parse_file(FILE *fp)
+{
+	uint8_t buf[128];
+	struct parserinfo pi;
+	char line[1024];
+	char *s, *e;
+	keyword_t kwp;
+	int keyword_idx = -1;
+	int i, len, ssz;
+
+	memset(&pi, 0, sizeof(pi));
+
+	while(fgets(line, sizeof(line), fp) != NULL) {
+		/* skip leading whitespace */
+		for (s = line; *s != '\0' && iswhitespace(*s); s++)
+			;
+
+		/* Remove trailing comment */
+		if ((e = strchr(s, COMMENT_CHAR)) != NULL)
+			*e = '\0';
+
+		/* Removing trailing whitespace and newline character */
+		for (e = &(s[strlen(s)-1]);
+		     (e >= s) && (iswhitespace(*e) || *e == '\n');
+		     e--)
+			*e = '\0';
+
+		/* Don't parse this line if it's commented out */
+		if (*s == COMMENT_CHAR)
+			continue;
+
+		/* Ignore empty line */
+		if (*s == '\0')
+			continue;
+
+		for (i = 0; keywords[i].keyword != NULL; i++) {
+			len = strlen(keywords[i].keyword);
+
+			if ((strncmp(keywords[i].keyword, s, len)) != 0)
+				continue;
+
+			for (e = &(s[len]); *e != '\0' && iswhitespace(*e); e++)
+				;
+
+			if (*e == ':') {
+				keyword_idx = i;
+				s = ++e;
+				break;
+			}
+		}
+
+		if (keyword_idx < 0) {
+			fprintf(stderr, "Syntax error: File must start with "
+			    "valid keyword\n");
+			return -1;
+		}
+
+		/* skip leading whitespace */
+		for (; *s != '\0' && iswhitespace(*s); s++)
+			;
+
+		/* Effectively empty line */
+		if (*s == '\0')
+			continue;
+
+		ssz = keywords[keyword_idx].lp(s, &pi, buf, sizeof(buf));
+		if (ssz < 0)
+			return -1;
+
+		print_struct(buf, ssz);
+	}
+}
+
+
+int
+main(int argc, char *argv[])
+{
+	FILE *fp;
+	DIR *mydir;
+	char *rpath;
+	char fname[PATH_MAX];
+
+	if (argc < 2) {
+		fprintf(stderr, "Need one argument\n");
+		exit(1);
+	}
+
+	rpath = realpath(argv[1], NULL);
+	mydir = opendir(rpath);
+	/* XXX: Check for opendir error */
+	
+	struct dirent *entry = NULL;
+
+	while((entry = readdir(mydir))) {
+		if (entry->d_type != DT_REG) {
+			fprintf(stderr, "Skipping non-regular entry %s/%s\n",
+			    rpath, entry->d_name);
+			continue;
+		}
+
+		snprintf(fname, PATH_MAX, "%s/%s", rpath, entry->d_name);
+		printf("Processing %s\n", fname);
+
+		//Pointer for opening the file
+		fp = fopen(fname, "r");
+		if (fp == NULL) {
+			fprintf(stderr, "The file %s cannot be opened: %s\n",
+			    fname, strerror(errno));
+			continue;
+		}
+
+		parse_file(fp);
+		fclose(fp);
+	}
+
+	closedir(mydir);
+	return 0;
+}
