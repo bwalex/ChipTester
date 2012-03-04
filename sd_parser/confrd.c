@@ -104,7 +104,7 @@ struct keyword keywords[] = {
 	{ .keyword = "design"	, .lp = parse_line_design  },
 	{ .keyword = "pindef"	, .lp = parse_line_pindef  },
 	{ .keyword = "vectors"	, .lp = parse_line_vectors },
-	{ .keyword = "clock"    , .lp = parse_line_clock   },
+	{ .keyword = "clock"	, .lp = parse_line_clock   },
 	{ .keyword = NULL	, .lp = NULL }
 };
 
