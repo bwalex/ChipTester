@@ -9,6 +9,8 @@ radix define stim_states {
   6'b000100 "SWITCH_VDD" -color blue,
   6'b000101 "WR_FIFOS" -color yellow,
   6'b000110 "SETUP_BITMASK" -color orange,
+  6'b000111 "SEND_DICMD" -color orange,
+  6'b001000 "WR_DIFIFO" -color orange,
   -default binary
 }
 
@@ -84,6 +86,14 @@ add wave -noupdate -radix hexadecimal /top/rfifo_data
 add wave -noupdate /top/rfifo_rdreq
 add wave -noupdate /top/rfifo_rdempty
 add wave -noupdate -radix hexadecimal /top/rfifo_dataq
+
+add wave -noupdate -divider DIFIFO
+add wave -noupdate /top/dififo_wrreq
+add wave -noupdate /top/dififo_wrfull
+add wave -noupdate -radix hexadecimal /top/dififo_data
+add wave -noupdate /top/dififo_rdreq
+add wave -noupdate /top/dififo_rdempty
+add wave -noupdate -radix hexadecimal /top/dififo_dataq
 
 
 add wave -noupdate -divider STIM_AVALON_MM

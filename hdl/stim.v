@@ -5,7 +5,10 @@ module stim #(
             BUF_WIDTH  = 64,
             BOFF_WIDTH = 10,
             STF_WIDTH  = 24,
+            CMD_WIDTH  = 5,
             ORV_WIDTH  = 8,
+            REQ_WIDTH  = 3,
+            DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH,
             CHF_WIDTH  = STF_WIDTH+ORV_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
             SCC_WIDTH  = 5,
             SCD_WIDTH  = 24,
@@ -39,6 +42,11 @@ module stim #(
   input                       cfifo_wrfull,
   input                       cfifo_wrempty,
 
+  /* DI_FIFO (DUT IF FIFO) interface */
+  output     [ DIF_WIDTH-1:0] dififo_data,
+  output                      dififo_wrreq,
+  input                       dififo_wrfull,
+
   /* CHECK <=> STIM interface */
   output reg [ SCC_WIDTH-1:0] sc_cmd,
   output reg [ SCD_WIDTH-1:0] sc_data,
@@ -52,6 +60,7 @@ module stim #(
   parameter REQ_SWITCH_TARGET = 3'b000;
   parameter REQ_TEST_VECTOR   = 3'b001;
   parameter REQ_SETUP_BITMASK = 3'b010;
+  parameter REQ_SEND_DICMD    = 3'b011;
 
   parameter STATE_WIDTH       = 6;
   parameter IDLE              = 6'b000000;
@@ -61,6 +70,8 @@ module stim #(
   parameter SWITCH_VDD        = 6'b000100;
   parameter WR_FIFOS          = 6'b000101;
   parameter SETUP_BITMASK     = 6'b000110;
+  parameter SEND_DICMD        = 6'b000111;
+  parameter WR_DIFIFO         = 6'b001000;
 
   reg    [STATE_WIDTH-1:0] state;
   reg    [STATE_WIDTH-1:0] next_state; /* comb */
@@ -83,7 +94,7 @@ module stim #(
   reg    [ BOFF_WIDTH-1:0] words_stored;
   wire                     reset_wstored; /* comb */
   wire   [ BOFF_WIDTH-1:0] buffer_offset;
-  wire   [            3:0] req_type;
+  wire   [  REQ_WIDTH-1:0] req_type;
   reg    [            5:0] tv_len;
 
 
@@ -159,8 +170,10 @@ module stim #(
 
   assign sfifo_wrreq    =    (state == WR_FIFOS);
   assign cfifo_wrreq    =    (state == WR_FIFOS);
+  assign dififo_wrreq   =    (state == WR_DIFIFO);
 
   assign reset_waitcnt  =    (state == SWITCH_TARGET && next_state == SWITCH_VDD);
+
 
   assign reset_wstored     = (next_state == IDLE);
   assign reset_rdrequested = (next_state == IDLE);
@@ -168,7 +181,7 @@ module stim #(
 
 
   assign inc_address    = (mem_read && ~mem_waitrequest);
-  assign req_type       = buffer[0:2];
+  assign req_type       = buffer[0:REQ_WIDTH-1];
   assign input_vector   = buffer[8             +: STF_WIDTH];
   assign result_vector  = buffer[8+STF_WIDTH   +: STF_WIDTH];
   assign output_bitmask = buffer[8             +: STF_WIDTH];
@@ -180,12 +193,14 @@ module stim #(
   assign cfifo_data[CHF_WIDTH-STF_WIDTH-1            -: ADDR_WIDTH] = address-2;
   assign cfifo_data[CHF_WIDTH-STF_WIDTH-ADDR_WIDTH-1 -: ORV_WIDTH ] = 8'b0;
 
+  assign dififo_data   = { {REQ_WIDTH{1'b0}}, buffer[REQ_WIDTH +: CMD_WIDTH], buffer[8 +: STF_WIDTH] };
 
 
   always @(
        state
     or sfifo_wrfull
     or cfifo_wrfull
+    or dififo_wrfull
     or mem_waitrequest
     or req_type
     or words_stored
@@ -215,6 +230,7 @@ module stim #(
             REQ_SWITCH_TARGET:  next_state = SWITCH_TARGET;
             REQ_TEST_VECTOR:    next_state = READ_TV;
             REQ_SETUP_BITMASK:  next_state = SETUP_BITMASK;
+            REQ_SEND_DICMD:     next_state = SEND_DICMD;
             default:            next_state = IDLE;
           endcase
         end
@@ -240,6 +256,18 @@ module stim #(
           sc_cmd  = SC_CMD_BITMASK;
           sc_data = output_bitmask;
         end
+      end
+
+
+      SEND_DICMD: begin
+        if (words_stored == 2 && ~dififo_wrfull) begin
+          next_state = WR_DIFIFO;
+        end
+      end
+
+
+      WR_DIFIFO: begin
+        next_state = IDLE;
       end
 
 

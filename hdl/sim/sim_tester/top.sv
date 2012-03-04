@@ -54,6 +54,13 @@ module top();
   wire         rfifo_rdempty;
   wire  [23:0] rfifo_dataq;
 
+  wire  [31:0] dififo_data;
+  wire         dififo_wrreq;
+  wire         dififo_wrfull;
+  wire         dififo_rdreq;
+  wire         dififo_rdempty;
+  wire  [31:0] dififo_dataq;
+
   wire  [51:0] cfifo_data;
   wire         cfifo_wrreq;
   logic        cfifo_wrfull;
@@ -161,6 +168,10 @@ module top();
     .cfifo_wrfull       (cfifo_wrfull),
     .cfifo_wrempty      (cfifo_wrempty),
 
+    .dififo_data         (dififo_data),
+    .dififo_wrreq        (dififo_wrreq),
+    .dififo_wrfull       (dififo_wrfull),
+
     .sc_cmd             (sc_cmd),
     .sc_data            (sc_data),
     .sc_switching       (sc_switching),
@@ -246,7 +257,20 @@ module top();
     .rdempty            (rfifo_rdempty),
     .wrfull             (rfifo_wrfull)
   );
-  
+
+
+  dififo dififo_inst(
+    .aclr               (reset),
+    .data               (dififo_data),
+    .rdclk              (clock),
+    .rdreq              (dififo_rdreq),
+    .wrclk              (clock_10),
+    .wrreq              (dififo_wrreq),
+    .q                  (dififo_dataq),
+    .rdempty            (dififo_rdempty),
+    .wrfull             (dififo_wrfull)
+  );
+
 
   // 100 MHz clock
   always
