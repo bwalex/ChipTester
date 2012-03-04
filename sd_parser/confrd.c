@@ -50,18 +50,21 @@ typedef struct change_target {
 	uint8_t metadata;
 	uint8_t design_number;
 	uint8_t padding[2];
+	uint8_t padding[2];
 } change_target;
 
 
 typedef struct change_bitmask {
 	uint8_t metadata;
 	uint8_t bit_mask[3];
+	uint8_t padding[2];
 } change_bitmask;
 
 
 typedef struct send_dicmd {
 	uint8_t metadata;
 	uint8_t payload[3];
+	uint8_t padding[2];
 } send_dicmd;
 
 
