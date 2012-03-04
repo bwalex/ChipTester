@@ -161,8 +161,11 @@ module stim #(
   assign mem_address    = address;
   assign mem_byteenable = 2'b11;
   assign mem_read       =    (state == IDLE          && (~sfifo_wrfull && ~cfifo_wrfull))
-                          || (state == READ_META)
-                          || (state == SETUP_BITMASK && (reads_requested < 2))
+                          || (state == READ_META     && (reads_requested < 3))
+                          || (state == SETUP_BITMASK && (reads_requested < 3))
+                          || (state == SEND_DICMD    && (reads_requested < 3))
+                          || (state == SWITCH_TARGET && (reads_requested < 3))
+                          || (state == SWITCH_VDD    && (reads_requested < 3))
                           || (state == READ_TV       && (reads_requested < tv_len));
 
   assign switching      =    (state == SWITCH_TARGET)
@@ -250,7 +253,7 @@ module stim #(
 
 
       SETUP_BITMASK: begin
-        if (words_stored == 2 && sc_ready) begin
+        if (words_stored == 3 && sc_ready) begin
           next_state = IDLE;
 
           sc_cmd  = SC_CMD_BITMASK;
@@ -260,7 +263,7 @@ module stim #(
 
 
       SEND_DICMD: begin
-        if (words_stored == 2 && ~dififo_wrfull) begin
+        if (words_stored == 3 && ~dififo_wrfull) begin
           next_state = WR_DIFIFO;
         end
       end
