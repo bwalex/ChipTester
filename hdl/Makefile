@@ -34,6 +34,12 @@ compile:
 
 
 clean:
+	rm -rf .qsys_edit
+	rm -rf linuxsys
+	rm -f linuxsys.bsf linuxsys.html linuxsys.sopcinfo
+	rm -f *.rpt *.smsg *.summary *.done *.pin *.jdi *.sof
+	rm -f PLLJ_PLLSPE_INFO.txt
+	rm -rf db incremental_db
+
+realclean: clean
 	rm -f *.bak *~
-	rm -rf linuxsys/
-	rm -f *.rpt
