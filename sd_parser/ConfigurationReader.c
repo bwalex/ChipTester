@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <math.h>
 #include <assert.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -12,8 +11,6 @@
 
 
 #define COMMENT_CHAR		'#' //Comment definition
-//#define INPUT_PIN		'A' //Input pin definition
-//#define OUTPUT_PIN		'Q' //Output pin definition
 
 #define MAX_INPUT_OUTPUT_SIZE	24
 #define MAX_INPUT_PIN		(MAX_INPUT_OUTPUT_SIZE-1)
@@ -21,7 +18,7 @@
 #define BITMASK_BYTES		MAX_INPUT_OUTPUT_SIZE
 #define MAX_PINS		(2*MAX_INPUT_OUTPUT_SIZE)
 
-#define DESIGN_NUMBER_MASK 	0x1f
+#define DESIGN_NUMBER_MASK	0x1f
 
 #define REQ_SWITCH_TARGET	0x00
 #define REQ_TEST_VECTOR		0x01
@@ -102,7 +99,7 @@ bprint(uint8_t *n, size_t len)
 	uint8_t mask;
 	size_t i;
 
-	for (i = 0; i < len; i++) {  
+	for (i = 0; i < len; i++) {
 		mask = 1 << (8*sizeof(*n) - 1);
 		do {
 			putchar((n[i] & mask) ? '1' : '0');
@@ -139,11 +136,6 @@ tokenizer(char *s, char **tokens, int max_tokens)
 }
 
 
-
-
-
-
-
 static
 int
 parse_line_vectors(char *s, parserinfo_t pi, void *buf, size_t bufsz)
@@ -168,6 +160,10 @@ parse_line_vectors(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 			return -1;
 		}
 
+		/*
+		 * Set the correct pin according to the pin info assembled
+		 * earlier when parsing the pindef.
+		 */
 		if (pi->pins[n].type == INPUT_PIN)
 			tv->input_vector[pi->pins[n].bidx] |=
 			    (*s - '0') << pi->pins[n].shiftl;
@@ -178,6 +174,8 @@ parse_line_vectors(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 		++n;
 
 		++s;
+
+		/* Skip all whitespace and commas after each bit */
 		for (; *s != '\0' && (iswhitespace(*s) || *s == ','); s++)
 			;
 	}
@@ -214,6 +212,7 @@ parse_line_pindef(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 	pi->pin_count = 0;
 	memset(pi->bitmask, 0, sizeof(pi->bitmask));
 
+	/* Tokenize pindef, tokens being separated by whitespace or comma */
 	if ((ntoks = tokenizer(s, pins, MAX_PINS)) == -1) {
 		fprintf(stderr, "Syntax error: maximum number of pins "
 		    "exceeded\n");
@@ -221,10 +220,10 @@ parse_line_pindef(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 	}
 
 	for (i = 0; i < ntoks; i++) {
-		/* XXX: Use shorter named local variables, only assign to the pininfo, etc, in the end */
-		type =
-		    (pins[i][0] == INPUT_PIN) ? INPUT_PIN : OUTPUT_PIN;
+		/* Determine pin type by first character of pin */
+		type = (pins[i][0] == INPUT_PIN) ? INPUT_PIN : OUTPUT_PIN;
 
+		/* Pin number follows the pin type character */
 		pin_no = strtol(&(pins[i][1]), &e, 10);
 		if (*e != '\0') {
 			fprintf(stderr, "Syntax error: pin number must consist "
@@ -237,9 +236,11 @@ parse_line_pindef(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 			    "of range\n", pin_no);
 		}
 
+		/* Find byte index as well as bit within that byte index */
 		bidx = 2 /* XXX, magical constant */ - pin_no / 8;
 		shiftl = pin_no % 8;
 
+		/* If it's an output pin, update the result bitmask */
 		if (type == OUTPUT_PIN)
 			pi->bitmask[bidx] |= (1 << shiftl);
 
@@ -299,14 +300,14 @@ print_struct(uint8_t *buf, int sz)
 			ct = (change_target *)buf;
 			sz -= sizeof(*ct);
 			buf += sizeof(*ct);
-			printf("REQ_SWITCH_TARGET: target=%d\n", (int)ct->design_number);
+			printf("REQ_SWITCH_TARGET:\ttarget=%d\n", (int)ct->design_number);
 			break;
 
 		case REQ_SETUP_BITMASK:
 			cb = (change_bitmask *)buf;
 			sz -= sizeof(*cb);
 			buf += sizeof(*cb);
-			printf("REQ_SETUP_BITMASK: bitmask=");
+			printf("REQ_SETUP_BITMASK:\tbitmask=");
 			bprint(cb->bit_mask, sizeof(cb->bit_mask));
 			putchar('\n');
 			break;
@@ -315,7 +316,7 @@ print_struct(uint8_t *buf, int sz)
 			tv = (test_vector *)buf;
 			sz -= sizeof(*tv);
 			buf += sizeof(*tv);
-			printf("REQ_TEST_VECTOR: iv=");
+			printf("REQ_TEST_VECTOR:\tiv=");
 			bprint(tv->input_vector, sizeof(tv->input_vector));
 			printf(", ov=");
 			bprint(tv->output_vector, sizeof(tv->output_vector));
@@ -340,7 +341,6 @@ parse_file(FILE *fp)
 	struct parserinfo pi;
 	char line[1024];
 	char *s, *e;
-	keyword_t kwp;
 	int keyword_idx = -1;
 	int i, len, ssz;
 
@@ -375,6 +375,7 @@ parse_file(FILE *fp)
 			if ((strncmp(keywords[i].keyword, s, len)) != 0)
 				continue;
 
+			/* Trim whitespace between command and the colon */
 			for (e = &(s[len]); *e != '\0' && iswhitespace(*e); e++)
 				;
 
@@ -399,22 +400,27 @@ parse_file(FILE *fp)
 		if (*s == '\0')
 			continue;
 
+		/* Let section-specific line parser do its job */
 		ssz = keywords[keyword_idx].lp(s, &pi, buf, sizeof(buf));
 		if (ssz < 0)
 			return -1;
 
 		print_struct(buf, ssz);
 	}
+
+	return 0;
 }
 
 
 int
 main(int argc, char *argv[])
 {
+	struct dirent *entry;
 	FILE *fp;
 	DIR *mydir;
 	char *rpath;
 	char fname[PATH_MAX];
+
 
 	if (argc < 2) {
 		fprintf(stderr, "Need one argument\n");
@@ -423,9 +429,10 @@ main(int argc, char *argv[])
 
 	rpath = realpath(argv[1], NULL);
 	mydir = opendir(rpath);
-	/* XXX: Check for opendir error */
-	
-	struct dirent *entry = NULL;
+	if (mydir == NULL) {
+		perror("opendir");
+		exit(1);
+	}
 
 	while((entry = readdir(mydir))) {
 		if (entry->d_type != DT_REG) {

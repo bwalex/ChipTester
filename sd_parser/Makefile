@@ -1,2 +1,11 @@
+WARNFLAGS= -Wsystem-headers -Wall -W -Wno-unused-parameter \
+	-Wstrict-prototypes -Wmissing-prototypes -Wpointer-arith \
+	-Wold-style-definition -Wreturn-type -Wwrite-strings \
+	-Wswitch -Wshadow -Wcast-align -Wchar-subscripts \
+	-Winline -Wnested-externs
+
+CFLAGS= -g3 -O0 $(WARNFLAGS)
+CC?= gcc
+
 all:
-	gcc -g3 -O0 ConfigurationReader.c -o confrd
+	$(CC) $(CFLAGS) ConfigurationReader.c -o confrd
