@@ -24,8 +24,12 @@
 #define REQ_SWITCH_TARGET	0x00
 #define REQ_TEST_VECTOR		0x01
 #define REQ_SETUP_BITMASK	0x02
+#define REQ_SEND_DICMD		0x03
+
+#define DICMD_SETUP_MUXES	0x01
 
 #define REQ_TYPE(r)		((r & 0x07) << 5)
+#define DICMD(c)		(c & 0x1f)
 
 #define iswhitespace(c)		((c == ' ') || (c == '\t'))
 
@@ -45,6 +49,7 @@ typedef struct test_vector {
 typedef struct change_target {
 	uint8_t metadata;
 	uint8_t design_number;
+	uint8_t padding[2];
 } change_target;
 
 
@@ -52,6 +57,12 @@ typedef struct change_bitmask {
 	uint8_t metadata;
 	uint8_t bit_mask[3];
 } change_bitmask;
+
+
+typedef struct send_dicmd {
+	uint8_t metadata;
+	uint8_t payload[3];
+} send_dicmd;
 
 
 typedef struct pininfo {
@@ -82,6 +93,7 @@ typedef struct keyword {
 static int parse_line_design(char *, parserinfo_t, void *, size_t);
 static int parse_line_pindef(char *, parserinfo_t, void *, size_t);
 static int parse_line_vectors(char *, parserinfo_t, void *, size_t);
+static int parse_line_clock(char *, parserinfo_t, void *, size_t);
 
 
 
@@ -89,6 +101,7 @@ struct keyword keywords[] = {
 	{ .keyword = "design"	, .lp = parse_line_design  },
 	{ .keyword = "pindef"	, .lp = parse_line_pindef  },
 	{ .keyword = "vectors"	, .lp = parse_line_vectors },
+	{ .keyword = "clock"    , .lp = parse_line_clock   },
 	{ .keyword = NULL	, .lp = NULL }
 };
 
@@ -261,6 +274,71 @@ parse_line_pindef(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 }
 
 
+/*
+ * XXX: can add additional error checking to see whether clock: and pindef:
+ *      overlap.
+ */
+
+/*
+ * XXX: can change all the fprintf(stderr, "Syntax error"...) to be a separate
+ *      function that will also print the current line number.
+ */
+static
+int
+parse_line_clock(char *s, parserinfo_t pi, void *buf, size_t bufsz)
+{
+	send_dicmd *sd;
+	pin_type_t type;
+	char *pins[MAX_PINS];
+	char *e;
+	int pin_no, bidx, shiftl;
+	int ntoks, i;
+
+	assert(sizeof(*sd) <= bufsz);
+	sd = buf;
+	memset(sd, 0, sizeof(*sd));
+
+	sd->metadata = REQ_TYPE(REQ_SEND_DICMD) | DICMD(DICMD_SETUP_MUXES);
+
+	/* Tokenize pindef, tokens being separated by whitespace or comma */
+	if ((ntoks = tokenizer(s, pins, MAX_INPUT_OUTPUT_SIZE)) == -1) {
+		fprintf(stderr, "Syntax error: maximum number of pins "
+		    "exceeded\n");
+		return -1;
+	}
+
+	for (i = 0; i < ntoks; i++) {
+		/* Determine pin type by first character of pin */
+		type = (pins[i][0] == INPUT_PIN) ? INPUT_PIN : OUTPUT_PIN;
+		if (type == OUTPUT_PIN) {
+			fprintf(stderr, "Syntax error: clock signals need to be "
+			    "connected to input pins, not output pins\n");
+			return -1;
+		}
+
+		/* Pin number follows the pin type character */
+		pin_no = strtol(&(pins[i][1]), &e, 10);
+		if (*e != '\0') {
+			fprintf(stderr, "Syntax error: pin number must consist "
+			    "of only decimal digits\n");
+			return -1;
+		}
+
+		if (pin_no > MAX_INPUT_PIN) {
+			fprintf(stderr, "Syntax error: pin number %d is out "
+			    "of range\n", pin_no);
+		}
+
+		/* Find byte index as well as bit within that byte index */
+		bidx = 2 /* XXX, magical constant */ - pin_no / 8;
+		shiftl = pin_no % 8;
+
+		sd->payload[bidx] |= (1 << shiftl);
+	}
+
+	return (int)sizeof(*sd);
+}
+
 
 static
 int
@@ -294,6 +372,7 @@ print_mem(uint8_t *buf, int sz)
 	change_target *ct;
 	change_bitmask *cb;
 	test_vector *tv;
+	send_dicmd *sd;
 	uint8_t *metadatap;
 
 	while (sz > 0) {
@@ -325,6 +404,22 @@ print_mem(uint8_t *buf, int sz)
 			printf(", ov=");
 			bprint(tv->output_vector, sizeof(tv->output_vector));
 			printf(", metadata2=%#x\n", (unsigned int)tv->metadata2);
+			break;
+
+		case REQ_SEND_DICMD:
+			sd = (send_dicmd *)buf;
+			sz -= sizeof(*sd);
+			buf += sizeof(*sd);
+			printf("REQ_SEND_DICMD:\t\tcmd=");
+			switch (DICMD(sd->metadata)) {
+			case DICMD_SETUP_MUXES:
+				printf("DICMD_SETUP_MUXES, mux_config=");
+				bprint(sd->payload, sizeof(sd->payload));
+				putchar('\n');
+				break;
+			default:
+				printf("unknown\n");
+			}
 			break;
 
 		default:
