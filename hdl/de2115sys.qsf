@@ -558,6 +558,7 @@ set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name VERILOG_FILE sram_arb_sync.v
 set_global_assignment -name VERILOG_FILE sram_arb.v
 set_global_assignment -name VERILOG_FILE linuxsys/synthesis/submodules/linuxsys_func_sel.v
 set_global_assignment -name SYSTEMVERILOG_FILE linuxsys/synthesis/submodules/linuxsys_rsp_xbar_demux_018.sv

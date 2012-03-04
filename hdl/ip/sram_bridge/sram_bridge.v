@@ -11,6 +11,7 @@ module sram_bridge #(
 
   input                   read,
   output [          15:0] readdata,
+  output                  readdataready,
 
   input                   write,
   input  [          15:0] writedata,
@@ -25,6 +26,7 @@ module sram_bridge #(
 
   output                  m_read,
   input  [          15:0] m_readdata,
+  input                   m_readdataready,
 
   output                  m_write,
   output [          15:0] m_writedata,
@@ -41,5 +43,6 @@ module sram_bridge #(
   assign m_write      = write;
   assign m_writedata  = writedata;
   assign waitrequest  = m_waitrequest;
+  assign readdataready = m_readdataready;
 
 endmodule

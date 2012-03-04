@@ -118,6 +118,7 @@ module de2115sys(
   wire   [ 1:0] sopc_sram_byteenable;
   wire          sopc_sram_read;
   wire   [15:0] sopc_sram_readdata;
+  wire          sopc_sram_readdataready;
   wire          sopc_sram_write;
   wire   [15:0] sopc_sram_writedata;
   wire          sopc_sram_waitrequest;
@@ -183,7 +184,7 @@ module de2115sys(
   assign LEDG = sopc_sram_waitrequest;
   assign LEDG0 = tr_sram_waitrequest;
 
-  sram_arb#(
+  sram_arb_sync#(
     .ADDR_WIDTH (20),
 	 .DATA_WIDTH (16),
 	 .SEL_WIDTH  (1)
@@ -205,6 +206,7 @@ module de2115sys(
     .sopc_byteenable     (sopc_sram_byteenable),
     .sopc_read           (sopc_sram_read),
     .sopc_readdata       (sopc_sram_readdata),
+    .sopc_readdataready  (sopc_sram_readdataready),
     .sopc_write          (sopc_sram_write),
     .sopc_writedata      (sopc_sram_writedata),
     .sopc_waitrequest    (sopc_sram_waitrequest),
@@ -317,6 +319,7 @@ module de2115sys(
     .sram_conduit_byteenable                (sopc_sram_byteenable),
     .sram_conduit_readdata                  (sopc_sram_readdata),
     .sram_conduit_read                      (sopc_sram_read),
+    .sram_conduit_readdataready             (sopc_sram_readdataready),
     .sram_conduit_write                     (sopc_sram_write),
     .sram_conduit_writedata                 (sopc_sram_writedata),
     .sram_conduit_waitrequest               (sopc_sram_waitrequest),

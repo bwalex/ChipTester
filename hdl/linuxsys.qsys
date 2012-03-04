@@ -151,19 +151,19 @@
          type = "boolean";
       }
    }
-   element sgdma_rx.csr
-   {
-      datum baseAddress
-      {
-         value = "134231104";
-         type = "long";
-      }
-   }
    element sgdma_tx.csr
    {
       datum baseAddress
       {
          value = "134231040";
+         type = "long";
+      }
+   }
+   element sgdma_rx.csr
+   {
+      datum baseAddress
+      {
+         value = "134231104";
          type = "long";
       }
    }
@@ -324,6 +324,14 @@
          type = "long";
       }
    }
+   element descriptor_memory.s1
+   {
+      datum baseAddress
+      {
+         value = "134221824";
+         type = "long";
+      }
+   }
    element sdram_0.s1
    {
       datum _lockedAddress
@@ -334,14 +342,6 @@
       datum baseAddress
       {
          value = "0";
-         type = "long";
-      }
-   }
-   element descriptor_memory.s1
-   {
-      datum baseAddress
-      {
-         value = "134221824";
          type = "long";
       }
    }
@@ -463,7 +463,7 @@
       }
       datum sopceditor_expanded
       {
-         value = "1";
+         value = "0";
          type = "boolean";
       }
    }
@@ -565,7 +565,7 @@
  <parameter name="projectName" value="de2115sys.qpf" />
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="1" />
- <parameter name="timeStamp" value="1329738211810" />
+ <parameter name="timeStamp" value="1330879180121" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="altpll_0_c1" internal="altpll_0.c1" type="clock" dir="start">
