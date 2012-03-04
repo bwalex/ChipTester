@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
+#include <getopt.h>
 
 
 #define COMMENT_CHAR		'#' //Comment definition
@@ -90,6 +91,9 @@ struct keyword keywords[] = {
 	{ .keyword = "vectors"	, .lp = parse_line_vectors },
 	{ .keyword = NULL	, .lp = NULL }
 };
+
+int sflag = 0;
+char *sram_file = NULL;
 
 
 static
@@ -285,7 +289,7 @@ parse_line_design(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 
 static
 void
-print_struct(uint8_t *buf, int sz)
+print_mem(uint8_t *buf, int sz)
 {
 	change_target *ct;
 	change_bitmask *cb;
@@ -331,6 +335,24 @@ print_struct(uint8_t *buf, int sz)
 	}
 }
 
+
+static
+void
+save_sram_file(uint8_t *buf, int sz)
+{
+	FILE *fp;
+	int i;
+
+	if ((fp = fopen(sram_file, "a")) == NULL) {
+		perror("save_sram_file: fopen");
+		return;
+	}
+
+	for (i = 0; i < sz; i += 2)
+		fprintf(fp, "%.2x%.2x\n", buf[i], buf[i+1]);
+
+	fclose(fp);
+}
 
 
 static
@@ -405,10 +427,28 @@ parse_file(FILE *fp)
 		if (ssz < 0)
 			return -1;
 
-		print_struct(buf, ssz);
+		print_mem(buf, ssz);
+		if (sflag)
+			save_sram_file(buf, ssz);
 	}
 
 	return 0;
+}
+
+
+static
+void
+usage(int exitval)
+{
+	fprintf(stderr,
+		"Usage: confrd [options] <configuration directory>\n"
+		"Valid options are:\n"
+		" -s <file>\n"
+		"\t Write an SRAM initialization file containing the data generated\n"
+		"\t using the configuration file(s).\n"
+		);
+
+	exit(exitval);
 }
 
 
@@ -420,14 +460,38 @@ main(int argc, char *argv[])
 	DIR *mydir;
 	char *rpath;
 	char fname[PATH_MAX];
+	int c;
 
 
-	if (argc < 2) {
-		fprintf(stderr, "Need one argument\n");
-		exit(1);
+	while ((c = getopt (argc, argv, "s:")) != -1) {
+		switch (c) {
+		case 's':
+			sflag = 1;
+			sram_file = optarg;
+			/* Delete old file if present, since we'll be appending */
+			unlink(sram_file);
+			break;
+
+		case '?':
+		case 'h':
+			usage(0);
+			/* NOT REACHED */
+
+		default:
+			usage(1);
+			/* NOT REACHED */
+		}
 	}
 
-	rpath = realpath(argv[1], NULL);
+	argc -= optind;
+	argv += optind;
+
+	if (argc < 1) {
+		usage(1);
+		/* NOT REACHED */
+	}
+
+	rpath = realpath(argv[0], NULL);
 	mydir = opendir(rpath);
 	if (mydir == NULL) {
 		perror("opendir");
