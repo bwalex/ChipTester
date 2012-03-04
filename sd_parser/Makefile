@@ -8,4 +8,10 @@ CFLAGS= -g3 -O0 $(WARNFLAGS)
 CC?= gcc
 
 all:
-	$(CC) $(CFLAGS) ConfigurationReader.c -o confrd
+	$(CC) $(CFLAGS) confrd.c -o confrd
+
+clean:
+	rm -f confrd
+
+realclean: clean
+	rm -f *~ *.bak
