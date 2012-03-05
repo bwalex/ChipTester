@@ -5,8 +5,7 @@ module check #(
             BUF_WIDTH  = 64,
             BOFF_WIDTH = 10,
             RTF_WIDTH  = 24,
-            ORV_WIDTH  = 8,
-            CHF_WIDTH  = RTF_WIDTH+ORV_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
+            CHF_WIDTH  = RTF_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
             SCC_WIDTH  = 5,
             SCD_WIDTH  = 24,
             RESULT_VECTOR_WORDS = 2
@@ -34,7 +33,6 @@ module check #(
   /* CHECK <=> STIM interface */
   input      [ SCC_WIDTH-1:0] sc_cmd,
   input      [ SCD_WIDTH-1:0] sc_data,
-  input                       sc_switching,
   output                      sc_ready
 );
 
@@ -61,7 +59,6 @@ module check #(
   wire   [   RTF_WIDTH-1:0] result_vector;
   reg    [   RTF_WIDTH-1:0] result_bitmask;
   wire   [   RTF_WIDTH-1:0] bitmask;
-  wire   [   ORV_WIDTH-1:0] c_or_value;
   wire                      inc_address;
   wire                      load_address;
   wire                      load_bitmask;
@@ -141,7 +138,6 @@ module check #(
 
   assign c_result_vector  = cfifo_data[CHF_WIDTH-1                      -: RTF_WIDTH ] & result_bitmask;
   assign c_address        = cfifo_data[CHF_WIDTH-RTF_WIDTH-1            -: ADDR_WIDTH];
-  assign c_or_value       = cfifo_data[CHF_WIDTH-RTF_WIDTH-ADDR_WIDTH-1 -: ORV_WIDTH ];
   assign meta_info        = 8'b0 | META_RUN | check_fail_r;
   assign result_vector    = rfifo_data & result_bitmask;
   assign mem_writedata    = (words_stored == 0) ?

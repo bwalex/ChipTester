@@ -14,11 +14,9 @@ vlog     $HDL_BASE/sram_arb_sync.v
 vlog     $HDL_BASE/mem_if.v
 vlog     $HDL_BASE/stim.v
 vlog     $HDL_BASE/check.v
-vlog     $HDL_BASE/cfifo.v
-vlog     $HDL_BASE/rfifo.v
-vlog     $HDL_BASE/stfifo.v
-vlog     $HDL_BASE/dififo.v
+vlog     $HDL_BASE/dcfifo_custom.v
 vlog     $HDL_BASE/dut_if.v
+vlog     $HDL_BASE/test_controller.v
 vlog     ./loopback.v
 vlog -sv ./top.sv
 # Elaborate the top-level design

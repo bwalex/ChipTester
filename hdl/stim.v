@@ -2,14 +2,13 @@ module stim #(
   parameter ADDR_WIDTH = 20,
             DATA_WIDTH = 16,
             BE_WIDTH   = DATA_WIDTH/8,
-            BUF_WIDTH  = 64,
-            BOFF_WIDTH = 10,
+            BUF_WIDTH  = 64, /* size of largest record */
+            BOFF_WIDTH = 8, /* at least log2 of BUF_WIDTH */
             STF_WIDTH  = 24,
             CMD_WIDTH  = 5,
-            ORV_WIDTH  = 8,
             REQ_WIDTH  = 3,
             DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH,
-            CHF_WIDTH  = STF_WIDTH+ORV_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
+            CHF_WIDTH  = STF_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
             SCC_WIDTH  = 5,
             SCD_WIDTH  = 24,
             WAIT_WIDTH = 16,
@@ -50,7 +49,6 @@ module stim #(
   /* CHECK <=> STIM interface */
   output reg [ SCC_WIDTH-1:0] sc_cmd,
   output reg [ SCD_WIDTH-1:0] sc_data,
-  output                      sc_switching,
   input                       sc_ready
 );
 
@@ -172,7 +170,7 @@ module stim #(
     if (~reset_n)
       buffer <= 'b0;
     else if (mem_readdataready)
-      buffer[(buffer_offset << 4) +: DATA_WIDTH] <= mem_readdata;
+      buffer[(buffer_offset << 4 /* XXX: 4 is log2(word size in bits) */) +: DATA_WIDTH] <= mem_readdata;
 
 
   assign mem_address    = address;
@@ -211,7 +209,6 @@ module stim #(
 
   assign cfifo_data[CHF_WIDTH-1                      -: STF_WIDTH ] = result_vector;
   assign cfifo_data[CHF_WIDTH-STF_WIDTH-1            -: ADDR_WIDTH] = address-2;
-  assign cfifo_data[CHF_WIDTH-STF_WIDTH-ADDR_WIDTH-1 -: ORV_WIDTH ] = 8'b0;
 
   assign dififo_data   = { {REQ_WIDTH{1'b0}}, buffer[REQ_WIDTH +: CMD_WIDTH], buffer[8 +: STF_WIDTH] };
 

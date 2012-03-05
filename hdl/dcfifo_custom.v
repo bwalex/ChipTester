@@ -36,7 +36,7 @@
 // synopsys translate_off
 `timescale 1 ps / 1 ps
 // synopsys translate_on
-module stfifo (
+module dcfifo_custom (
 	aclr,
 	data,
 	rdclk,
@@ -47,14 +47,17 @@ module stfifo (
 	rdempty,
 	wrempty,
 	wrfull);
+	
+	parameter DATA_WIDTH = 24;
+	parameter FIFO_DEPTH = 16;
 
 	input	  aclr;
-	input	[23:0]  data;
+	input	[DATA_WIDTH-1:0]  data;
 	input	  rdclk;
 	input	  rdreq;
 	input	  wrclk;
 	input	  wrreq;
-	output	[23:0]  q;
+	output	[DATA_WIDTH-1:0]  q;
 	output	  rdempty;
 	output	  wrempty;
 	output	  wrfull;
@@ -68,11 +71,11 @@ module stfifo (
 
 	wire  sub_wire0;
 	wire  sub_wire1;
-	wire [23:0] sub_wire2;
+	wire [DATA_WIDTH-1:0] sub_wire2;
 	wire  sub_wire3;
 	wire  wrempty = sub_wire0;
 	wire  wrfull = sub_wire1;
-	wire [23:0] q = sub_wire2[23:0];
+	wire [DATA_WIDTH-1:0] q = sub_wire2[DATA_WIDTH-1:0];
 	wire  rdempty = sub_wire3;
 
 	dcfifo	dcfifo_component (
@@ -91,10 +94,10 @@ module stfifo (
 				.wrusedw ());
 	defparam
 		dcfifo_component.intended_device_family = "Cyclone IV E",
-		dcfifo_component.lpm_numwords = 16,
+		dcfifo_component.lpm_numwords = FIFO_DEPTH,
 		dcfifo_component.lpm_showahead = "OFF",
 		dcfifo_component.lpm_type = "dcfifo",
-		dcfifo_component.lpm_width = 24,
+		dcfifo_component.lpm_width = DATA_WIDTH,
 		dcfifo_component.lpm_widthu = 4,
 		dcfifo_component.overflow_checking = "ON",
 		dcfifo_component.rdsync_delaypipe = 4,

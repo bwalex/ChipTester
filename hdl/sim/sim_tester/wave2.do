@@ -57,107 +57,107 @@ add wave -noupdate /top/write
 add wave -noupdate -radix hexadecimal /top/writedata
 add wave -noupdate /top/read
 add wave -noupdate -radix hexadecimal /top/readdata
-add wave -noupdate /top/memif/mem_waitrequest
-add wave -noupdate /top/memif/mem_readdataready
-add wave -noupdate /top/memif/sel
+add wave -noupdate /top/test_controller/memif/mem_waitrequest
+add wave -noupdate /top/test_controller/memif/mem_readdataready
+add wave -noupdate /top/test_controller/memif/sel
 
 
 add wave -noupdate -divider SFIFO
-add wave -noupdate /top/sfifo_wrreq
-add wave -noupdate /top/sfifo_wrfull
-add wave -noupdate /top/sfifo_wrempty
-add wave -noupdate -radix hexadecimal /top/sfifo_data
-add wave -noupdate /top/sfifo_rdreq
-add wave -noupdate /top/sfifo_rdempty
-add wave -noupdate -radix hexadecimal /top/sfifo_dataq
+add wave -noupdate /top/test_controller/sfifo_wrreq
+add wave -noupdate /top/test_controller/sfifo_wrfull
+add wave -noupdate /top/test_controller/sfifo_wrempty
+add wave -noupdate -radix hexadecimal /top/test_controller/sfifo_data
+add wave -noupdate /top/test_controller/sfifo_rdreq
+add wave -noupdate /top/test_controller/sfifo_rdempty
+add wave -noupdate -radix hexadecimal /top/test_controller/sfifo_dataq
 
 add wave -noupdate -divider CFIFO
-add wave -noupdate /top/cfifo_wrreq
-add wave -noupdate /top/cfifo_wrfull
-add wave -noupdate /top/cfifo_wrempty
-add wave -noupdate -radix hexadecimal /top/cfifo_data
-add wave -noupdate /top/cfifo_rdreq
-add wave -noupdate /top/cfifo_rdempty
-add wave -noupdate -radix hexadecimal /top/cfifo_dataq
+add wave -noupdate /top/test_controller/cfifo_wrreq
+add wave -noupdate /top/test_controller/cfifo_wrfull
+add wave -noupdate /top/test_controller/cfifo_wrempty
+add wave -noupdate -radix hexadecimal /top/test_controller/cfifo_data
+add wave -noupdate /top/test_controller/cfifo_rdreq
+add wave -noupdate /top/test_controller/cfifo_rdempty
+add wave -noupdate -radix hexadecimal /top/test_controller/cfifo_dataq
 
 add wave -noupdate -divider RFIFO
-add wave -noupdate /top/rfifo_wrreq
-add wave -noupdate /top/rfifo_wrfull
-add wave -noupdate -radix hexadecimal /top/rfifo_data
-add wave -noupdate /top/rfifo_rdreq
-add wave -noupdate /top/rfifo_rdempty
-add wave -noupdate -radix hexadecimal /top/rfifo_dataq
+add wave -noupdate /top/test_controller/rfifo_wrreq
+add wave -noupdate /top/test_controller/rfifo_wrfull
+add wave -noupdate -radix hexadecimal /top/test_controller/rfifo_data
+add wave -noupdate /top/test_controller/rfifo_rdreq
+add wave -noupdate /top/test_controller/rfifo_rdempty
+add wave -noupdate -radix hexadecimal /top/test_controller/rfifo_dataq
 
 add wave -noupdate -divider DIFIFO
-add wave -noupdate /top/dififo_wrreq
-add wave -noupdate /top/dififo_wrfull
-add wave -noupdate -radix hexadecimal /top/dififo_data
-add wave -noupdate /top/dififo_rdreq
-add wave -noupdate /top/dififo_rdempty
-add wave -noupdate -radix hexadecimal /top/dififo_dataq
+add wave -noupdate /top/test_controller/dififo_wrreq
+add wave -noupdate /top/test_controller/dififo_wrfull
+add wave -noupdate -radix hexadecimal /top/test_controller/dififo_data
+add wave -noupdate /top/test_controller/dififo_rdreq
+add wave -noupdate /top/test_controller/dififo_rdempty
+add wave -noupdate -radix hexadecimal /top/test_controller/dififo_dataq
 
 
 add wave -noupdate -divider STIM_AVALON_MM
-add wave -noupdate /top/stim_waitrequest
-add wave -noupdate -radix hexadecimal /top/stim_address
-add wave -noupdate /top/stim_byteenable
-add wave -noupdate /top/stim_read
-add wave -noupdate /top/stim_readdataready
-add wave -noupdate -radix hexadecimal /top/stim_readdata
+add wave -noupdate /top/test_controller/stim_waitrequest
+add wave -noupdate -radix hexadecimal /top/test_controller/stim_address
+add wave -noupdate /top/test_controller/stim_byteenable
+add wave -noupdate /top/test_controller/stim_read
+add wave -noupdate /top/test_controller/stim_readdataready
+add wave -noupdate -radix hexadecimal /top/test_controller/stim_readdata
 
 add wave -noupdate -divider STIM_CHECK_IF
-add wave -noupdate -radix hexadecimal /top/sc_cmd
-add wave -noupdate -radix hexadecimal /top/sc_data
-add wave -noupdate /top/sc_switching
+add wave -noupdate -radix hexadecimal /top/test_controller/sc_cmd
+add wave -noupdate -radix hexadecimal /top/test_controller/sc_data
+add wave -noupdate /top/test_controller/sc_ready
 
 add wave -noupdate -divider STIM_TARGET_IF
-add wave -noupdate -radix hexadecimal /top/stim_mod/target_sel
+add wave -noupdate -radix hexadecimal /top/test_controller/stim_mod/target_sel
 
 add wave -noupdate -divider STIM_INTERNAL
-add wave -noupdate  -radix stim_states /top/stim_mod/state
-add wave -noupdate  -radix stim_states /top/stim_mod/next_state
-#add wave -noupdate -radix hexadecimal /top/stim_mod/address
-add wave -noupdate /top/stim_mod/inc_address
+add wave -noupdate  -radix stim_states /top/test_controller/stim_mod/state
+add wave -noupdate  -radix stim_states /top/test_controller/stim_mod/next_state
+#add wave -noupdate -radix hexadecimal /top/test_controller/stim_mod/address
+add wave -noupdate /top/test_controller/stim_mod/inc_address
 
 add wave -noupdate -divider STIM_WAITCNT
-add wave -noupdate /top/stim_mod/reset_waitcnt
-add wave -noupdate -radix hexadecimal /top/stim_mod/waitcnt
+add wave -noupdate /top/test_controller/stim_mod/reset_waitcnt
+add wave -noupdate -radix hexadecimal /top/test_controller/stim_mod/waitcnt
 
 add wave -noupdate -divider STIM_BUFFER
-add wave -noupdate -radix hexadecimal /top/stim_mod/buffer
-add wave -noupdate -radix decimal /top/stim_mod/buffer_offset
-add wave -noupdate -radix decimal /top/stim_mod/words_stored
-add wave -noupdate -radix decimal /top/stim_mod/reads_requested
-add wave -noupdate /top/stim_mod/reset_wstored
-add wave -noupdate -radix binary /top/stim_mod/req_type
-add wave -noupdate -radix hexadecimal /top/stim_mod/input_vector
-add wave -noupdate -radix hexadecimal /top/stim_mod/result_vector
-add wave -noupdate -radix hexadecimal /top/stim_mod/output_bitmask
+add wave -noupdate -radix hexadecimal /top/test_controller/stim_mod/buffer
+add wave -noupdate -radix decimal /top/test_controller/stim_mod/buffer_offset
+add wave -noupdate -radix decimal /top/test_controller/stim_mod/words_stored
+add wave -noupdate -radix decimal /top/test_controller/stim_mod/reads_requested
+add wave -noupdate /top/test_controller/stim_mod/reset_wstored
+add wave -noupdate -radix binary /top/test_controller/stim_mod/req_type
+add wave -noupdate -radix hexadecimal /top/test_controller/stim_mod/input_vector
+add wave -noupdate -radix hexadecimal /top/test_controller/stim_mod/result_vector
+add wave -noupdate -radix hexadecimal /top/test_controller/stim_mod/output_bitmask
 
 add wave -noupdate -divider STIM_SETUP
-add wave -noupdate -radix decimal /top/stim_mod/tv_len
+add wave -noupdate -radix decimal /top/test_controller/stim_mod/tv_len
 
 add wave -noupdate -divider CHECK_INTERNAL
-add wave -noupdate  -radix check_states /top/check_mod/state
-add wave -noupdate  -radix check_states /top/check_mod/next_state
-add wave -noupdate -radix hexadecimal /top/check_mod/address
-add wave -noupdate /top/check_mod/inc_address
-add wave -noupdate -radix hexadecimal /top/check_mod/result_bitmask
+add wave -noupdate  -radix check_states /top/test_controller/check_mod/state
+add wave -noupdate  -radix check_states /top/test_controller/check_mod/next_state
+add wave -noupdate -radix hexadecimal /top/test_controller/check_mod/address
+add wave -noupdate /top/test_controller/check_mod/inc_address
+add wave -noupdate -radix hexadecimal /top/test_controller/check_mod/result_bitmask
 
 add wave -noupdate -divider CHECK_BUFFER
-add wave -noupdate /top/check_mod/check_fail
-add wave -noupdate -radix hexadecimal /top/check_mod/result_vector
-add wave -noupdate -radix hexadecimal /top/check_mod/c_result_vector
-add wave -noupdate -radix hexadecimal /top/check_mod/meta_info
-add wave -noupdate -radix decimal /top/check_mod/words_stored
+add wave -noupdate /top/test_controller/check_mod/check_fail
+add wave -noupdate -radix hexadecimal /top/test_controller/check_mod/result_vector
+add wave -noupdate -radix hexadecimal /top/test_controller/check_mod/c_result_vector
+add wave -noupdate -radix hexadecimal /top/test_controller/check_mod/meta_info
+add wave -noupdate -radix decimal /top/test_controller/check_mod/words_stored
 
 
 add wave -noupdate -divider CHECK_AVALON_MM
-add wave -noupdate /top/check_waitrequest
-add wave -noupdate -radix hexadecimal /top/check_address
-add wave -noupdate /top/check_byteenable
-add wave -noupdate /top/check_write
-add wave -noupdate -radix hexadecimal /top/check_writedata
+add wave -noupdate /top/test_controller/check_waitrequest
+add wave -noupdate -radix hexadecimal /top/test_controller/check_address
+add wave -noupdate /top/test_controller/check_byteenable
+add wave -noupdate /top/test_controller/check_write
+add wave -noupdate -radix hexadecimal /top/test_controller/check_writedata
 
 
 add wave -noupdate -divider DUT_IF
