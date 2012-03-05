@@ -253,7 +253,11 @@ module stim #(
 
 
       SETUP_BITMASK: begin
-        if (words_stored == 3 && sc_ready) begin
+        /* Wait for FIFOs to drain before changing the bitmask */
+        if (words_stored == 3 &&
+            sc_ready          &&
+            sfifo_wrempty     &&
+            cfifo_wrempty       ) begin
           next_state = IDLE;
 
           sc_cmd  = SC_CMD_BITMASK;
@@ -263,7 +267,11 @@ module stim #(
 
 
       SEND_DICMD: begin
-        if (words_stored == 3 && ~dififo_wrfull) begin
+        /* Wait for FIFOs to drain before sending a DI command */
+        if (words_stored == 3 &&
+            ~dififo_wrfull    &&
+             sfifo_wrempty    &&
+             cfifo_wrempty      ) begin
           next_state = WR_DIFIFO;
         end
       end
