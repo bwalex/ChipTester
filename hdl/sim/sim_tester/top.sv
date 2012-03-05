@@ -147,7 +147,9 @@ module top();
   );
 
 
-  stim stim_mod(
+  stim#(
+    .WAIT_WIDTH         (4)
+  ) stim_mod(
     .clock              (clock),
     .reset_n            (reset_n),
 
