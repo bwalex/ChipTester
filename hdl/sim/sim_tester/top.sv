@@ -69,12 +69,19 @@ module top();
   wire         cfifo_rdempty;
   wire  [51:0] cfifo_dataq;
 
+  wire  [23:0] miso;
+  wire  [23:0] mosi;
 
   wire  [ 4:0] sc_cmd;
   wire  [23:0] sc_data;
   wire         sc_switching;
-  
-  
+
+
+  /* XXX: Effectively the DUT/CUT , a 1-bit left shifter */
+  assign miso  = mosi << 1;
+
+
+
   assign reset = ~reset_n;
 
 
@@ -206,7 +213,7 @@ module top();
   );
 
 
-  loopback loopback_mod(
+  dut_if dut_if(
     .clock              (clock_10),
     .reset_n            (reset_n),
 
@@ -214,9 +221,16 @@ module top();
     .sfifo_rdreq        (sfifo_rdreq),
     .sfifo_rdempty      (sfifo_rdempty),
 
+    .dififo_data        (dififo_dataq),
+    .dififo_rdreq       (dififo_rdreq),
+    .dififo_rdempty     (dififo_rdempty),
+
     .rfifo_data         (rfifo_data),
     .rfifo_wrreq        (rfifo_wrreq),
-    .rfifo_wrfull       (rfifo_wrfull)
+    .rfifo_wrfull       (rfifo_wrfull),
+
+    .mosi_data          (mosi),
+    .miso_data          (miso)
   );
 
 

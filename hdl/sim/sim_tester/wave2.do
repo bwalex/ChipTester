@@ -159,6 +159,14 @@ add wave -noupdate /top/check_write
 add wave -noupdate -radix hexadecimal /top/check_writedata
 
 
+add wave -noupdate -divider DUT_IF
+add wave -noupdate /top/dut_if/clock
+add wave -noupdate /top/dut_if/stall_n
+add wave -noupdate /top/dut_if/clock_gated
+add wave -noupdate -radix hexadecimal /top/dut_if/mosi_data
+add wave -noupdate -radix hexadecimal /top/dut_if/miso_data
+
+
 
 TreeUpdate [SetDefaultTree]
 configure wave -namecolwidth 209
