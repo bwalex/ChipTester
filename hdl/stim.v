@@ -61,6 +61,7 @@ module stim #(
   parameter REQ_TEST_VECTOR   = 3'b001;
   parameter REQ_SETUP_BITMASK = 3'b010;
   parameter REQ_SEND_DICMD    = 3'b011;
+  parameter REQ_END           = 3'b111;
 
   parameter STATE_WIDTH       = 6;
   parameter IDLE              = 6'b000000;
@@ -72,12 +73,14 @@ module stim #(
   parameter SETUP_BITMASK     = 6'b000110;
   parameter SEND_DICMD        = 6'b000111;
   parameter WR_DIFIFO         = 6'b001000;
+  parameter END               = 6'b001001;
 
   reg    [STATE_WIDTH-1:0] state;
   reg    [STATE_WIDTH-1:0] next_state; /* comb */
 
   reg    [ ADDR_WIDTH-1:0] address;
   wire                     inc_address;
+  wire                     zero_address;
 
   wire   [  STF_WIDTH-1:0] input_vector;
   wire   [  STF_WIDTH-1:0] result_vector;
@@ -97,6 +100,10 @@ module stim #(
   wire   [  REQ_WIDTH-1:0] req_type;
   reg    [            5:0] tv_len;
 
+  reg                      enable;
+  wire                     enable_next;
+  wire                     load_enable;
+
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
@@ -112,6 +119,16 @@ module stim #(
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
+      enable <= 1'b1; /* XXX: default will later be 1'b0 */
+    else if (load_enable) begin
+      enable <= enable_next;
+    end
+
+
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      address <= 'b0;
+    else if (zero_address)
       address <= 'b0;
     else if (inc_address)
       address <= address + 1;
@@ -160,7 +177,7 @@ module stim #(
 
   assign mem_address    = address;
   assign mem_byteenable = 2'b11;
-  assign mem_read       =    (state == IDLE          && (~sfifo_wrfull && ~cfifo_wrfull))
+  assign mem_read       =    (state == IDLE          && (~sfifo_wrfull && ~cfifo_wrfull && enable))
                           || (state == READ_META     && (reads_requested < 3))
                           || (state == SETUP_BITMASK && (reads_requested < 3))
                           || (state == SEND_DICMD    && (reads_requested < 3))
@@ -177,6 +194,10 @@ module stim #(
 
   assign reset_waitcnt  =    (state == SWITCH_TARGET && next_state == SWITCH_VDD);
 
+  /* XXX: should be switchable externally, all 3 signals */
+  assign zero_address   =    (state == END);
+  assign load_enable    =    (state == END);
+  assign enable_next    =    (state == END) ? 1'b0 : 1'b1;
 
   assign reset_wstored     = (next_state == IDLE);
   assign reset_rdrequested = (next_state == IDLE);
@@ -201,6 +222,7 @@ module stim #(
 
   always @(
        state
+    or enable
     or sfifo_wrfull
     or cfifo_wrfull
     or dififo_wrfull
@@ -222,7 +244,7 @@ module stim #(
 
     case (state)
       IDLE: begin
-        if (~sfifo_wrfull && ~cfifo_wrfull && ~mem_waitrequest)
+        if (~sfifo_wrfull && ~cfifo_wrfull && ~mem_waitrequest && enable)
           next_state = READ_META;
       end
 
@@ -234,6 +256,7 @@ module stim #(
             REQ_TEST_VECTOR:    next_state = READ_TV;
             REQ_SETUP_BITMASK:  next_state = SETUP_BITMASK;
             REQ_SEND_DICMD:     next_state = SEND_DICMD;
+            REQ_END:            next_state = END;
             default:            next_state = IDLE;
           endcase
         end
@@ -290,6 +313,15 @@ module stim #(
 
       WR_FIFOS: begin
         next_state = IDLE;
+      end
+
+
+      END: begin
+        /* Wait for FIFOs to drain before going back to IDLE */
+        if ( sfifo_wrempty    &&
+             cfifo_wrempty      ) begin
+          next_state = IDLE;
+        end
       end
     endcase
   end

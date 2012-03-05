@@ -25,6 +25,7 @@
 #define REQ_TEST_VECTOR		0x01
 #define REQ_SETUP_BITMASK	0x02
 #define REQ_SEND_DICMD		0x03
+#define REQ_END			0x07
 
 #define DICMD_SETUP_MUXES	0x01
 
@@ -66,6 +67,13 @@ typedef struct send_dicmd {
 	uint8_t payload[3];
 	uint8_t padding[2];
 } send_dicmd;
+
+typedef struct mem_end {
+	uint8_t metadata;
+	uint8_t unused1;
+	uint8_t padding[2];
+	uint8_t padding2[2];
+} mem_end;
 
 
 typedef struct pininfo {
@@ -369,6 +377,21 @@ parse_line_design(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 
 
 static
+int
+generate_end(parserinfo_t pi, void *buf, size_t bufsz)
+{
+	mem_end *me;
+	assert(sizeof(*me) <= bufsz);
+	me = buf;
+	memset(me, 0, sizeof(*me));
+
+	me->metadata = REQ_TYPE(REQ_END);
+
+	return (int)sizeof(*me);
+}
+
+
+static
 void
 print_mem(uint8_t *buf, int sz)
 {
@@ -376,6 +399,7 @@ print_mem(uint8_t *buf, int sz)
 	change_bitmask *cb;
 	test_vector *tv;
 	send_dicmd *sd;
+	mem_end *me;
 	uint8_t *metadatap;
 
 	while (sz > 0) {
@@ -423,6 +447,13 @@ print_mem(uint8_t *buf, int sz)
 			default:
 				printf("unknown\n");
 			}
+			break;
+
+		case REQ_END:
+			me = (mem_end *)buf;
+			sz -= sizeof(*me);
+			buf += sizeof(*me);
+			printf("REQ_END\n");
 			break;
 
 		default:
@@ -525,6 +556,13 @@ parse_file(FILE *fp)
 		if (ssz < 0)
 			return -1;
 
+		print_mem(buf, ssz);
+		if (sflag)
+			save_sram_file(buf, ssz);
+	}
+
+	ssz = generate_end(&pi, buf, sizeof(buf));
+	if (ssz > 0) {
 		print_mem(buf, ssz);
 		if (sflag)
 			save_sram_file(buf, ssz);

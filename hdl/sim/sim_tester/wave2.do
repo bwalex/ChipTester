@@ -11,6 +11,7 @@ radix define stim_states {
   6'b000110 "SETUP_BITMASK" -color orange,
   6'b000111 "SEND_DICMD" -color orange,
   6'b001000 "WR_DIFIFO" -color orange,
+  6'b001001 "END" -color white,
   -default binary
 }
 
