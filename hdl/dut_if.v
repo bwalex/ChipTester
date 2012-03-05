@@ -56,7 +56,7 @@ module dut_if #(
 
 
   assign sfifo_rdreq =  (~sfifo_rdempty && stall_n);
-  assign rfifo_wrreq =  sfifo_rdreq_d4;
+  assign rfifo_wrreq =  sfifo_rdreq_d3;
   assign rfifo_data  =  miso_data_r;
 
   /*
@@ -93,7 +93,7 @@ module dut_if #(
   always @(posedge clock_gated, negedge reset_n)
     if (~reset_n)
       miso_data_r <= 'b0;
-    else if (sfifo_rdreq_d3)
+    else if (sfifo_rdreq_d2) /* XXX */
       miso_data_r <= miso_data;
 
 
@@ -124,6 +124,13 @@ module dut_if #(
       mux_config <= 'b0;
     else if (load_mux_config)
       mux_config <= dififo_data[STF_WIDTH-1:0];
+
+
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      state <= IDLE;
+    else
+      state <= next_state;
 
 
   assign cmd              = dififo_data[DIF_WIDTH-1 -: CMD_EXT_WIDTH];

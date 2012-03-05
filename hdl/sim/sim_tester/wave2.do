@@ -164,7 +164,17 @@ add wave -noupdate /top/dut_if/clock
 add wave -noupdate /top/dut_if/stall_n
 add wave -noupdate /top/dut_if/clock_gated
 add wave -noupdate -radix hexadecimal /top/dut_if/mosi_data
+add wave -noupdate -radix hexadecimal /top/dut_if/mosi_data_r
 add wave -noupdate -radix hexadecimal /top/dut_if/miso_data
+add wave -noupdate -radix hexadecimal /top/dut_if/miso_data_r
+add wave -noupdate /top/dut_if/rfifo_wrreq;
+add wave -noupdate /top/dut_if/sfifo_rdempty;
+add wave -noupdate /top/dut_if/sfifo_data;
+add wave -noupdate /top/dut_if/sfifo_rdreq;
+add wave -noupdate /top/dut_if/sfifo_rdreq_d1;
+add wave -noupdate /top/dut_if/sfifo_rdreq_d2;
+add wave -noupdate /top/dut_if/sfifo_rdreq_d3;
+
 
 
 
