@@ -50,7 +50,7 @@ typedef struct change_target {
 	uint8_t metadata;
 	uint8_t design_number;
 	uint8_t padding[2];
-	uint8_t padding[2];
+	uint8_t padding2[2];
 } change_target;
 
 
