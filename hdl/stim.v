@@ -205,19 +205,22 @@ module stim #(
 
 
   assign inc_address    = (mem_read && ~mem_waitrequest);
-  assign req_type       = buffer[0:REQ_WIDTH-1];
-  assign input_vector   = buffer[8             +: STF_WIDTH];
-  assign result_vector  = buffer[8+STF_WIDTH   +: STF_WIDTH];
-  assign output_bitmask = buffer[8             +: STF_WIDTH];
-  assign new_target_sel = buffer[16-DSEL_WIDTH +: DSEL_WIDTH];
   assign buffer_offset  = words_stored;
 
   assign sfifo_data     = input_vector;
+
   assign cfifo_data[CHF_WIDTH-1                      -: STF_WIDTH ] = result_vector;
   assign cfifo_data[CHF_WIDTH-STF_WIDTH-1            -: ADDR_WIDTH] = address-2;
   assign cfifo_data[CHF_WIDTH-STF_WIDTH-ADDR_WIDTH-1 -: ORV_WIDTH ] = 8'b0;
 
   assign dififo_data   = { {REQ_WIDTH{1'b0}}, buffer[REQ_WIDTH +: CMD_WIDTH], buffer[8 +: STF_WIDTH] };
+
+  /* Convenient shortcuts for sections of the buffer */
+  assign req_type       = buffer[0:REQ_WIDTH-1];
+  assign input_vector   = buffer[8             +: STF_WIDTH];
+  assign result_vector  = buffer[8+STF_WIDTH   +: STF_WIDTH];
+  assign output_bitmask = buffer[8             +: STF_WIDTH];
+  assign new_target_sel = buffer[16-DSEL_WIDTH +: DSEL_WIDTH];
 
 
   always @(
