@@ -35,7 +35,7 @@ begin
       MatchBit = 0;
       MatchAll = 0;
     end
-  elseif(state == S8) 
+  else if(state == S8) 
     begin
       MatchBit = 1;
       MatchAll = 1;
