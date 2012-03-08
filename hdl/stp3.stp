@@ -1,0 +1,585 @@
+<session jtag_chain="USB-Blaster [2-1.1]" jtag_device="@1: EP3C120/EP4CE115 (0x020F70DD)" sof_file="de2115sys_time_limited.sof">
+  <display_tree gui_logging_enabled="0">
+    <display_branch instance="auto_signaltap_0" log="USE_GLOBAL_TEMP" signal_set="USE_GLOBAL_TEMP" trigger="USE_GLOBAL_TEMP"/>
+  </display_tree>
+  <instance entity_name="sld_signaltap" is_auto_node="yes" is_expanded="true" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
+    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="6"/>
+    <position_info>
+      <single attribute="active tab" value="0"/>
+      <single attribute="data horizontal scroll position" value="4"/>
+      <single attribute="data vertical scroll position" value="0"/>
+      <single attribute="zoom level denominator" value="1"/>
+      <single attribute="zoom level numerator" value="1024"/>
+      <single attribute="zoom offset denominator" value="1"/>
+      <single attribute="zoom offset numerator" value="96"/>
+    </position_info>
+    <signal_set global_temp="1" name="signal_set: 2012/03/08 14:48:41  #0">
+      <clock name="sigtap_pll:sigtap_clock|c0" polarity="posedge" tap_mode="classic"/>
+      <config ram_type="M4K" reserved_data_nodes="0" reserved_storage_qualifier_nodes="0" reserved_trigger_nodes="0" sample_depth="64" trigger_in_enable="no" trigger_in_pin="auto_stp_trigger_in_0" trigger_out_enable="no"/>
+      <top_entity/>
+      <signal_vec>
+        <trigger_input_vec>
+          <wire name="sram_arb_sync:sram_arb|clock" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_read" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_write" tap_mode="classic" type="combinatorial"/>
+        </trigger_input_vec>
+        <data_input_vec>
+          <wire name="sram_arb_sync:sram_arb|clock" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[10]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[11]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[12]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[13]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[14]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[15]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[2]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[3]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[4]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[5]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[6]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[7]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[8]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[9]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[10]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[11]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[12]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[13]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[14]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[15]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[16]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[17]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[18]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[19]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[2]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[3]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[4]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[5]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[6]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[7]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[8]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[9]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_byteenable[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_byteenable[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_read" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[10]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[11]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[12]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[13]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[14]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[15]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[2]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[3]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[4]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[5]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[6]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[7]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[8]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[9]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdataready" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_waitrequest" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_write" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[10]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[11]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[12]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[13]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[14]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[15]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[2]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[3]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[4]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[5]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[6]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[7]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[8]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[9]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[10]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[11]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[12]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[13]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[14]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[15]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[16]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[17]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[18]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[19]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[2]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[3]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[4]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[5]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[6]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[7]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[8]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[9]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_be_n[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_be_n[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_ce_n" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_oe_n" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_we_n" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[0]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[10]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[11]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[12]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[13]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[14]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[15]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[1]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[2]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[3]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[4]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[5]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[6]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[7]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[8]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[9]" tap_mode="classic" type="register"/>
+        </data_input_vec>
+        <storage_qualifier_input_vec>
+          <wire name="sram_arb_sync:sram_arb|clock" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[10]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[11]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[12]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[13]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[14]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[15]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[2]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[3]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[4]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[5]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[6]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[7]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[8]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|readdata[9]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[10]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[11]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[12]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[13]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[14]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[15]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[16]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[17]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[18]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[19]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[2]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[3]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[4]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[5]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[6]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[7]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[8]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_address[9]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_byteenable[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_byteenable[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_read" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[10]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[11]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[12]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[13]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[14]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[15]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[2]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[3]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[4]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[5]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[6]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[7]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[8]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdata[9]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_readdataready" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_waitrequest" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_write" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[10]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[11]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[12]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[13]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[14]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[15]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[2]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[3]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[4]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[5]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[6]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[7]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[8]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sopc_writedata[9]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[10]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[11]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[12]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[13]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[14]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[15]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[16]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[17]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[18]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[19]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[2]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[3]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[4]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[5]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[6]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[7]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[8]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_address[9]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_be_n[0]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_be_n[1]" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_ce_n" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_oe_n" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|sram_we_n" tap_mode="classic" type="combinatorial"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[0]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[10]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[11]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[12]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[13]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[14]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[15]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[1]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[2]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[3]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[4]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[5]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[6]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[7]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[8]" tap_mode="classic" type="register"/>
+          <wire name="sram_arb_sync:sram_arb|writedata_r[9]" tap_mode="classic" type="register"/>
+        </storage_qualifier_input_vec>
+      </signal_vec>
+      <presentation>
+        <data_view>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sram_address" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[19]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[18]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[17]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[16]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|readdata" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sram_be_n" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_be_n[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_be_n[0]"/>
+          </bus>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_oe_n"/>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_we_n"/>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_ce_n"/>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sopc_address" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[19]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[18]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[17]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[16]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sopc_byteenable" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_byteenable[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_byteenable[0]"/>
+          </bus>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_read"/>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sopc_readdata" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[0]"/>
+          </bus>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdataready"/>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_waitrequest"/>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_write"/>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sopc_writedata" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[0]"/>
+          </bus>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|clock"/>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|writedata_r" order="msb_to_lsb" radix="hex" state="collapse" type="register">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[0]"/>
+          </bus>
+        </data_view>
+        <setup_view>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sram_address" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[19]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[18]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[17]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[16]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_address[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sram_be_n" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_be_n[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_be_n[0]"/>
+          </bus>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_ce_n"/>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_oe_n"/>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sram_we_n"/>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|readdata" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|readdata[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sopc_address" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[19]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[18]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[17]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[16]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_address[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sopc_byteenable" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_byteenable[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_byteenable[0]"/>
+          </bus>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_read"/>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sopc_readdata" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdata[0]"/>
+          </bus>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|writedata_r" order="msb_to_lsb" radix="hex" state="collapse" type="register">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|writedata_r[0]"/>
+          </bus>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_readdataready"/>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_waitrequest"/>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_write"/>
+          <bus is_signal_inverted="no" link="all" name="sram_arb_sync:sram_arb|sopc_writedata" order="msb_to_lsb" radix="hex" state="collapse" type="combinatorial">
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[15]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[14]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[13]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[12]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[11]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[10]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[9]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[8]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[7]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[6]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[5]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[4]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[3]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[2]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[1]"/>
+            <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|sopc_writedata[0]"/>
+          </bus>
+          <net is_signal_inverted="no" name="sram_arb_sync:sram_arb|clock"/>
+        </setup_view>
+      </presentation>
+      <trigger CRC="9AF84631" attribute_mem_mode="false" gap_record="true" global_temp="1" name="trigger: 2012/03/08 14:48:41  #1" position="pre" power_up_trigger_mode="false" record_data_gap="true" segment_size="64" storage_mode="off" storage_qualifier_disabled="no" storage_qualifier_port_is_pin="false" storage_qualifier_port_name="auto_stp_external_storage_qualifier" storage_qualifier_port_tap_mode="classic" trigger_in="dont_care" trigger_out="active high" trigger_type="circular">
+        <power_up_trigger position="pre" storage_qualifier_disabled="no" trigger_in="dont_care" trigger_out="active high"/>
+        <events use_custom_flow_control="no">
+          <level enabled="yes" name="condition1" type="basic">'sram_arb_sync:sram_arb|sopc_read' == rising edge
+            <power_up enabled="yes">
+            </power_up>
+            <op_node>
+              <op_node left="341" top="192" type="Advanced Trigger Level Result"/>
+            </op_node>
+          </level>
+        </events>
+        <storage_qualifier_events>
+          <transitional>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+            <pwr_up_transitional>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</pwr_up_transitional>
+          </transitional>
+          <storage_qualifier_level type="basic">
+            <power_up>
+            </power_up>
+            <op_node/>
+          </storage_qualifier_level>
+          <storage_qualifier_level type="basic">
+            <power_up>
+            </power_up>
+            <op_node/>
+          </storage_qualifier_level>
+          <storage_qualifier_level type="basic">
+            <power_up>
+            </power_up>
+            <op_node/>
+          </storage_qualifier_level>
+        </storage_qualifier_events>
+        <log>
+          <data global_temp="1" name="log: 2012/03/08 16:20:29  #0" power_up_mode="false" sample_depth="64" trigger_position="8">01111111111111111000000000000000000000001111111111111111000000000000000000000000000000000000000110110000000000000000011111111111111110000000000000000000000011111111111111110000000000000000000000000000000000000001101100000000000000001111111111111111100000000000000000000000111111111111111100000000000000000000000000000000000000011011000000000000000011111111111111111000000000000000000000001111111111111111000000000000000000000000000000000000000110110000000000000000011111111111111110000000000000000000000011111111111111110000000000000000000000000000000000000001101100000000000000000111111111111111100000000000000000000000111111111111111100000000000000000000000000000000000000011011000000000000000001111111111111111000000000000000000000001111111111111111000000000000000000000000000000000000000110110000000000000000111111111111111110000000000000000000000011111111111111110000000000000000000000000000000000000001101100000000000000001111111111111111100000000000000000000111111111111111111100000000000000000000000000000000000000011011000000000000000001111111111111111000000000000000000001111111111111111111000000000000000000000000000000000000000110110000000000000000011111111111111110000000000000000000011111111111111111110000000000000000000000000000000000000001101100000000000000001111111111111111100000000000000000000111111111111111111100000000000000000000000000000000000000011011000000000000000011111111111111111100000000000000000000001111111111111111000000000000000000000000000000000000000000010000000000000000111111111111111111000000000000000000000011111111111111110000000000000000000000000000000000000000000100000000000000000111111111111111110000000000000000000000111111111111111100000000000000000000000000000000000000000001000000000000000001111111111111111100000000000000000000001111111111111111000000000000000000000000000000000000000000010000000000000000111001001010101101000000000000000000000011111111111111111000000000000000000000000000000000000001101100000000000000001000000010101010000000000000000000000010111111111111111110000000000000000000000000000000000000011011000000000000000000000000101010100000000000000000000000001111111111111111100000000000000000000000000000000000000110110000000000000000000000001010101000000000000000000000000011111111111111111000000000000000000000000000000000000001101100000000000000000000000010101010000000000000000000000000111111111111111110000000000000000000000000000000000000011011000000000000000010000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000100000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000000000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000000000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000100000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000001000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000010000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000000000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000000000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000010000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000100000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000000000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000000000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000000000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000001000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000010000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000000000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000000000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000010000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000100000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000001000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000000000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000000000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000001000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000010000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000000000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000000000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000000000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000100000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000001000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000000000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000000000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000000000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000010000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000100000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000000000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000000000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000100000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000001000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000010000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000000000001010101000000000000000000000000000000001010101000000000000000000000000000000000000000001101100000000000000000000000010101010000000000000000000000000000000010101010000000000000000000000000000000000000000011011000000000000000010000000101010100000000000000000000000000000000101010100000000000000000000000000000000000000000110110000000000000000</data>
+          <extradata>11111111T1111111111111111111111111111111111111111111111111111111</extradata>
+        </log>
+      </trigger>
+    </signal_set>
+  </instance>
+  <mnemonics/>
+  <static_plugin_mnemonics/>
+  <global_info>
+    <single attribute="active instance" value="0"/>
+    <single attribute="config widget visible" value="1"/>
+    <single attribute="data log widget visible" value="1"/>
+    <single attribute="hierarchy widget visible" value="1"/>
+    <single attribute="instance widget visible" value="1"/>
+    <single attribute="jtag widget visible" value="1"/>
+    <single attribute="sof manager visible" value="0"/>
+    <multi attribute="column width" size="23" value="34,34,325,74,116,70,88,88,98,98,88,88,220,101,101,101,101,101,101,101,101,107,78"/>
+    <multi attribute="frame size" size="2" value="1598,881"/>
+    <multi attribute="jtag widget size" size="2" value="362,133"/>
+  </global_info>
+</session>
