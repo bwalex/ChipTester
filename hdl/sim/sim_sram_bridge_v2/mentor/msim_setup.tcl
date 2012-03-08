@@ -69,6 +69,10 @@ ensure_lib                                                            ./librarie
 vmap       sram_bridge_bfm_sram_bridge_16_0                           ./libraries/sram_bridge_bfm_sram_bridge_16_0/                          
 ensure_lib                                                            ./libraries/sram_bridge_bfm_mm_master_bfm_0/                           
 vmap       sram_bridge_bfm_mm_master_bfm_0                            ./libraries/sram_bridge_bfm_mm_master_bfm_0/                           
+ensure_lib                                                                                                ./libraries/sram_tb_bfm_reset_source_0/                                                                    
+vmap       sram_tb_bfm_reset_source_0                                                                     ./libraries/sram_tb_bfm_reset_source_0/                                                                    
+ensure_lib                                                                                                ./libraries/sram_tb_bfm_clock_source_0/                                                                    
+vmap       sram_tb_bfm_clock_source_0                                  ./libraries/sram_tb_bfm_clock_source_0/                                                                    
 
 # ----------------------------------------
 # Compile device library files
@@ -89,7 +93,9 @@ alias dev_com {
 alias com {
   echo "\[exec\] com"
   vlog     "$QSYS_SIMDIR/submodules/altera_reset_controller.v"          -work work
+  vlog -sv "$QSYS_SIMDIR/submodules/verbosity_pkg.sv"                   -work work
   vlog -sv "$QSYS_SIMDIR/submodules/altera_avalon_clock_source.sv"      -work work
+  vlog -sv "$QSYS_SIMDIR/submodules/verbosity_pkg.sv"                   -work work
   vlog -sv "$QSYS_SIMDIR/submodules/altera_avalon_reset_source.sv"      -work work
   vlog     "$QSYS_SIMDIR/submodules/altera_reset_synchronizer.v"        -work work
   vlog -sv "$QSYS_SIMDIR/submodules/altera_merlin_slave_translator.sv"  -work work
@@ -98,6 +104,7 @@ alias com {
   vlog -sv "$QSYS_SIMDIR/submodules/verbosity_pkg.sv"                   -work work
   vlog -sv "$QSYS_SIMDIR/submodules/avalon_mm_pkg.sv"                   -work work
   vlog -sv "$QSYS_SIMDIR/submodules/altera_avalon_mm_master_bfm.sv"     -work work
+  vlog -sv "$QSYS_SIMDIR/submodules/verbosity_pkg.sv"                   -work work
   vlog     "$QSYS_SIMDIR/sram_bridge_bfm.v"                                                                                             
 }
 
