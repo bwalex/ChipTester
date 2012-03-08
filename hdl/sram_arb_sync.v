@@ -98,11 +98,11 @@ module sram_arb_sync #(
     else if (write)
       writedata_r <= writedata;
 
-  always @(posedge clock, negedge reset_n)
+  always @(negedge clock, negedge reset_n)
     if (~reset_n)
       readdata_r <= 'b0;
     else
-      readdata_r <= sram_data;//readdata;
+      readdata_r <= readdata;
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
@@ -129,5 +129,5 @@ module sram_arb_sync #(
       sram_we_n <= sram_we_int_n;
 
   assign sram_data     = (sram_we_n) ? 'bz : writedata_r;
-  //assign readdata      = sram_data;
+  assign readdata      = sram_data;
 endmodule
