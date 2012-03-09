@@ -1,0 +1,15 @@
+{
+  "DUV_Results":{
+       "id_test":"IDD",
+       "chip_number":32,
+       "team_number":6,
+       "test_passed":false
+  }
+}
+{
+  "DUV_Fail":{
+       "id_test":"IDD",
+       "fail_result":"Shit happens",
+       "expected_result":"Shit happens often",
+  }
+}
