@@ -125,6 +125,8 @@ module de2115sys(
   
   wire          tr_sram_waitrequest;
   wire   [ 3:0] func_sel;
+  
+  wire          sigtap_clk;
 
 
   // Ethernet
@@ -183,6 +185,11 @@ module de2115sys(
 
   assign LEDG = sopc_sram_waitrequest;
   assign LEDG0 = tr_sram_waitrequest;
+
+sigtap_pll sigtap_clock (
+	.inclk0(sopc_sram_clock),
+	.c0(sigtap_clk)
+);
 
   sram_arb_sync#(
     .ADDR_WIDTH (20),
