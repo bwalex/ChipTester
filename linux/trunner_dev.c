@@ -34,12 +34,26 @@ struct trunner_softc {
 static dev_t trunner_dev;
 
 
+static uint8_t
+trunner_read_reg(struct trunner_softc *sc, int reg)
+{
+	return readb(sc->tr_base + reg);
+}
+
+
+static void
+trunner_write_reg(struct trunner_softc *sc, int reg, uint8_t v)
+{
+	writeb(sc->tr_base + reg, v);
+}
+
+
 static int
 trunner_get_done(struct trunner_softc *sc)
 {
 	uint8_t d;
 
-	d = readb(sc->tr_base + TRUNNER_DONE_REG);
+	d = trunner_read_reg(sc, TRUNNER_DONE_REG);
 
 	return (int)d;
 }
@@ -60,7 +74,7 @@ trunner_enable(struct trunner_softc *sc)
 		return EBUSY;
 
 	sc->tr_busy = 1;
-	writeb(sc->tr_base + TRUNNER_ENABLE_REG, e);
+	trunner_write_reg(sc, TRUNNER_ENABLE_REG, e);
 
 	return 0;
 }
@@ -71,16 +85,71 @@ trunner_check_magic(struct trunner_softc *sc)
 {
 	uint8_t d;
 
-	d = readb(sc->tr_base + TRUNNER_MAGIC_REG);
+	d = trunner_read_reg(sc, TRUNNER_MAGIC_REG);
 
 	return (d != TRUNNER_MAGIC) ? ENODEV : 0;
 }
 
 
 
+static int
+trunner_open(struct inode *inode, struct file *file)
+{
+	try_module_get(THIS_MODULE);
+
+	return 0;
+}
 
 
+static int
+trunner_release(struct inode *inode, struct file *file)
+{
+	module_put(THIS_MODULE);
 
+	return 0;
+}
+
+
+static int
+trunner_ioctl(struct inode *inode, struct file *file,
+	      unsigned int cmd, unsigned long param)
+{
+	struct trunner_softc *sc;
+	uint8_t d;
+	int rc = 0;
+
+	sc = container_of(inode->i_cdev, struct trunner_softc, tr_cdev);
+
+	switch (cmd) {
+	TRUNNER_IOC_ENABLE:
+		rc = trunner_enable(sc);
+		break;
+
+
+	TRUNNER_IOC_GET_DONE:
+		if (!access_ok(VERIFY_WRITE, (void *)ioctl_param, sizeof(uint8_t)))
+			return -ENOTTY;
+
+		d = trunner_read_reg(sc, TRUNNER_REG_DONE);
+		put_user(d, (uint8_t *)ioctl_param);
+		break;
+
+
+	TRUNNER_IOC_GET_MAGIC:
+		if (!access_ok(VERIFY_WRITE, (void *)ioctl_param, sizeof(uint8_t)))
+			return -ENOTTY;
+
+		d = trunner_read_reg(sc, TRUNNER_REG_MAGIC);
+		put_user(d, (uint8_t *)ioctl_param);
+		break;
+
+
+	default:
+		return -ENOTTY;
+	}
+
+	return rc;
+}
 
 
 static struct file_operations trunner_fops = {
@@ -90,10 +159,6 @@ static struct file_operations trunner_fops = {
 	.release	= trunner_release,
 
 };
-
-
-
-
 
 
 static int __devinit
