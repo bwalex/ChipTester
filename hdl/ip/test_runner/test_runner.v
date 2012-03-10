@@ -6,17 +6,17 @@ module test_runner #(
   input                   clock,
   input                   nreset,
 
+  /* XXX: as usual, data I/o is not parameterized because altera messes it up */
 
   /* Avalon MM slave interface */
   input      [ADDR_WIDTH-1:0] address,
-  input      [           1:0] byteenable,
 
   input                       read,
-  output reg [DATA_WIDTH-1:0] readdata,
+  output reg [           7:0] readdata,
   output reg                  readdatavalid,
 
   input                       write,
-  input      [DATA_WIDTH-1:0] writedata,
+  input      [           7:0] writedata,
 
 
   /* Avalon Interrupt sender interface */
@@ -47,11 +47,11 @@ module test_runner #(
   parameter REG_DONE    = 'h80;
   parameter REG_ENABLE  = 'h81;
 
-
+  integer i;
 
   always @(posedge clock, negedge nreset)
     if (~nreset) begin
-      for (i = 0; i < NREGS; i++)
+      for (i = 0; i < NREGS; i = i+1)
         regfile[i] <= 'b0;
 
       // Assign default set values
