@@ -66,6 +66,8 @@ module test_runner #(
       enable <= 1'b0;
     else if (write && (address == REG_ENABLE))
       enable <= writedata[0]; 
+    else if (enable)
+      enable <= 1'b0;
 
 
   always @(posedge clock, negedge nreset)
