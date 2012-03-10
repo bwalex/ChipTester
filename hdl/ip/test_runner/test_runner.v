@@ -25,6 +25,7 @@ module test_runner #(
 
   /* Conduit */
   output reg              enable,
+  output reg              busy,
   input                   done
 );
 
@@ -95,5 +96,14 @@ module test_runner #(
       irq <= 1'b0;
     else
       irq <= done;
+
+
+  always @(posedge clock, negedge nreset)
+    if (~nreset)
+      busy <= 1'b0;
+    else if (enable)
+      busy <= 1'b1;
+    else if (done)
+      busy <= 1'b0;
 
 endmodule

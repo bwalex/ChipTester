@@ -166,5 +166,6 @@ set_interface_property test_runner_conduit ENABLED true
 
 add_interface_port test_runner_conduit done export Input 1
 add_interface_port test_runner_conduit enable export Output 1
+add_interface_port test_runner_conduit busy export Output 1
 # | 
 # +-----------------------------------
