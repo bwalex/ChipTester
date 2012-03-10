@@ -18,6 +18,9 @@ module stim #(
   input                       clock,
   input                       reset_n,
 
+  input                       enable,
+  output                      done,
+
   /* Avalon MM master interface to mem_if */
   output     [ADDR_WIDTH-1:0] mem_address,
   output     [  BE_WIDTH-1:0] mem_byteenable,
@@ -98,29 +101,17 @@ module stim #(
   wire   [  REQ_WIDTH-1:0] req_type;
   reg    [            5:0] tv_len;
 
-  reg                      enable;
-  wire                     enable_next;
-  wire                     load_enable;
-
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
-      state <= IDLE;
-    else
+      state <= END;
+    else if
       state <= next_state;
 
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
       tv_len <= TEST_VECTOR_WORDS;
-
-
-  always @(posedge clock, negedge reset_n)
-    if (~reset_n)
-      enable <= 1'b1; /* XXX: default will later be 1'b0 */
-    else if (load_enable) begin
-      enable <= enable_next;
-    end
 
 
   always @(posedge clock, negedge reset_n)
@@ -175,7 +166,7 @@ module stim #(
 
   assign mem_address    = address;
   assign mem_byteenable = 2'b11;
-  assign mem_read       =    (state == IDLE          && (~sfifo_wrfull && ~cfifo_wrfull && enable))
+  assign mem_read       =    (state == IDLE          && (~sfifo_wrfull && ~cfifo_wrfull))
                           || (state == READ_META     && (reads_requested < 3))
                           || (state == SETUP_BITMASK && (reads_requested < 3))
                           || (state == SEND_DICMD    && (reads_requested < 3))
@@ -192,10 +183,8 @@ module stim #(
 
   assign reset_waitcnt  =    (state == SWITCH_TARGET && next_state == SWITCH_VDD);
 
-  /* XXX: should be switchable externally, all 3 signals */
   assign zero_address   =    (state == END);
-  assign load_enable    =    (state == END);
-  assign enable_next    =    (state == END) ? 1'b0 : 1'b1;
+  assign done           =    (state == END);
 
   assign reset_wstored     = (next_state == IDLE);
   assign reset_rdrequested = (next_state == IDLE);
@@ -244,7 +233,7 @@ module stim #(
 
     case (state)
       IDLE: begin
-        if (~sfifo_wrfull && ~cfifo_wrfull && ~mem_waitrequest && enable)
+        if (~sfifo_wrfull && ~cfifo_wrfull && ~mem_waitrequest)
           next_state = READ_META;
       end
 
@@ -317,9 +306,10 @@ module stim #(
 
 
       END: begin
-        /* Wait for FIFOs to drain before going back to IDLE */
+        /* Drain FIFOs and wait for enable before starting again */
         if ( sfifo_wrempty    &&
-             cfifo_wrempty      ) begin
+             cfifo_wrempty    &&
+             enable             ) begin
           next_state = IDLE;
         end
       end

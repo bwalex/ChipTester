@@ -1,6 +1,6 @@
 module de2115sys(
   input         clock_50,
-  input         reset_n,
+  input         reset_n, /* XXX: unused */
 
   // SDRAM
   output [12:0] DRAM_ADDR,
@@ -40,7 +40,7 @@ module de2115sys(
   output        SD_CMD,
   input         SD_DAT0,
   output        SD_DAT3,
-  input         SD_WP_N,
+  input         SD_WP_N, /* XXX: unused */
 
  //////////// LCD //////////
   output        LCD_BLON,
@@ -56,7 +56,7 @@ module de2115sys(
   inout  [ 7:0] FL_DQ,
   output        FL_OE_N,
   output        FL_RST_N,
-  input         FL_RY,
+  input         FL_RY,   /* XXX: unused */
   output        FL_WE_N,
   output        FL_WP_N,
 
@@ -75,21 +75,21 @@ module de2115sys(
 
   // Ethernet
   output        ENET0_GTX_CLK,
-  input         ENET0_INT_N,
+  input         ENET0_INT_N,  /* XXX: unused */
   output        ENET0_MDC,
   inout         ENET0_MDIO,
   output        ENET0_RST_N,
   input         ENET0_RX_CLK,
-  input         ENET0_RX_COL,
-  input         ENET0_RX_CRS,
+  input         ENET0_RX_COL, /* XXX: unused */
+  input         ENET0_RX_CRS, /* XXX: unused */
   input  [ 3:0] ENET0_RX_DATA,
   input         ENET0_RX_DV,
   input         ENET0_RX_ER,
-  input         ENET0_TX_CLK,
+  input         ENET0_TX_CLK, /* XXX: unused */
   output [ 3:0] ENET0_TX_DATA,
   output        ENET0_TX_EN,
-  output        ENET0_TX_ER,
-  input         ENET0_LINK100
+  output        ENET0_TX_ER,  /* XXX: no driver */
+  input         ENET0_LINK100 /* XXX: unused */
 );
 
   wire          global_reset_n;

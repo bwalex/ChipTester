@@ -10,6 +10,8 @@ module top();
 
   event        start_test;
 
+  logic        enable;
+
   wire  [19:0] sram_address;
   wire  [15:0] sram_data;
   wire         sram_ce_n;
@@ -99,6 +101,8 @@ module top();
     .reset_n            (reset_n),
     .fifo_clock         (clock_10),
 
+    .enable             (enable),
+
     .address            (address),
     .byteenable         (byteenable),
     .read               (read),
@@ -159,9 +163,11 @@ module top();
   end
 
   initial begin
+        enable  = 0;
         reset_n = 1;
     #5  reset_n = 0;
     #16 reset_n = 1;
+        enable  = 1;
     -> start_test;
   end
 

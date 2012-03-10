@@ -26,6 +26,9 @@ module test_controller #(
   input                    reset_n,
   input                    fifo_clock,
 
+  input                    enable,
+  output                   done,
+
   output  [ADDR_WIDTH-1:0] address,
   output  [  BE_WIDTH-1:0] byteenable,
   input   [DATA_WIDTH-1:0] readdata,
@@ -142,6 +145,9 @@ module test_controller #(
   ) stim_mod(
     .clock              (clock),
     .reset_n            (reset_n),
+
+    .enable             (enable),
+    .done               (done),
 
     .mem_address        (stim_address),
     .mem_byteenable     (stim_byteenable),

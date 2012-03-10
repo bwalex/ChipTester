@@ -30,7 +30,7 @@ set_output_delay -clock "u0|altpll_0|sd1|pll7|clk[0]" -max 0.1 [get_ports {SRAM_
 
 
 set_input_delay -clock "u0|altpll_0|sd1|pll7|clk[0]" -min 2 [get_ports {SRAM_DQ*}]
-#set_input_delay -clock "u0|altpll_0|sd1|pll7|clk[0]" -max 0.1 [get_ports {SRAM_DQ*}]
+set_input_delay -clock "u0|altpll_0|sd1|pll7|clk[0]" -max 2 [get_ports {SRAM_DQ*}]
 
 #**************************************************************
 # Set Clock Latency
