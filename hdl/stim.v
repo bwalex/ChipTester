@@ -184,7 +184,7 @@ module stim #(
   assign reset_waitcnt  =    (state == SWITCH_TARGET && next_state == SWITCH_VDD);
 
   assign zero_address   =    (state == END);
-  assign done           =    (state == END);
+  assign done           =    (state == END) && cfifo_wrempty && sfifo_wrempty;
 
   assign reset_wstored     = (next_state == IDLE);
   assign reset_rdrequested = (next_state == IDLE);
