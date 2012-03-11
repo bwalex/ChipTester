@@ -1,9 +1,9 @@
 module dut_if #(
   parameter STF_WIDTH     = 24,
-            CMD_EXT_WIDTH = 8,
             RTF_WIDTH     = 24,
             REQ_WIDTH     = 3,
             CMD_WIDTH     = 5,
+            CMD_EXT_WIDTH = REQ_WIDTH + CMD_WIDTH
             DIF_WIDTH     = REQ_WIDTH + CMD_WIDTH + STF_WIDTH
 )(
   input                       clock,
