@@ -20,7 +20,7 @@ module test_runner #(
 
 
   /* Avalon Interrupt sender interface */
-  output reg              irq,
+  output                  irq,
 
 
   /* Conduit */
@@ -33,6 +33,7 @@ module test_runner #(
   // 128 real registers (addresses 0    - 0x7f)
   // 128 fake registers (addresses 0x80 - 0xFF)
   //
+  // 0x0A: interrupt register - lowest bit is IRQ for TR
   // 0x7F: special ID: 0x0A
   //
   // fake registers are not stored in the register file, but are mapped to
@@ -40,13 +41,22 @@ module test_runner #(
   //
   // 0x80: done input
   // 0x81: enable output
+  parameter REG_IRQ     = 'h0A;
+  parameter REG_ID      = NREGS-1;
+  parameter REG_DONE    = 'h80;
+  parameter REG_ENABLE  = 'h81;
+
+  // Fields in REG_IRQ
+  parameter IRQ_TR      = 0;
+
+
+  assign irq = (regfile[REG_IRQ] != 8'h0);
 
 
   reg    [DATA_WIDTH-1:0] regfile [NREGS];
 
-  parameter REG_ID      = NREGS-1;
-  parameter REG_DONE    = 'h80;
-  parameter REG_ENABLE  = 'h81;
+  reg                     done_d1;
+
 
   integer i;
 
@@ -58,8 +68,12 @@ module test_runner #(
       // Assign default set values
       regfile[NREGS-1] <= 8'h0A;
     end
+    else if (done && ~done_d1) /* Positive edge-triggered IRQ */
+      regfile[REG_IRQ][IRQ_TR] <= 1'b1;
     else if (write && (address < NREGS))
-        regfile[address] <= writedata;
+      regfile[address] <= writedata;
+    else if (read && (address == REG_IRQ)) /* Clear IRQ reg when read */
+      regfile[REG_IRQ] <= 'b0;
 
 
   always @(posedge clock, negedge nreset)
@@ -93,9 +107,9 @@ module test_runner #(
 
   always @(posedge clock, negedge nreset)
     if (~nreset)
-      irq <= 1'b0;
+      done_d1 <= 1'b0;
     else
-      irq <= done;
+      done_d1 <= done;
 
 
   always @(posedge clock, negedge nreset)
