@@ -1,0 +1,18 @@
+[submodule "tools2"]
+	path = tools2
+	url = git://sopc.et.ntust.edu.tw/git/tools.git
+[submodule "toolchain-mmu"]
+	path = toolchain-mmu
+	url = git://sopc.et.ntust.edu.tw/git/toolchain-mmu.git
+[submodule "u-boot"]
+	path = u-boot
+	url = git://sopc.et.ntust.edu.tw/git/u-boot.git
+[submodule "uClibc"]
+	path = uClibc
+	url = git://sopc.et.ntust.edu.tw/git/uClibc.git
+[submodule "uClinux-dist"]
+	path = uClinux-dist
+	url = git://sopc.et.ntust.edu.tw/git/uClinux-dist.git
+[submodule "linux-2.6"]
+	path = linux-2.6
+	url = git://sopc.et.ntust.edu.tw/git/linux-2.6.git
