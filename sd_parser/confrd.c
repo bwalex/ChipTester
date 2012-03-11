@@ -9,6 +9,8 @@
 #include <dirent.h>
 #include <errno.h>
 #include <getopt.h>
+#include "sram.h"
+#include "trunner_if.h"
 
 
 #define COMMENT_CHAR		'#' //Comment definition
@@ -116,6 +118,7 @@ struct keyword keywords[] = {
 	{ .keyword = NULL	, .lp = NULL }
 };
 
+int wflag = 0;
 int sflag = 0;
 char *sram_file = NULL;
 
@@ -494,6 +497,7 @@ parse_file(FILE *fp)
 	char *s, *e;
 	int keyword_idx = -1;
 	int i, len, ssz;
+	off_t mem_off = 0;
 
 	memset(&pi, 0, sizeof(pi));
 
@@ -559,6 +563,10 @@ parse_file(FILE *fp)
 		print_mem(buf, ssz);
 		if (sflag)
 			save_sram_file(buf, ssz);
+		if (wflag)
+			sram_write(mem_off, buf, (size_t)ssz);
+
+		mem_off += ssz;
 	}
 
 	ssz = generate_end(&pi, buf, sizeof(buf));
@@ -566,6 +574,15 @@ parse_file(FILE *fp)
 		print_mem(buf, ssz);
 		if (sflag)
 			save_sram_file(buf, ssz);
+		if (wflag)
+			sram_write(mem_off, buf, (size_t)ssz);
+
+		mem_off += ssz;
+	}
+
+	if (wflag) {
+		trunner_enable();
+		trunner_wait_done();
 	}
 
 	return 0;
@@ -582,6 +599,9 @@ usage(int exitval)
 		" -s <file>\n"
 		"\t Write an SRAM initialization file containing the data generated\n"
 		"\t using the configuration file(s).\n"
+		" -s\n"
+		"\t Write to actual SRAM and start the test runner after reading\n"
+		"\t a file.\n"
 		);
 
 	exit(exitval);
@@ -596,16 +616,20 @@ main(int argc, char *argv[])
 	DIR *mydir;
 	char *rpath;
 	char fname[PATH_MAX];
-	int c;
+	int c, error;
 
 
-	while ((c = getopt (argc, argv, "s:")) != -1) {
+	while ((c = getopt (argc, argv, "s:wh?")) != -1) {
 		switch (c) {
 		case 's':
 			sflag = 1;
 			sram_file = optarg;
 			/* Delete old file if present, since we'll be appending */
 			unlink(sram_file);
+			break;
+
+		case 'w':
+			wflag = 1;
 			break;
 
 		case '?':
@@ -634,6 +658,16 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 
+	if (wflag) {
+		trunner_print_magic();
+
+		error = sram_open();
+		if (error) {
+			perror("sram_open");
+			exit(1);
+		}
+	}
+
 	while((entry = readdir(mydir))) {
 		if (entry->d_type != DT_REG) {
 			fprintf(stderr, "Skipping non-regular entry %s/%s\n",
@@ -655,6 +689,9 @@ main(int argc, char *argv[])
 		parse_file(fp);
 		fclose(fp);
 	}
+
+	if (wflag)
+		sram_close();
 
 	closedir(mydir);
 	return 0;

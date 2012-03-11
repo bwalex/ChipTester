@@ -8,7 +8,7 @@ CFLAGS= -g3 -O0 $(WARNFLAGS)
 CC?= gcc
 
 all:
-	$(CC) $(CFLAGS) confrd.c -o confrd
+	$(CC) $(CFLAGS) confrd.c trunner_if.c sram.c -o confrd
 
 clean:
 	rm -f confrd
