@@ -599,7 +599,7 @@ usage(int exitval)
 		" -s <file>\n"
 		"\t Write an SRAM initialization file containing the data generated\n"
 		"\t using the configuration file(s).\n"
-		" -s\n"
+		" -w\n"
 		"\t Write to actual SRAM and start the test runner after reading\n"
 		"\t a file.\n"
 		);
