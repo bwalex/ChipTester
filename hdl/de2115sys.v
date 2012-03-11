@@ -92,6 +92,8 @@ module de2115sys(
   input         ENET0_LINK100 /* XXX: unused */
 );
 
+  wire          clock_100;
+  wire          clock_10;
   wire          global_reset_n;
 
   wire          enet_tx_clk_mac;
@@ -122,10 +124,27 @@ module de2115sys(
   wire          sopc_sram_write;
   wire   [15:0] sopc_sram_writedata;
   wire          sopc_sram_waitrequest;
-  
+
+  wire   [19:0] tr_sram_address;
+  wire   [ 1:0] tr_sram_byteenable;
+  wire          tr_sram_read;
+  wire   [15:0] tr_sram_readdata;
+  wire          tr_sram_readdataready;
+  wire          tr_sram_write;
+  wire   [15:0] tr_sram_writedata;
   wire          tr_sram_waitrequest;
+
   wire   [ 3:0] func_sel;
-  
+
+  wire          sram_arb_msel;
+
+  wire          tr_done;
+  wire          tr_enable;
+
+  wire   [23:0] tr_miso;
+  wire   [23:0] tr_mosi;
+  wire   [ 4:0] tr_target_sel;
+
   wire          sigtap_clk;
 
 
@@ -186,21 +205,28 @@ module de2115sys(
   assign LEDG = sopc_sram_waitrequest;
   assign LEDG0 = tr_sram_waitrequest;
 
-sigtap_pll sigtap_clock (
-	.inclk0(sopc_sram_clock),
-	.c0(sigtap_clk)
-);
+  sigtap_pll sigtap_clock (
+    .inclk0(sopc_sram_clock),
+    .c0(sigtap_clk)
+  );
+
+  /* XXX: temporary PLL. should move as reconfig into tester mod */
+  pll_10 pll10 (
+    .areset(1'b0),
+    .inclk0(clock_50),
+    .c0(clock_10)
+  );
 
   sram_arb_sync#(
     .ADDR_WIDTH (20),
-	 .DATA_WIDTH (16),
-	 .SEL_WIDTH  (1)
+    .DATA_WIDTH (16),
+    .SEL_WIDTH  (1)
   ) sram_arb
   (
-    .clock               (sopc_sram_clock),
+    .clock               (clock_100),
     .reset_n             (global_reset_n),
 
-    .sel                 (SW_SEL),
+    .sel                 (sram_arb_msel),
 
     .sram_address        (SRAM_ADDR),
     .sram_data           (SRAM_DQ),
@@ -218,20 +244,55 @@ sigtap_pll sigtap_clock (
     .sopc_writedata      (sopc_sram_writedata),
     .sopc_waitrequest    (sopc_sram_waitrequest),
 
-	 /* XXX */
-    .tr_address        (sopc_sram_address),
-    .tr_byteenable     (sopc_sram_byteenable),
-    .tr_read           (sopc_sram_read),
-    .tr_write          (sopc_sram_write),
-    .tr_writedata      (sopc_sram_writedata),
-    .tr_waitrequest    (tr_sram_waitrequest)
+    .tr_address          (tr_sram_address),
+    .tr_byteenable       (tr_sram_byteenable),
+    .tr_read             (tr_sram_read),
+    .tr_readdata         (tr_sram_readdata),
+    .tr_readdataready    (tr_sram_readdataready),
+    .tr_write            (tr_sram_write),
+    .tr_writedata        (tr_sram_writedata),
+    .tr_waitrequest      (tr_sram_waitrequest)
   );
+
+
+  tester#(
+    .ADDR_WIDTH          (20),
+    .DATA_WIDTH          (16),
+    .WAIT_WIDTH          (16)
+  ) tester
+  (
+    .clock               (clock_100),
+    .reset_n             (global_reset_n),
+    .fifo_clock          (clock_10),
+
+    .enable              (tr_enable),
+    .done                (tr_done),
+
+    .address             (tr_sram_address),
+    .byteenable          (tr_sram_byteenable),
+    .readdata            (tr_sram_readdata),
+    .read                (tr_sram_read),
+    .readdataready       (tr_sram_readdataready),
+    .write               (tr_sram_write),
+    .writedata           (tr_sram_writedata),
+    .waitrequest         (tr_sram_waitrequest),
+
+    .target_sel          (tr_target_sel),
+    .mosi                (tr_mosi),
+    .miso                (tr_miso)
+  );
+
+
+  /* XXX: Effectively the DUT/CUT , a 1-bit left shifter */
+  assign tr_miso  = tr_mosi << 1;
+
 
 
   linuxsys u0 (
     .clk_0                                  (clock_50),
     .reset_n                                (global_reset_n),
-//  .altpll_sys                             (<connected-to-altpll_sys>),
+
+    .altpll_sys                             (clock_100),
 //  .phasedone_from_the_altpll_0            (<connected-to-phasedone_from_the_altpll_0>),
 //  .c0_out_clk_out                         (<connected-to-c0_out_clk_out>),
 //  .areset_to_the_altpll_0                 (<connected-to-areset_to_the_altpll_0>),
@@ -318,6 +379,11 @@ sigtap_pll sigtap_clock (
     .spi_0_external_SCLK                    (SD_CLK),
     .spi_0_external_SS_n                    (SD_DAT3),
 
+//  .spi_1_external_MISO                    (),
+//  .spi_1_external_MOSI                    (),
+//  .spi_1_external_SCLK                    (),
+//  .spi_1_external_SS_n                    (),
+
     .eep_i2c_scl_external_connection_export (EEP_I2C_SCLK),
     .eep_i2c_sda_external_connection_export (EEP_I2C_SDAT),
 
@@ -330,6 +396,11 @@ sigtap_pll sigtap_clock (
     .sram_conduit_write                     (sopc_sram_write),
     .sram_conduit_writedata                 (sopc_sram_writedata),
     .sram_conduit_waitrequest               (sopc_sram_waitrequest),
+
+    .test_runner_conduit_done               (tr_done),
+    .test_runner_conduit_enable             (tr_enable),
+    .test_runner_conduit_busy               (sram_arb_msel),
+
     .func_sel_external_connection_export    (LEDR)
   );
 
