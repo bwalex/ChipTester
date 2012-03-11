@@ -105,7 +105,7 @@ module stim #(
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
       state <= END;
-    else if
+    else
       state <= next_state;
 
 

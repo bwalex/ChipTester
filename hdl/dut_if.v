@@ -3,7 +3,7 @@ module dut_if #(
             RTF_WIDTH     = 24,
             REQ_WIDTH     = 3,
             CMD_WIDTH     = 5,
-            CMD_EXT_WIDTH = REQ_WIDTH + CMD_WIDTH
+            CMD_EXT_WIDTH = REQ_WIDTH + CMD_WIDTH,
             DIF_WIDTH     = REQ_WIDTH + CMD_WIDTH + STF_WIDTH
 )(
   input                       clock,
@@ -65,8 +65,9 @@ module dut_if #(
    */
   genvar i;
   generate
-    for (i = 0; i < STF_WIDTH; i = i+1)
+    for (i = 0; i < STF_WIDTH; i = i+1) begin : OUT_MUXES
       assign mosi_data[i] = mux_config[i] ? clock_gated : mosi_data_r[i];
+    end
   endgenerate
 
 
