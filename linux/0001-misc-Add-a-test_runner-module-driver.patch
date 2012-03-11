@@ -1,4 +1,4 @@
-From d778b5008ea92fb96223e3dd87fade67bb5dd153 Mon Sep 17 00:00:00 2001
+From 74d2a3a8f06a9218a180e8559d388570ac4ba147 Mon Sep 17 00:00:00 2001
 From: Alex Hornung <alex@alexhornung.com>
 Date: Sat, 10 Mar 2012 23:10:32 +0000
 Subject: [PATCH 1/1] misc - Add a test_runner module driver
@@ -37,7 +37,7 @@ index fa435f8..7650fcb 100644
 +obj-$(CONFIG_TEST_RUNNER)	+= trunner_dev.o
 diff --git a/drivers/misc/trunner_dev.c b/drivers/misc/trunner_dev.c
 new file mode 100644
-index 0000000..ff20999
+index 0000000..59d1ea5
 --- /dev/null
 +++ b/drivers/misc/trunner_dev.c
 @@ -0,0 +1,366 @@
@@ -352,7 +352,7 @@ index 0000000..ff20999
 +
 +#ifdef CONFIG_OF
 +static struct of_device_id trunner_match[] = {
-+	{ .compatible = "trunner", },
++	{ .compatible = "trunner,trunner-1.0", },
 +	{}
 +};
 +MODULE_DEVICE_TABLE(of, trunner_match);

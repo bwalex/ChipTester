@@ -309,7 +309,7 @@ trunner_remove(struct platform_device *pdev)
 
 #ifdef CONFIG_OF
 static struct of_device_id trunner_match[] = {
-	{ .compatible = "trunner", },
+	{ .compatible = "trunner,trunner-1.0", },
 	{}
 };
 MODULE_DEVICE_TABLE(of, trunner_match);
