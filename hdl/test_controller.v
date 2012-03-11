@@ -172,7 +172,9 @@ module test_controller #(
 
     .sc_cmd             (sc_cmd),
     .sc_data            (sc_data),
-    .sc_ready           (sc_ready)
+    .sc_ready           (sc_ready),
+
+    .target_sel         (target_sel)
   );
 
 
