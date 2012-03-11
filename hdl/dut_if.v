@@ -81,6 +81,10 @@ module dut_if #(
    * any results.
    *
    * The gated clock is also the one applied to the DUT/CUT.
+   *
+   * NOTE: A better solution would be to use normal register enables
+   *       internally on the FPGA and a DDR I/O register (ALTDDIO)
+   *       on all the output pins.
    */
   assign clock_gated =  (stall_n & clock);
 

@@ -12,6 +12,7 @@ create_clock -period 20 [get_ports clock3_50]
 create_clock -period 8 -name "ENET0_RX_CLK" [get_ports ENET0_RX_CLK]
 create_clock -period 8 -name "ENET0_TX_CLK" [get_ports ENET0_TX_CLK]
 
+create_generated_clock -add -source [get_pins tester:tester|dut_if:dut_if|clock] -name "gated_dut_clk" [get_pins tester:tester|dut_if:dut_if|clock_gated]
 
 #**************************************************************
 # Create Generated Clock
