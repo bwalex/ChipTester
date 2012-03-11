@@ -24,6 +24,7 @@
 #define TRUNNER_IOC_GET_DONE	_IOR(MAJOR_NUM, 1, uint8_t)
 #define TRUNNER_IOC_GET_MAGIC	_IOR(MAJOR_NUM, 2, uint8_t)
 
+#define TRUNNER_IRQ_REG			0x0a
 #define TRUNNER_MAGIC_REG		0x7f
 #define TRUNNER_DONE_REG		0x80
 #define TRUNNER_ENABLE_REG		0x81
@@ -42,6 +43,8 @@ struct trunner_softc {
 
 
 static dev_t trunner_dev;
+static int trunner_major;
+static struct class *trunner_class;
 
 
 static uint8_t
@@ -196,6 +199,13 @@ trunner_irq_handler(int irq, void *priv)
 {
 	struct device *dev = priv;
 	struct trunner_softc *sc = dev->platform_data;
+	uint8_t irqs;
+
+	/* XXX: temporary debug */
+	dev_info(dev, "trunner_irq\n");
+
+	/* Reading the IRQ register clears the interrupt(s) */
+	irqs = trunner_read_reg(sc, TRUNNER_IRQ_REG);
 
 	sc->tr_busy = 0;
 
@@ -218,68 +228,69 @@ trunner_probe(struct platform_device *pdev)
 	tr_base = NULL;
 
 	id = (pdev->id >= 0) ? pdev->id : 0;
-	printk(KERN_INFO "trunner_probe called, id=%d\n", id);
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq == ENXIO)
 		return -ENODEV;
 
-	printk(KERN_INFO "trunner irq: %d\n", irq);
-
 	res_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (res_mem == NULL)
-		return -ENODEV;
-
-
-	tr_base = ioremap(res_mem->start, resource_size(res_mem));
-	if (tr_base == NULL) {
-		printk(KERN_ERR "trunner could not ioremap\n");
+	if (res_mem == NULL) {
+		dev_err(&pdev->dev, "platform_get_resource failed!\n");
 		return -ENODEV;
 	}
 
+	tr_base = ioremap(res_mem->start, resource_size(res_mem));
+	if (tr_base == NULL) {
+		dev_err(&pdev->dev, "ioremap failed!\n");
+		return -ENODEV;
+	}
 
 	sc.tr_busy = 0;
 	sc.tr_id = id;
 	sc.tr_irq = irq;
 	sc.tr_base = tr_base;
-	init_waitqueue_head(&sc.tr_wq);
 
 	rc = trunner_check_magic(&sc);
 	if (rc) {
-		printk(KERN_ERR "trunner magic mismatch\n");
+		dev_err(&pdev->dev, "magic number mismatch!\n");
 		goto error;
 	}
-
-	printk(KERN_INFO "trunner magic matches!\n");
-
 
 	rc = platform_device_add_data(pdev, &sc, sizeof(sc));
 	if (rc) {
-		printk(KERN_ERR "trunner could not add data\n");
+		dev_err(&pdev->dev, "platform_device_add_data failed!\n");
 		goto error;
 	}
 
-
 	scp = pdev->dev.platform_data;
-
+	init_waitqueue_head(&scp->tr_wq);
 
 	rc = request_irq(irq, trunner_irq_handler, 0 /* flags */, DRIVER_NAME,
 			 &pdev->dev);
 	if (rc) {
-		printk(KERN_ERR "trunner could not request IRQ %d\n", irq);
+		dev_err(&pdev->dev, "request_irq failed!\n");
 		goto error;
 	}
 
 	cdev_init(&scp->tr_cdev, &trunner_fops);
 	kobject_set_name(&scp->tr_cdev.kobj, "%s%d", DRIVER_NAME, id);
 
-	rc = cdev_add(&scp->tr_cdev, trunner_dev, 1);
+	rc = cdev_add(&scp->tr_cdev, MKDEV(trunner_major, id), 1);
 	if (rc) {
-		printk(KERN_ERR "trunner failed cdev_add\n");
+		dev_err(&pdev->dev, "cdev_add failed!\n");
 		kobject_put(&scp->tr_cdev.kobj);
 		goto error;
 	}
 
+	if (IS_ERR(device_create(trunner_class, &pdev->dev,
+				MKDEV(trunner_major, id), NULL,
+				"%s%d", DRIVER_NAME, id))) {
+		dev_err(&pdev->dev, "device_create failed!\n");
+		cdev_del(&scp->tr_cdev);
+		goto error;
+	}
+
+	dev_info(&pdev->dev, "Test Runner device %d, irq %d\n", id, irq);
 
 	return 0;
 
@@ -299,6 +310,7 @@ trunner_remove(struct platform_device *pdev)
 {
 	struct trunner_softc *sc = pdev->dev.platform_data;
 
+	device_destroy(trunner_class, MKDEV(trunner_major, sc->tr_id));
 	cdev_del(&sc->tr_cdev);
 	free_irq(sc->tr_irq, &pdev->dev);
 	iounmap(sc->tr_base);
@@ -335,9 +347,21 @@ trunner_init(void)
 
 	printk(KERN_INFO "Test Runner Module loaded\n");
 
-	rc = alloc_chrdev_region(&trunner_dev, 0, MAX_CDEVS, DRIVER_NAME);
-	if (rc)
+	trunner_class = class_create(THIS_MODULE, "trunner");
+	if (IS_ERR(trunner_class)) {
+		rc = PTR_ERR(trunner_class);
+		printk(KERN_ERR "trunner: class_create failed!\n");
 		return rc;
+	}
+
+	rc = alloc_chrdev_region(&trunner_dev, 0, MAX_CDEVS, DRIVER_NAME);
+	if (rc) {
+		printk(KERN_ERR "trunner: alloc_chrdev_region failed!\n");
+		class_destroy(trunner_class);
+		return rc;
+	}
+
+	trunner_major = MAJOR(trunner_dev);
 
 	rc = platform_driver_register(&trunner_platform_driver);
 
@@ -353,6 +377,8 @@ trunner_exit(void)
 	platform_driver_unregister(&trunner_platform_driver);
 
 	unregister_chrdev_region(trunner_dev, MAX_CDEVS);
+
+	class_destroy(trunner_class);
 }
 
 
