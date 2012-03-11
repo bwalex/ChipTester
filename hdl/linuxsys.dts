@@ -241,11 +241,25 @@
 
 			mmc_spi@0 {
 				compatible = "mmc-spi-slot";
-				spi-max-frequency = < 2000000 >;
+				spi-max-frequency = < 10000000 >;
 				reg = < 0x00000000 >;
 				voltage-ranges = < 3300 3300 >;
 			}; //end mmc_spi@0
 		}; //end spi@0xba10000 (spi_0)
+
+		spi_1: spi@0xba20000 {
+			compatible = "ALTR,spi-11.1", "ALTR,spi-1.0";
+			reg = < 0x0BA20000 0x00000020 >;
+			interrupt-parent = < &cpu >;
+			interrupts = < 8 >;
+		}; //end spi@0xba20000 (spi_1)
+
+		test_runner_0: trunner@0xd000000 {
+			compatible = "trunner,trunner-1.0";
+			reg = < 0x0D000000 0x00000100 >;
+			interrupt-parent = < &cpu >;
+			interrupts = < 7 >;
+		}; //end trunner@0xd000000 (test_runner_0)
 
 		sram_bridge: sram_bridge@0xc000000 {
 			compatible = "sram-bridge";
