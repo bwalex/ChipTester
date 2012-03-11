@@ -87,7 +87,9 @@ module tester #(
 
     .dififo_dataq       (dififo_dataq),
     .dififo_rdreq       (dififo_rdreq),
-    .dififo_rdempty     (dififo_rdempty)
+    .dififo_rdempty     (dififo_rdempty),
+
+    .target_sel         (target_sel)
   );
 
   dut_if #(

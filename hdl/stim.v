@@ -174,9 +174,6 @@ module stim #(
                           || (state == SWITCH_VDD    && (reads_requested < 3))
                           || (state == READ_TV       && (reads_requested < tv_len));
 
-  assign switching      =    (state == SWITCH_TARGET)
-                          || (state == SWITCH_VDD);
-
   assign sfifo_wrreq    =    (state == WR_FIFOS);
   assign cfifo_wrreq    =    (state == WR_FIFOS);
   assign dififo_wrreq   =    (state == WR_DIFIFO);
@@ -225,6 +222,7 @@ module stim #(
     or cfifo_wrempty
     or sfifo_wrempty
     or waitcnt
+    or output_bitmask
     or sc_ready/* XXX */)
   begin
     next_state    = state;
