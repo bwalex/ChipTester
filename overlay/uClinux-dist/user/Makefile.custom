@@ -1,0 +1,3 @@
+dir_y += sram_test
+dir_y += sram
+dir_y += confrd
