@@ -1,5 +1,5 @@
+#DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
 DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
-
 class DUV_Descriptor
   include DataMapper::Resource
   
@@ -9,38 +9,45 @@ class DUV_Descriptor
   property :configure_date, DateTime  # A DateTime, for any date you might like.
 end
 
-class DUV_Results
+class Result
   include DataMapper::Resource
   property :id, Serial  # An auto-increment integer key
-  property :id_test, String
+  #property :id_test, Integer
   property :chip_number, Integer, :required => true #The number of the chip
   property :team_number, Integer 
   property :test_passed, Boolean, :required => true #If the test passed or not
+  property :file_name, String #File name of the test
+
+  has n, :fails
 end
 
-class DUV_Fail
+class Fail
   include DataMapper::Resource
   property :id, Serial
-  property :id_test, String
+ # property :id_test, Integer
+  property :index, Integer
   property :fail_result, String, :required => true
   property :expected_result, String, :required => true
+  belongs_to :result
 end
+
 def Store_DUV_Result(json_parsed)
-      @duv_result = DUV_Results.create(
-	:id_test => json_parsed["DUV_Results"]["id_test"],
-	:chip_number => json_parsed["DUV_Results"]["chip_number"],
-	:team_number => json_parsed["DUV_Results"]["team_number"],
-	:test_passed => json_parsed["DUV_Results"]["test_passed"]
+      @duv_result = Result.create(
+	:chip_number => json_parsed["Result"]["chip_number"],
+	:team_number => json_parsed["Result"]["team_number"],
+	:test_passed => json_parsed["Result"]["test_passed"],
+	:file_name => json_parsed ["Result"]["file_name"]
       )
       @duv_result.save
 end      
 def Store_DUV_Fail(json_parsed)
-    @duv_fail = DUV_Fail.create(
-	:id_test => json_parsed["DUV_Fail"]["id_test"],
-	:fail_result => json_parsed["DUV_Fail"]["fail_result"],
-	:expected_result => json_parsed["DUV_Fail"]["expected_result"]
+    @duv_fail = Fail.create(
+	:index => json_parsed["Fail"]["index"],
+	:fail_result => json_parsed["Fail"]["fail_result"],
+	:expected_result => json_parsed["Fail"]["expected_result"]
       )
     @duv_fail.save
 end
 DataMapper.finalize
-DataMapper.auto_migrate!
+#DataMapper.auto_migrate!
+DataMapper.auto_upgrade!
