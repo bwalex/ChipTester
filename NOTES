@@ -1,0 +1,62 @@
+Overlay and Patch queue
+==========
+The overlay and patch queue allow for patches to be applied to submodules, as well as overlaying
+regular files and directories.
+This is useful as it allows us to integrate fixes, custom configuration, custom applications, etc,
+with third party software such as u-boot or uClinux without making a mess.
+
+The 'patchq' directory contains one subdirectory for each submodule that needs patching. The .patch
+files in each of these subdirectories is applied to each of the submodules (when running
+'make patch')
+
+Similarly, the 'overlay' directory contains one subdirectory for each submodule (that requires
+overlaying). The content of the subdirectories is laid on top of the submodule itself (when
+running 'make patch')
+
+
+
+
+Bootstrap of submodules (do this exactly ONCE)
+==========
+git submodule init
+git submodule update
+
+make patch
+
+source ./build_env.sh
+
+cd uClinux-dist
+make menuconfig
+
+
+Select the following:
+Kernel/Library/Defaults Selection  ---> 
+	[X] Customize Kernel Settings (NEW)
+
+< Exit >
+< Exit >
+< Yes >
+< Exit >
+
+
+
+
+(Re)Building uCLinux
+==============
+make patch
+
+source ./build_env.sh
+
+cd uClinux-dist
+make
+
+
+
+
+(Re)Building u-boot (currently broken in the new infrastructure, but binary available in dist/u-boot.bin)
+============
+source ./env.sh
+
+cd u-boot
+make my_nios2_config
+make
