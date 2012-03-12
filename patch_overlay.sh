@@ -55,7 +55,7 @@ do
 	submod=$(basename $p)
 	echo "Processing $submod"
 
-	for patch in patchq/$submod/*
+	for patch in patchq/$submod/*.patch
 	do
 		patch $submod $patch
 	done

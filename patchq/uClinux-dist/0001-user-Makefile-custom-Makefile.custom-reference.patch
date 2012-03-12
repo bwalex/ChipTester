@@ -1,0 +1,24 @@
+From 21324e1f79fa453181f20c85d9b5373a9428cde6 Mon Sep 17 00:00:00 2001
+From: Alex Hornung <alex@alexhornung.com>
+Date: Mon, 12 Mar 2012 20:18:46 +0000
+Subject: [PATCH 1/1] user/Makefile - custom Makefile.custom reference
+
+---
+ user/Makefile |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/user/Makefile b/user/Makefile
+index bd415aa..f02b7f1 100644
+--- a/user/Makefile
++++ b/user/Makefile
+@@ -449,6 +449,7 @@ dir_$(CONFIG_USER_ZEBRA_ZEBRA_ZEBRA)        += zebra
+ 
+ dir_y += games
+ 
++-include Makefile.custom
+ -include Makefile.local
+ 
+ all: config
+-- 
+1.7.3.4
+
