@@ -1,0 +1,47 @@
+  <html>
+    <head>
+      <link rel="stylesheet" type="text/css" href="http://localhost:4567/css/stylesheet.css" />
+    </head>
+    
+  <div id="container">
+    <div id="header_layout">
+     <img src = "http://localhost:4567/img/WebBanner.svg" alt="University of Southampton Automated Chip Tester"/>
+    </div>
+    <div id="leftBar">
+      Left Bar
+    </div>
+    <div align="center" id="content">
+      <table>
+      <tr class = "header">
+
+	<th>Chip Number</th>
+	<th>Team Number</th>
+	<th>Team Passed</th>
+	<th>File Name</td>
+      </tr>
+	  <% @results.each do |result| %> 
+	      <tr class = "normal" onmouseover = "this.className='onover';" onmouseout = "this.className='normal'">
+		  <td><%=result.chip_number.to_s() %></td>
+		  <td><%=result.team_number.to_s() %></td>
+		  <td><%=result.test_passed.to_s() %></td>
+		  <td><%=result.file_name %></td>
+	      </tr>
+	  <% end %>
+      </table>
+    </div>
+    <div id="rightBar">
+	<p>Post here your JSON FILE</p>
+	<form method="post" action="/">
+	    <input type="text" name="json_posted" />
+	    <input text="Submit Json" type="submit" />
+
+	</form>
+	<form method="post" action="/reset">
+	    <input type="submit" name="reset_value" VALUE="Reset Database"/>
+	</form>
+    </div>
+    <div id="footer">
+      Footer
+    </div>
+    </div>
+  </html> 

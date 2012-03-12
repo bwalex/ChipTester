@@ -1,0 +1,4 @@
+OLD_VENDOR="Altera"
+OLD_PRODUCT="nios2"
+OLD_LINUXDIR="linux-2.6.x"
+OLD_LIBCDIR=""
