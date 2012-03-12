@@ -42,3 +42,12 @@ download:
 
 terminal:
 	LD_LIBRARY_PATH=$(LIBRARY_PATH) nios2-terminal
+
+bootstrap:
+	sh ./bootstrap.sh
+
+submodules-clean:
+	sh ./submod.sh clean
+
+patch: submodules-clean bootstrap
+	sh ./patch_overlay.sh
