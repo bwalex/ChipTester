@@ -1,11 +1,12 @@
 {
-  "DUV_Results":{
-       "id_test":"IDD",
+  "Result":{
        "chip_number":32,
        "team_number":6,
-       "test_passed":false
+       "test_passed":false,
+	"file_name":"UN_ARCHIVO.txt"
   }
 }
+
 {
   "DUV_Fail":{
        "id_test":"IDD",
