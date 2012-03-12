@@ -1,17 +1,19 @@
-WARNFLAGS= -Wsystem-headers -Wall -W -Wno-unused-parameter \
-	-Wstrict-prototypes -Wmissing-prototypes -Wpointer-arith \
-	-Wold-style-definition -Wreturn-type -Wwrite-strings \
-	-Wswitch -Wshadow -Wcast-align -Wchar-subscripts \
-	-Winline -Wnested-externs
+EXEC = confrd
+OBJS = confrd.o sram.o trunner_if.o
 
-CFLAGS= -g3 -O0 $(WARNFLAGS)
-CC?= gcc
+CFLAGS += -DPARANOID_TTYS -DTERMCAP -DUSE_TERMIO -DKLUDGELINEMODE -D_GNU_SOURCE
 
-all:
-	$(CC) $(CFLAGS) confrd.c trunner_if.c sram.c -o confrd
+all: $(EXEC)
+
+#uses non LGPL libraries
+$(EXEC): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
+
+romfs:
+	$(ROMFSINST) /bin/$(EXEC)
+	$(ROMFSINST) configs/test.cfg /test.cfg
 
 clean:
-	rm -f confrd
+	-rm -f $(EXEC) *.elf *.gdb *.o
 
-realclean: clean
-	rm -f *~ *.bak
+$(OBJS): 
