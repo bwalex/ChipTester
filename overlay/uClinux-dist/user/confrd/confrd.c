@@ -124,6 +124,21 @@ char *sram_file = NULL;
 
 
 static
+size_t
+req_sz(int req)
+{
+	switch (req) {
+	case REQ_SWITCH_TARGET:	return sizeof(change_target);
+	case REQ_TEST_VECTOR:	return sizeof(test_vector);
+	case REQ_SETUP_BITMASK:	return sizeof(change_bitmask);
+	case REQ_SEND_DICMD:	return sizeof(send_dicmd);
+	case REQ_END:		return sizeof(mem_end);
+	default:		return 0;
+	}
+}
+
+
+static
 void
 bprint(uint8_t *n, size_t len)
 {
@@ -395,31 +410,40 @@ generate_end(parserinfo_t pi, void *buf, size_t bufsz)
 
 
 static
-void
-print_mem(uint8_t *buf, int sz)
+size_t
+print_mem(uint8_t *buf, int sz, int *end)
 {
 	change_target *ct;
 	change_bitmask *cb;
 	test_vector *tv;
 	send_dicmd *sd;
 	mem_end *me;
-	uint8_t *metadatap;
+	int req;
+	size_t reqsz;
+
+	if (end)
+		*end = 0;
 
 	while (sz > 0) {
-		metadatap = buf;
+		req = buf[0] >> 5;
 
-		switch (*metadatap >> 5) {
+		/*
+		 * If we don't have enough bytes left, stop processing. We'll
+		 * end up returning the number of bytes that were leftover.
+		 */
+		reqsz = req_sz(req);
+		if ((size_t)sz < reqsz)
+			break;
+
+		switch (req) {
 		case REQ_SWITCH_TARGET:
 			ct = (change_target *)buf;
-			sz -= sizeof(*ct);
-			buf += sizeof(*ct);
-			printf("REQ_SWITCH_TARGET:\ttarget=%d\n", (int)ct->design_number);
+			printf("REQ_SWITCH_TARGET:\ttarget=%d\n",
+			    (int)ct->design_number);
 			break;
 
 		case REQ_SETUP_BITMASK:
 			cb = (change_bitmask *)buf;
-			sz -= sizeof(*cb);
-			buf += sizeof(*cb);
 			printf("REQ_SETUP_BITMASK:\tbitmask=");
 			bprint(cb->bit_mask, sizeof(cb->bit_mask));
 			putchar('\n');
@@ -427,8 +451,6 @@ print_mem(uint8_t *buf, int sz)
 
 		case REQ_TEST_VECTOR:
 			tv = (test_vector *)buf;
-			sz -= sizeof(*tv);
-			buf += sizeof(*tv);
 			printf("REQ_TEST_VECTOR:\tiv=");
 			bprint(tv->input_vector, sizeof(tv->input_vector));
 			printf(", ov=");
@@ -438,8 +460,6 @@ print_mem(uint8_t *buf, int sz)
 
 		case REQ_SEND_DICMD:
 			sd = (send_dicmd *)buf;
-			sz -= sizeof(*sd);
-			buf += sizeof(*sd);
 			printf("REQ_SEND_DICMD:\t\tcmd=");
 			switch (DICMD(sd->metadata)) {
 			case DICMD_SETUP_MUXES:
@@ -454,17 +474,24 @@ print_mem(uint8_t *buf, int sz)
 
 		case REQ_END:
 			me = (mem_end *)buf;
-			sz -= sizeof(*me);
-			buf += sizeof(*me);
+			if (end) {
+				*end = 1;
+				return 0;
+			}
 			printf("REQ_END\n");
 			break;
 
 		default:
 			printf("INVALID REQUEST TYPE: %#x\n",
-			    (unsigned int)(*metadatap >> 5));
-			return;
+			    (unsigned int)(req));
+			return sz;
 		}
+
+		sz -= reqsz;
+		buf += reqsz;
 	}
+
+	return sz;
 }
 
 
@@ -484,6 +511,28 @@ save_sram_file(uint8_t *buf, int sz)
 		fprintf(fp, "%.2x%.2x\n", buf[i], buf[i+1]);
 
 	fclose(fp);
+}
+
+
+static
+int
+print_sram_results(void)
+{
+	uint8_t buf[256];
+	size_t sz = 0;
+	int error = 0;
+	int done = 0;
+	off_t off = 0;
+
+	do {
+		error = sram_read(off, buf, sizeof(buf));
+		if (!error)
+			sz = print_mem(buf, sizeof(buf), &done);
+
+		off += sizeof(buf) - sz;
+	} while(!error && !done);
+
+	return (error && !done) ? -1 : 0;
 }
 
 
@@ -560,7 +609,7 @@ parse_file(FILE *fp)
 		if (ssz < 0)
 			return -1;
 
-		print_mem(buf, ssz);
+		print_mem(buf, ssz, NULL);
 		if (sflag)
 			save_sram_file(buf, ssz);
 		if (wflag)
@@ -571,7 +620,7 @@ parse_file(FILE *fp)
 
 	ssz = generate_end(&pi, buf, sizeof(buf));
 	if (ssz > 0) {
-		print_mem(buf, ssz);
+		print_mem(buf, ssz, NULL);
 		if (sflag)
 			save_sram_file(buf, ssz);
 		if (wflag)
@@ -583,6 +632,7 @@ parse_file(FILE *fp)
 	if (wflag) {
 		trunner_enable();
 		trunner_wait_done();
+		print_sram_results();
 	}
 
 	return 0;
