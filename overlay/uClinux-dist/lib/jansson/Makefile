@@ -1,6 +1,6 @@
 VER = jansson-2.3
 
-CONF_OPTS = \
+#CONF_OPTS = \
 	--disable-shared
 
 include $(ROOTDIR)/tools/autotools.mk
@@ -11,4 +11,4 @@ pre-build::
 	$(MAKE) -C build-$(VER)
 
 romfs:
-	echo "Nothing required"
+	$(ROMFSINST) -d -e CONFIG_FMT_USE_FDPIC_ELF $(STAGEDIR)/usr/lib/libjansson.so.4.3.0 /usr/lib/

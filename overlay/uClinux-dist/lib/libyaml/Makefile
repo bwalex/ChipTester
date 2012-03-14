@@ -1,6 +1,6 @@
 VER = yaml-0.1.4
 
-CONF_OPTS = \
+#CONF_OPTS = \
 	--disable-shared
 
 include $(ROOTDIR)/tools/autotools.mk
@@ -11,4 +11,4 @@ pre-build::
 	$(MAKE) -C build-$(VER)
 
 romfs:
-	echo "Nothing required"
+	$(ROMFSINST) -d -e CONFIG_FMT_USE_FDPIC_ELF $(STAGEDIR)/usr/lib/libyaml-0.so.2.0.2 /usr/lib/
