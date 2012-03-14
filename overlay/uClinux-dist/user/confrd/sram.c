@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 #include "sram.h"
 
@@ -50,10 +51,17 @@ sram_close(void) {
 int
 sram_read(off_t offset, void *dst, size_t len)
 {
+	uint16_t *src;
+	uint16_t *dst16;
+
 	if (offset + len > SRAM_SIZE)
 		return -1;
 
-	memcpy(dst, ((unsigned char *)mem) + offset, len);
+	dst16 = dst;
+
+	src = ((uint16_t *)mem) + offset/2;
+	for (; len > 0; len -= 2)
+		*dst16++ = htons(*src++);
 
 	return 0;
 }
@@ -62,13 +70,17 @@ sram_read(off_t offset, void *dst, size_t len)
 int
 sram_write(off_t offset, void *src, size_t len)
 {
-	void *dst;
+	uint16_t *dst;
+	uint16_t *src16;
 
 	if (offset + len > SRAM_SIZE)
 		return -1;
 
-	dst = ((unsigned char *)mem) + offset;
-	memcpy(dst, src, len);
+	src16 = src;
+
+	dst = ((uint16_t *)mem) + offset/2;
+	for (; len > 0; len -= 2)
+		*dst++ = ntohs(*src16++);
 
 	return 0;
 }
