@@ -31,6 +31,10 @@
 
 #define DICMD_SETUP_MUXES	0x01
 
+#define MD2_FAIL		0x01
+#define MD2_RUN			0x80
+
+
 #define REQ_TYPE(r)		((r & 0x07) << 5)
 #define DICMD(c)		(c & 0x1f)
 
@@ -464,7 +468,9 @@ print_mem(uint8_t *buf, int sz, int *end)
 			bprint(tv->input_vector, sizeof(tv->input_vector));
 			printf(", ov=");
 			bprint(tv->output_vector, sizeof(tv->output_vector));
-			printf(", metadata2=%#x\n", (unsigned int)tv->metadata2);
+			printf(", metadata2=%c %c\n",
+			    (tv->metadata2 & MD2_RUN)  ? 'R' : ' ',
+			    (tv->metadata2 & MD2_FAIL) ? 'F' : ' ');
 			break;
 
 		case REQ_SEND_DICMD:
