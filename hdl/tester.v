@@ -59,7 +59,7 @@ module tester #(
     .DSEL_WIDTH         (DSEL_WIDTH),
     .REQ_WIDTH          (REQ_WIDTH),
     .CMD_WIDTH          (CMD_WIDTH),
-    .WAIT_WIDTH         (16)
+    .WAIT_WIDTH         (WAIT_WIDTH)
   ) test_controller(
     .clock              (clock),
     .reset_n            (reset_n),
