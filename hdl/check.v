@@ -171,7 +171,7 @@ module check #(
       end
 
       WRITEBACK: begin
-        if (words_stored == (res_len - 1))
+        if ((words_stored == (res_len - 1)) && !mem_waitrequest)
           next_state = IDLE;
       end
     endcase
