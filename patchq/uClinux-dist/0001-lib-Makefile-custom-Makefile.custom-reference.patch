@@ -1,0 +1,25 @@
+From 967390b175baf0171c99832ccb771f47ff1ef12e Mon Sep 17 00:00:00 2001
+From: Alex Hornung <alex@alexhornung.com>
+Date: Wed, 14 Mar 2012 13:17:11 +0000
+Subject: [PATCH 1/1] lib/Makefile - custom Makefile.custom reference
+
+---
+ lib/Makefile |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/lib/Makefile b/lib/Makefile
+index d329ab5..74c7f3a 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -92,6 +92,8 @@ dir_5_$(CONFIG_LIB_LIBCURL)      += libcurl
+ #
+ -include Makefile.local
+ 
++-include Makefile.custom
++
+ # And build libraries in the prop directory last
+ dir_9_y += $(wildcard $(ROOTDIR)/prop)
+ 
+-- 
+1.7.3.4
+
