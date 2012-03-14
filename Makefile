@@ -49,8 +49,11 @@ bootstrap:
 submodules-clean:
 	sh ./submod.sh clean
 
+overlay: bootstrap
+	sh ./patch_overlay.sh -o
+
 patch: submodules-clean bootstrap
-	sh ./patch_overlay.sh
+	sh ./patch_overlay.sh -po
 
 .PHONY: config flashimage download terminal
-.PHONY: bootstrap submodules-clean patch
+.PHONY: bootstrap submodules-clean patch overlay
