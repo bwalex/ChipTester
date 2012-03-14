@@ -258,7 +258,7 @@ module de2115sys(
   tester#(
     .ADDR_WIDTH          (20),
     .DATA_WIDTH          (16),
-    .WAIT_WIDTH          (16)
+    .WAIT_WIDTH          (4)
   ) tester
   (
     .clock               (clock_100),
