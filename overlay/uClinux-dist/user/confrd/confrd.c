@@ -49,33 +49,42 @@ typedef struct test_vector {
 } test_vector;
 
 
-typedef struct change_target {
+struct change_target {
 	uint8_t metadata;
 	uint8_t design_number;
 	uint8_t padding[2];
 	uint8_t padding2[2];
-} change_target;
+} __attribute__((__packed__));
+
+typedef struct change_target change_target;
 
 
-typedef struct change_bitmask {
+struct change_bitmask {
 	uint8_t metadata;
 	uint8_t bit_mask[3];
 	uint8_t padding[2];
-} change_bitmask;
+} __attribute__((__packed__));
+
+typedef struct change_bitmask change_bitmask;
 
 
-typedef struct send_dicmd {
+struct send_dicmd {
 	uint8_t metadata;
 	uint8_t payload[3];
 	uint8_t padding[2];
-} send_dicmd;
+} __attribute__((__packed__));
 
-typedef struct mem_end {
+typedef struct send_dicmd send_dicmd;
+
+
+struct mem_end {
 	uint8_t metadata;
 	uint8_t unused1;
 	uint8_t padding[2];
 	uint8_t padding2[2];
-} mem_end;
+} __attribute__((__packed__));
+
+typedef struct mem_end mem_end;
 
 
 typedef struct pininfo {
