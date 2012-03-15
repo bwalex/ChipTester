@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include <assert.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -13,6 +14,11 @@
 #include "sram.h"
 #include "trunner_if.h"
 
+
+#define LOGDEBUG		1
+#define LOGINFO			2
+#define LOGWARN			3
+#define LOGERR			4
 
 #define COMMENT_CHAR		'#' //Comment definition
 
@@ -165,6 +171,54 @@ int sflag = 0;
 char *sram_file = NULL;
 
 
+char *cur_filename;
+int cur_lineno;
+
+
+static
+void
+vlog(int loglevel, const char *fmt, va_list ap)
+{
+	char msgbuf[4096];
+
+	vsnprintf(msgbuf, sizeof(msgbuf), fmt, ap);
+
+	if (loglevel == LOGERR)
+		fprintf(stderr, "%s\n", msgbuf);
+	else
+		printf("%s\n", msgbuf);
+
+	/* XXX: add remote logging */
+}
+
+
+static
+void
+logger(int loglevel, const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	vlog(loglevel, fmt, ap);
+	va_end(ap);
+}
+
+
+static
+void
+syntax_error(const char *fmt, ...)
+{
+	char msgbuf[4096];
+	va_list ap;
+
+	va_start(ap, fmt);
+	vsnprintf(msgbuf, sizeof(msgbuf), fmt, ap);
+	va_end(ap);
+
+	logger(LOGERR, "%s:%d syntax error: %s", cur_filename, cur_lineno, msgbuf);
+}
+
+
 static
 size_t
 req_sz(int req)
@@ -250,14 +304,13 @@ parse_line_vectors(char *s, void *priv)
 
 	while (*s != '\0') {
 		if (*s != '0' && *s != '1') {
-			fprintf(stderr, "Syntax error: Vector contains invalid "
-			    "character: %c\n", *s);
+			syntax_error("Vector contains invalid "
+			    "character: %c", *s);
 			return -1;
 		}
 
 		if (n >= pi->pin_count) {
-			fprintf(stderr, "Syntax error: Vector contains too "
-			    "many pins\n");
+			syntax_error("Vector contains too many pins");
 			return -1;
 		}
 
@@ -282,8 +335,7 @@ parse_line_vectors(char *s, void *priv)
 	}
 
 	if (n < pi->pin_count) {
-		fprintf(stderr, "Syntax error: Vector contains too few "
-		    "pins\n");
+		syntax_error("Vector contains too few pins");
 		return -1;
 	}
 
@@ -314,8 +366,7 @@ parse_line_pindef(char *s, void *priv)
 
 	/* Tokenize pindef, tokens being separated by whitespace or comma */
 	if ((ntoks = tokenizer(s, pins, MAX_PINS)) == -1) {
-		fprintf(stderr, "Syntax error: maximum number of pins "
-		    "exceeded\n");
+		syntax_error("maximum number of pins exceeded");
 		return -1;
 	}
 
@@ -326,14 +377,14 @@ parse_line_pindef(char *s, void *priv)
 		/* Pin number follows the pin type character */
 		pin_no = strtol(&(pins[i][1]), &e, 10);
 		if (*e != '\0') {
-			fprintf(stderr, "Syntax error: pin number must consist "
-			    "of only decimal digits\n");
+			syntax_error("pin number must consist "
+			    "of only decimal digits");
 			return -1;
 		}
 
 		if (pin_no > ((type == INPUT_PIN) ? MAX_INPUT_PIN : MAX_OUTPUT_PIN)) {
-			fprintf(stderr, "Syntax error: pin number %d is out "
-			    "of range\n", pin_no);
+			syntax_error("pin number %d is out "
+			    "of range", pin_no);
 			return -1;
 		}
 
@@ -363,10 +414,6 @@ parse_line_pindef(char *s, void *priv)
  *      overlap.
  */
 
-/*
- * XXX: can change all the fprintf(stderr, "Syntax error"...) to be a separate
- *      function that will also print the current line number.
- */
 static
 int
 parse_line_clock(char *s, void *priv)
@@ -385,8 +432,8 @@ parse_line_clock(char *s, void *priv)
 
 	/* Tokenize pindef, tokens being separated by whitespace or comma */
 	if ((ntoks = tokenizer(s, pins, MAX_INPUT_OUTPUT_SIZE)) == -1) {
-		fprintf(stderr, "Syntax error: maximum number of pins "
-		    "exceeded\n");
+		syntax_error("maximum number of pins "
+		    "exceeded");
 		return -1;
 	}
 
@@ -394,22 +441,22 @@ parse_line_clock(char *s, void *priv)
 		/* Determine pin type by first character of pin */
 		type = (pins[i][0] == INPUT_PIN) ? INPUT_PIN : OUTPUT_PIN;
 		if (type == OUTPUT_PIN) {
-			fprintf(stderr, "Syntax error: clock signals need to be "
-			    "connected to input pins, not output pins\n");
+			syntax_error("clock signals need to be "
+			    "connected to input pins, not output pins");
 			return -1;
 		}
 
 		/* Pin number follows the pin type character */
 		pin_no = strtol(&(pins[i][1]), &e, 10);
 		if (*e != '\0') {
-			fprintf(stderr, "Syntax error: pin number must consist "
-			    "of only decimal digits\n");
+			syntax_error("pin number must consist "
+			    "of only decimal digits");
 			return -1;
 		}
 
 		if (pin_no > MAX_INPUT_PIN) {
-			fprintf(stderr, "Syntax error: pin number %d is out "
-			    "of range\n", pin_no);
+			syntax_error("pin number %d is out "
+			    "of range", pin_no);
 		}
 
 		/* Find byte index as well as bit within that byte index */
@@ -432,8 +479,8 @@ parse_line_team(char *s, void *priv)
 
 	gd->team_no = (int)strtol(s, &e, 10);
 	if (s == e || *e != '\0') {
-		fprintf(stderr, "Syntax error: team number must contain only "
-		    "decimal digits\n");
+		syntax_error("team number must contain only "
+		    "decimal digits");
 		return -1;
 	}
 
@@ -626,14 +673,19 @@ print_sram_results(void)
 
 static
 int
-parse_file(FILE *fp, keyword_t keywords, suspend_fn suspend, void *priv)
+parse_file(char *fname, FILE *fp, keyword_t keywords, suspend_fn suspend, void *priv)
 {
 	char line[1024];
 	char *s, *e;
 	int keyword_idx = -1;
 	int i, len, error;
 
+	cur_filename = fname;
+	cur_lineno = 0;
+
 	while(fgets(line, sizeof(line), fp) != NULL) {
+		++cur_lineno;
+
 		/* skip leading whitespace */
 		for (s = line; *s != '\0' && iswhitespace(*s); s++)
 			;
@@ -674,8 +726,8 @@ parse_file(FILE *fp, keyword_t keywords, suspend_fn suspend, void *priv)
 		}
 
 		if (keyword_idx < 0) {
-			fprintf(stderr, "Syntax error: File must start with "
-			    "valid keyword\n");
+			syntax_error("File must start with "
+			    "valid keyword");
 			return -1;
 		}
 
@@ -793,7 +845,7 @@ parse_vec_file(char *filename)
 
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
-		fprintf(stderr, "The file %s cannot be opened: %s\n",
+		logger(LOGERR, "The file %s cannot be opened: %s",
 		    filename, strerror(errno));
 		return -1;
 	}
@@ -801,7 +853,7 @@ parse_vec_file(char *filename)
 	init_parserinfo(&pi);
 	pi.file_name = strdup(filename);
 
-	rc = parse_file(fp, tv_keywords, (wflag) ? suspend_emit : NULL, &pi);
+	rc = parse_file(filename, fp, tv_keywords, (wflag) ? suspend_emit : NULL, &pi);
 	if (rc)
 		goto out;
 
@@ -831,7 +883,7 @@ parse_cfg_file(char *filename, globaldata_t gd)
 
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
-		fprintf(stderr, "The file %s cannot be opened: %s\n",
+		logger(LOGERR, "The file %s cannot be opened: %s",
 		    filename, strerror(errno));
 		return -1;
 	}
@@ -839,12 +891,12 @@ parse_cfg_file(char *filename, globaldata_t gd)
 	init_parserinfo(&pi);
 	gd->team_no = -1;
 
-	rc = parse_file(fp, meta_keywords, NULL, gd);
+	rc = parse_file(filename, fp, meta_keywords, NULL, gd);
 	if (rc)
 		goto out;
 
 	if (gd->team_no < 0) {
-		fprintf(stderr, "No team number specified in cfg file %s\n",
+		syntax_error("No team number specified in cfg file %s",
 		    filename);
 		rc = -1;
 		goto out;
@@ -886,7 +938,7 @@ parse_team_dir(char *dirname)
 	snprintf(fname, PATH_MAX, "%s/%s", dirname, "team.cfg");
 	error = parse_cfg_file(fname, &gd);
 	if (error) {
-		fprintf(stderr, "Invalid configuration file: %s\n",
+		logger(LOGERR, "Invalid configuration file: %s",
 		    fname);
 		return -1;
 	}
@@ -898,22 +950,17 @@ parse_team_dir(char *dirname)
 	}
 
 	while ((entry = readdir(dir))) {
-		if (entry->d_type != DT_REG) {
-			fprintf(stderr, "Skipping non-regular entry %s/%s\n",
-			    dirname, entry->d_name);
+		if (entry->d_type != DT_REG)
 			continue;
-		}
 
-		if ((strcmp(entry->d_name, "team.cfg")) == 0) {
-			fprintf(stderr, "Skipping %s file\n", "team.cfg");
+		if ((strcmp(entry->d_name, "team.cfg")) == 0)
 			continue;
-		}
 
 		snprintf(fname, PATH_MAX, "%s/%s", dirname, entry->d_name);
-		printf("Processing %s\n", fname);
+		logger(LOGINFO, "Processing %s", fname);
 
 		if ((error = parse_vec_file(fname)) != 0) {
-			fprintf(stderr, "Error parsing %s\n", fname);
+			logger(LOGERR, "Error parsing %s", fname);
 			continue;
 		}
 	}
@@ -1011,11 +1058,8 @@ main(int argc, char *argv[])
 	}
 
 	while ((entry = readdir(mydir))) {
-		if (entry->d_type != DT_DIR) {
-			fprintf(stderr, "Skipping non-directory entry %s/%s\n",
-			    rpath, entry->d_name);
+		if (entry->d_type != DT_DIR)
 			continue;
-		}
 
 		if ((strcmp(entry->d_name, ".")) == 0)
 			continue;
@@ -1027,7 +1071,7 @@ main(int argc, char *argv[])
 		printf("Processing %s\n", fname);
 
 		if ((error = parse_team_dir(fname)) != 0) {
-			fprintf(stderr, "Error parsing %s\n", fname);
+			logger(LOGERR, "Error parsing %s", fname);
 			continue;
 		}
 	}
