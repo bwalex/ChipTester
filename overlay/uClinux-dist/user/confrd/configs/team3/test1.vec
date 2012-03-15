@@ -1,5 +1,5 @@
-design:		5
-clock:  	A23
+design:	1-bit shift left
+clock:  A23
 pindef:
 	A3, A2, A1, A0, Q3, Q2, Q1, Q0
 vectors:

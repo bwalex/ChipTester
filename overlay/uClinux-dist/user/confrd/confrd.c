@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <getopt.h>
+#include <time.h>
 #include "sram.h"
 #include "trunner_if.h"
 
@@ -99,15 +100,28 @@ typedef struct pininfo {
 } *pininfo_t;
 
 
+typedef struct globaldata {
+	int team_no;
+} *globaldata_t;
+
+
 typedef struct parserinfo {
+	globaldata_t gd;
+
+	char *file_name;
+	char *design_name;
+
+	size_t sram_free_bytes;
+	off_t  sram_off;
+
 	int pin_count;
 	uint8_t bitmask[BITMASK_BYTES];
-
 	struct pininfo pins[MAX_PINS];
 } *parserinfo_t;
 
 
-typedef int (*line_parser)(char *, parserinfo_t, void *, size_t);
+typedef int (*line_parser)(char *, void *);
+typedef int (*suspend_fn)(void *);
 
 
 typedef struct keyword {
@@ -116,21 +130,36 @@ typedef struct keyword {
 } *keyword_t;
 
 
-static int parse_line_design(char *, parserinfo_t, void *, size_t);
-static int parse_line_pindef(char *, parserinfo_t, void *, size_t);
-static int parse_line_vectors(char *, parserinfo_t, void *, size_t);
-static int parse_line_clock(char *, parserinfo_t, void *, size_t);
+static int parse_line_team(char *, void *);
+static int parse_line_design(char *, void *);
+static int parse_line_pindef(char *, void *);
+static int parse_line_vectors(char *, void *);
+static int parse_line_clock(char *, void *);
+
+static int run_trunner(parserinfo_t pi);
+static int emit(parserinfo_t pi, void *b, size_t bufsz);
+static int suspend_emit(void *p);
 
 
-
-struct keyword keywords[] = {
+struct keyword tv_keywords[] = {
 	{ .keyword = "design"	, .lp = parse_line_design  },
+#if 0
+	{ .keyword = "team"	, .lp = parse_line_team    },
+#endif
 	{ .keyword = "pindef"	, .lp = parse_line_pindef  },
 	{ .keyword = "vectors"	, .lp = parse_line_vectors },
 	{ .keyword = "clock"	, .lp = parse_line_clock   },
 	{ .keyword = NULL	, .lp = NULL }
 };
 
+struct keyword meta_keywords[] = {
+	{ .keyword = "team"	, .lp = parse_line_team    },
+	/* XXX: email, etc */
+	{ .keyword = NULL	, .lp = NULL }
+};
+
+
+int pflag = 0;
 int wflag = 0;
 int sflag = 0;
 char *sram_file = NULL;
@@ -153,7 +182,7 @@ req_sz(int req)
 
 static
 void
-bprint(uint8_t *n, size_t len)
+sbprint(char *s, uint8_t *n, size_t len)
 {
 	uint8_t mask;
 	size_t i;
@@ -161,10 +190,24 @@ bprint(uint8_t *n, size_t len)
 	for (i = 0; i < len; i++) {
 		mask = 1 << (8*sizeof(*n) - 1);
 		do {
-			putchar((n[i] & mask) ? '1' : '0');
+			if (s == NULL)
+				putchar((n[i] & mask) ? '1' : '0');
+			else
+				*s++ = (n[i] & mask) ? '1' : '0';
 			mask >>= 1;
 		} while (mask != 0);
 	}
+
+	if (s)
+		*s = '\0';
+}
+
+
+static
+void
+bprint(uint8_t *n, size_t len)
+{
+	sbprint(NULL, n, len);
 }
 
 
@@ -197,14 +240,13 @@ tokenizer(char *s, char **tokens, int max_tokens)
 
 static
 int
-parse_line_vectors(char *s, parserinfo_t pi, void *buf, size_t bufsz)
+parse_line_vectors(char *s, void *priv)
 {
-	test_vector *tv;
+	parserinfo_t pi = priv;
+	test_vector tv;
 	int n = 0;
 
-	assert(sizeof(*tv) <= bufsz);
-	tv = buf;
-	memset(tv, 0, sizeof(*tv));
+	memset(&tv, 0, sizeof(tv));
 
 	while (*s != '\0') {
 		if (*s != '0' && *s != '1') {
@@ -224,10 +266,10 @@ parse_line_vectors(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 		 * earlier when parsing the pindef.
 		 */
 		if (pi->pins[n].type == INPUT_PIN)
-			tv->input_vector[pi->pins[n].bidx] |=
+			tv.input_vector[pi->pins[n].bidx] |=
 			    (*s - '0') << pi->pins[n].shiftl;
 		else
-			tv->output_vector[pi->pins[n].bidx] |=
+			tv.output_vector[pi->pins[n].bidx] |=
 			    (*s - '0') << pi->pins[n].shiftl;
 
 		++n;
@@ -245,28 +287,27 @@ parse_line_vectors(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 		return -1;
 	}
 
-	tv->metadata = REQ_TYPE(REQ_TEST_VECTOR);
+	tv.metadata = REQ_TYPE(REQ_TEST_VECTOR);
 
-	return (int)sizeof(*tv);
+	return emit(pi, &tv, sizeof(tv));
 }
 
 
 static
 int
-parse_line_pindef(char *s, parserinfo_t pi, void *buf, size_t bufsz)
+parse_line_pindef(char *s, void *priv)
 {
-	change_bitmask *cb;
+	parserinfo_t pi = priv;
+	change_bitmask cb;
 	pin_type_t type;
 	char *pins[MAX_PINS];
 	char *e;
 	int pin_no, bidx, shiftl;
 	int ntoks, i;
 
-	assert(sizeof(*cb) <= bufsz);
-	cb = buf;
-	memset(cb, 0, sizeof(*cb));
+	memset(&cb, 0, sizeof(cb));
 
-	cb->metadata = REQ_TYPE(REQ_SETUP_BITMASK);
+	cb.metadata = REQ_TYPE(REQ_SETUP_BITMASK);
 
 	pi->pin_count = 0;
 	memset(pi->bitmask, 0, sizeof(pi->bitmask));
@@ -293,6 +334,7 @@ parse_line_pindef(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 		if (pin_no > ((type == INPUT_PIN) ? MAX_INPUT_PIN : MAX_OUTPUT_PIN)) {
 			fprintf(stderr, "Syntax error: pin number %d is out "
 			    "of range\n", pin_no);
+			return -1;
 		}
 
 		/* Find byte index as well as bit within that byte index */
@@ -311,8 +353,8 @@ parse_line_pindef(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 		++pi->pin_count;
 	}
 
-	memcpy(cb->bit_mask, pi->bitmask, sizeof(cb->bit_mask));
-	return (int)sizeof(*cb);
+	memcpy(cb.bit_mask, pi->bitmask, sizeof(cb.bit_mask));
+	return emit(pi, &cb, sizeof(cb));
 }
 
 
@@ -327,20 +369,19 @@ parse_line_pindef(char *s, parserinfo_t pi, void *buf, size_t bufsz)
  */
 static
 int
-parse_line_clock(char *s, parserinfo_t pi, void *buf, size_t bufsz)
+parse_line_clock(char *s, void *priv)
 {
-	send_dicmd *sd;
+	parserinfo_t pi = priv;
+	send_dicmd sd;
 	pin_type_t type;
 	char *pins[MAX_PINS];
 	char *e;
 	int pin_no, bidx, shiftl;
 	int ntoks, i;
 
-	assert(sizeof(*sd) <= bufsz);
-	sd = buf;
-	memset(sd, 0, sizeof(*sd));
+	memset(&sd, 0, sizeof(sd));
 
-	sd->metadata = REQ_TYPE(REQ_SEND_DICMD) | DICMD(DICMD_SETUP_MUXES);
+	sd.metadata = REQ_TYPE(REQ_SEND_DICMD) | DICMD(DICMD_SETUP_MUXES);
 
 	/* Tokenize pindef, tokens being separated by whitespace or comma */
 	if ((ntoks = tokenizer(s, pins, MAX_INPUT_OUTPUT_SIZE)) == -1) {
@@ -375,50 +416,82 @@ parse_line_clock(char *s, parserinfo_t pi, void *buf, size_t bufsz)
 		bidx = 2 /* XXX, magical constant */ - pin_no / 8;
 		shiftl = pin_no % 8;
 
-		sd->payload[bidx] |= (1 << shiftl);
+		sd.payload[bidx] |= (1 << shiftl);
 	}
 
-	return (int)sizeof(*sd);
+	return emit(pi, &sd, sizeof(sd));
 }
 
 
 static
 int
-parse_line_design(char *s, parserinfo_t pi, void *buf, size_t bufsz)
+parse_line_team(char *s, void *priv)
 {
-	change_target *ct;
+	globaldata_t gd = priv;
 	char *e;
 
-	assert(sizeof(*ct) <= bufsz);
-	ct = buf;
-	memset(ct, 0, sizeof(*ct));
-
-	ct->metadata = REQ_TYPE(REQ_SWITCH_TARGET);
-
-	ct->design_number = (int)strtol(s, &e, 10);
+	gd->team_no = (int)strtol(s, &e, 10);
 	if (s == e || *e != '\0') {
-		fprintf(stderr, "Syntax error: design number must contain only "
+		fprintf(stderr, "Syntax error: team number must contain only "
 		    "decimal digits\n");
 		return -1;
 	}
 
-	ct->design_number &= DESIGN_NUMBER_MASK;
-	return (int)sizeof(*ct);
+	gd->team_no &= DESIGN_NUMBER_MASK;
+
+	return 0;
 }
 
 
 static
 int
-generate_end(parserinfo_t pi, void *buf, size_t bufsz)
+parse_line_design(char *s, void *priv)
 {
-	mem_end *me;
-	assert(sizeof(*me) <= bufsz);
-	me = buf;
-	memset(me, 0, sizeof(*me));
+	parserinfo_t pi = priv;
+	int error;
 
-	me->metadata = REQ_TYPE(REQ_END);
+	if (pi->design_name != NULL) {
+		/* Execute queued tests before changing design name */
+		error = suspend_emit(pi);
+		if (error)
+			return error;
 
-	return (int)sizeof(*me);
+		free(pi->design_name);
+		pi->design_name = NULL;
+	}
+
+	pi->design_name = strdup(s);
+
+	return 0;
+}
+
+
+static
+int
+emit_end(parserinfo_t pi)
+{
+	mem_end me;
+
+	memset(&me, 0, sizeof(me));
+
+	me.metadata = REQ_TYPE(REQ_END);
+
+	return emit(pi, &me, sizeof(me));
+}
+
+
+static
+int
+emit_change_target(parserinfo_t pi, globaldata_t gd)
+{
+	change_target ct;
+
+	memset(&ct, 0, sizeof(ct));
+
+	ct.metadata = REQ_TYPE(REQ_SWITCH_TARGET);
+	ct.design_number = gd->team_no & DESIGN_NUMBER_MASK;
+
+	return emit(pi, &ct, sizeof(ct));
 }
 
 
@@ -553,17 +626,12 @@ print_sram_results(void)
 
 static
 int
-parse_file(FILE *fp)
+parse_file(FILE *fp, keyword_t keywords, suspend_fn suspend, void *priv)
 {
-	uint8_t buf[128];
-	struct parserinfo pi;
 	char line[1024];
 	char *s, *e;
 	int keyword_idx = -1;
-	int i, len, ssz;
-	off_t mem_off = 0;
-
-	memset(&pi, 0, sizeof(pi));
+	int i, len, error;
 
 	while(fgets(line, sizeof(line), fp) != NULL) {
 		/* skip leading whitespace */
@@ -620,35 +688,237 @@ parse_file(FILE *fp)
 			continue;
 
 		/* Let section-specific line parser do its job */
-		ssz = keywords[keyword_idx].lp(s, &pi, buf, sizeof(buf));
-		if (ssz < 0)
-			return -1;
+		error = keywords[keyword_idx].lp(s, priv);
+		if ((error == EAGAIN || error == -EAGAIN) && suspend != NULL)
+			error = suspend(priv);
 
-		print_mem(buf, ssz, NULL);
-		if (sflag)
-			save_sram_file(buf, ssz);
-		if (wflag)
-			sram_write(mem_off, buf, (size_t)ssz);
-
-		mem_off += ssz;
+		if (error)
+			return error;
 	}
 
-	ssz = generate_end(&pi, buf, sizeof(buf));
-	if (ssz > 0) {
-		print_mem(buf, ssz, NULL);
-		if (sflag)
-			save_sram_file(buf, ssz);
-		if (wflag)
-			sram_write(mem_off, buf, (size_t)ssz);
+	return 0;
+}
 
-		mem_off += ssz;
-	}
+
+static
+int
+emit(parserinfo_t pi, void *b, size_t bufsz)
+{
+	uint8_t *buf = b;
+	int rc = 0;
+
+	if (bufsz == 0)
+		return rc;
+
+	if (pflag)
+		print_mem(buf, bufsz, NULL);
+
+	if (sflag)
+		save_sram_file(buf, bufsz);
 
 	if (wflag) {
-		trunner_enable();
-		trunner_wait_done();
-		print_sram_results();
+		rc = sram_write(pi->sram_off, buf, bufsz);
+		if (rc == 0) {
+			pi->sram_off += bufsz;
+			pi->sram_free_bytes -= bufsz;
+
+			if (pi->sram_free_bytes <
+			    (req_sz(REQ_TEST_VECTOR) + req_sz(REQ_END)))
+				rc = EAGAIN;
+		}
 	}
+
+	return rc;
+}
+
+
+int
+run_trunner(parserinfo_t pi)
+{
+	int error;
+
+	if ((error = trunner_enable()) != 0)
+		return error;
+
+	if ((error = trunner_wait_done()) != 0)
+		return error;
+
+	print_sram_results();
+
+	return 0;
+}
+
+
+static
+int
+suspend_emit(void *p)
+{
+	parserinfo_t pi = pi;
+	int error;
+
+	error = emit_end(pi);
+	if (error != 0 && error != EAGAIN)
+		return error;
+
+	if ((error = run_trunner(pi)) != 0)
+		return error;
+
+
+	/* Emit necessary restart code (XXX: presumably nothing) */
+	/* Reset SRAM index and size */
+	pi->sram_off = 0;
+	pi->sram_free_bytes = SRAM_SIZE;
+
+	return 0;
+}
+
+
+static
+void
+init_parserinfo(parserinfo_t pi)
+{
+
+	memset(pi, 0, sizeof(*pi));
+	pi->sram_free_bytes = SRAM_SIZE;
+}
+
+
+static
+int
+parse_vec_file(char *filename)
+{
+	struct parserinfo pi;
+	FILE *fp;
+	int rc;
+
+	fp = fopen(filename, "r");
+	if (fp == NULL) {
+		fprintf(stderr, "The file %s cannot be opened: %s\n",
+		    filename, strerror(errno));
+		return -1;
+	}
+
+	init_parserinfo(&pi);
+	pi.file_name = strdup(filename);
+
+	rc = parse_file(fp, tv_keywords, (wflag) ? suspend_emit : NULL, &pi);
+	if (rc)
+		goto out;
+
+	rc = emit_end(&pi);
+	if (rc)
+		goto out;
+
+	if (wflag) {
+		rc = run_trunner(&pi);
+		if (rc)
+			goto out;
+	}
+
+out:
+	fclose(fp);
+	return rc;
+}
+
+
+static
+int
+parse_cfg_file(char *filename, globaldata_t gd)
+{
+	struct parserinfo pi;
+	FILE *fp;
+	int rc;
+
+	fp = fopen(filename, "r");
+	if (fp == NULL) {
+		fprintf(stderr, "The file %s cannot be opened: %s\n",
+		    filename, strerror(errno));
+		return -1;
+	}
+
+	init_parserinfo(&pi);
+	gd->team_no = -1;
+
+	rc = parse_file(fp, meta_keywords, NULL, gd);
+	if (rc)
+		goto out;
+
+	if (gd->team_no < 0) {
+		fprintf(stderr, "No team number specified in cfg file %s\n",
+		    filename);
+		rc = -1;
+		goto out;
+	}
+
+	rc = emit_change_target(&pi, gd);
+	if (rc)
+		goto out;
+
+	rc = emit_end(&pi);
+	if (rc)
+		goto out;
+
+	if (wflag) {
+		rc = run_trunner(&pi);
+		if (rc)
+			goto out;
+	}
+
+out:
+	fclose(fp);
+	return rc;
+}
+
+
+static
+int
+parse_team_dir(char *dirname)
+{
+	struct globaldata gd;
+	struct dirent *entry;
+	DIR *dir;
+	char fname[PATH_MAX];
+	int error;
+
+	memset(&gd, 0, sizeof(gd));
+	gd.team_no = -1;
+
+	snprintf(fname, PATH_MAX, "%s/%s", dirname, "team.cfg");
+	error = parse_cfg_file(fname, &gd);
+	if (error) {
+		fprintf(stderr, "Invalid configuration file: %s\n",
+		    fname);
+		return -1;
+	}
+
+	dir = opendir(dirname);
+	if (dir == NULL) {
+		perror("opendir");
+		return -1;
+	}
+
+	while ((entry = readdir(dir))) {
+		if (entry->d_type != DT_REG) {
+			fprintf(stderr, "Skipping non-regular entry %s/%s\n",
+			    dirname, entry->d_name);
+			continue;
+		}
+
+		if ((strcmp(entry->d_name, "team.cfg")) == 0) {
+			fprintf(stderr, "Skipping %s file\n", "team.cfg");
+			continue;
+		}
+
+		snprintf(fname, PATH_MAX, "%s/%s", dirname, entry->d_name);
+		printf("Processing %s\n", fname);
+
+		if ((error = parse_vec_file(fname)) != 0) {
+			fprintf(stderr, "Error parsing %s\n", fname);
+			continue;
+		}
+	}
+
+	closedir(dir);
 
 	return 0;
 }
@@ -661,6 +931,9 @@ usage(int exitval)
 	fprintf(stderr,
 		"Usage: confrd [options] <configuration directory>\n"
 		"Valid options are:\n"
+		" -p\n"
+		"\t Print out the data written to SRAM in a human readable form\n"
+		"\t on screen.\n"
 		" -s <file>\n"
 		"\t Write an SRAM initialization file containing the data generated\n"
 		"\t using the configuration file(s).\n"
@@ -677,15 +950,18 @@ int
 main(int argc, char *argv[])
 {
 	struct dirent *entry;
-	FILE *fp;
 	DIR *mydir;
 	char *rpath;
 	char fname[PATH_MAX];
 	int c, error;
 
 
-	while ((c = getopt (argc, argv, "s:wh?")) != -1) {
+	while ((c = getopt (argc, argv, "ps:wh?")) != -1) {
 		switch (c) {
+		case 'p':
+			pflag = 1;
+			break;
+
 		case 's':
 			sflag = 1;
 			sram_file = optarg;
@@ -716,13 +992,6 @@ main(int argc, char *argv[])
 		/* NOT REACHED */
 	}
 
-	rpath = realpath(argv[0], NULL);
-	mydir = opendir(rpath);
-	if (mydir == NULL) {
-		perror("opendir");
-		exit(1);
-	}
-
 	if (wflag) {
 		trunner_print_magic();
 
@@ -733,31 +1002,41 @@ main(int argc, char *argv[])
 		}
 	}
 
-	while((entry = readdir(mydir))) {
-		if (entry->d_type != DT_REG) {
-			fprintf(stderr, "Skipping non-regular entry %s/%s\n",
+
+	rpath = realpath(argv[0], NULL);
+	mydir = opendir(rpath);
+	if (mydir == NULL) {
+		perror("opendir");
+		exit(1);
+	}
+
+	while ((entry = readdir(mydir))) {
+		if (entry->d_type != DT_DIR) {
+			fprintf(stderr, "Skipping non-directory entry %s/%s\n",
 			    rpath, entry->d_name);
 			continue;
 		}
 
+		if ((strcmp(entry->d_name, ".")) == 0)
+			continue;
+
+		if ((strcmp(entry->d_name, "..")) == 0)
+			continue;
+
 		snprintf(fname, PATH_MAX, "%s/%s", rpath, entry->d_name);
 		printf("Processing %s\n", fname);
 
-		//Pointer for opening the file
-		fp = fopen(fname, "r");
-		if (fp == NULL) {
-			fprintf(stderr, "The file %s cannot be opened: %s\n",
-			    fname, strerror(errno));
+		if ((error = parse_team_dir(fname)) != 0) {
+			fprintf(stderr, "Error parsing %s\n", fname);
 			continue;
 		}
-
-		parse_file(fp);
-		fclose(fp);
 	}
+
+	closedir(mydir);
+
 
 	if (wflag)
 		sram_close();
 
-	closedir(mydir);
 	return 0;
 }
