@@ -12,3 +12,4 @@ pre-build::
 
 romfs:
 	$(ROMFSINST) -d -e CONFIG_FMT_USE_FDPIC_ELF $(STAGEDIR)/usr/lib/libjansson.so.4.3.0 /usr/lib/
+	$(ROMFSINST) -d -e CONFIG_FMT_USE_FDPIC_ELF -l /usr/lib/libjansson.so.4.3.0 /usr/lib/libjansson.so.4
