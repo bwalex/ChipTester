@@ -252,6 +252,14 @@
 			reg = < 0x0BA20000 0x00000020 >;
 			interrupt-parent = < &cpu >;
 			interrupts = < 8 >;
+			#address-cells = < 1 >;
+			#size-cells = < 0 >;
+
+			spidev@0 {
+				compatible = "spidev";
+                                spi-max-frequency = < 10000000 >;
+                                reg = < 0x00000000 >;
+			}; //end spidev@0
 		}; //end spi@0xba20000 (spi_1)
 
 		test_runner_0: trunner@0xd000000 {
