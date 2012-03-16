@@ -1,2 +1,1 @@
-dir_8_y += libyaml
 dir_8_y += jansson
