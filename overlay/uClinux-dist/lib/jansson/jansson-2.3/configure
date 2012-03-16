@@ -11490,7 +11490,7 @@ case "$ac_cv_header_locale_h$ac_cv_func_localeconv" in
 esac
 
 
-ac_config_files="$ac_config_files jansson.pc Makefile doc/Makefile src/Makefile src/jansson_config.h test/Makefile test/bin/Makefile test/suites/Makefile test/suites/api/Makefile"
+ac_config_files="$ac_config_files jansson.pc Makefile src/Makefile src/jansson_config.h"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -12507,13 +12507,8 @@ do
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "jansson.pc") CONFIG_FILES="$CONFIG_FILES jansson.pc" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "src/jansson_config.h") CONFIG_FILES="$CONFIG_FILES src/jansson_config.h" ;;
-    "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
-    "test/bin/Makefile") CONFIG_FILES="$CONFIG_FILES test/bin/Makefile" ;;
-    "test/suites/Makefile") CONFIG_FILES="$CONFIG_FILES test/suites/Makefile" ;;
-    "test/suites/api/Makefile") CONFIG_FILES="$CONFIG_FILES test/suites/api/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

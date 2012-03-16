@@ -1,0 +1,25 @@
+diff --git a/lib/libcurl/Makefile b/lib/libcurl/Makefile
+index d6e7885..2f3df5b 100644
+--- a/lib/libcurl/Makefile
++++ b/lib/libcurl/Makefile
+@@ -1,6 +1,7 @@
+ VER = curl-7.19.6
+ 
+-CONF_OPTS = --with-random=/dev/urandom
++CONF_OPTS = --with-random=/dev/urandom \
++	    --without-libidn
+ 
+ include $(ROOTDIR)/tools/autotools.mk
+ 
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 64d341f..e9bdebe 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -328,7 +328,6 @@ config LIB_OSIP2
+ 
+ config LIB_LIBCURL
+ 	bool "Build curl"
+-	select LIB_LIBIDN
+ 	select LIB_ZLIB
+ 	select LIB_LIBBZ2
+ 	select LIB_LIBSSL

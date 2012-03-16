@@ -11,6 +11,10 @@
 #include <errno.h>
 #include <getopt.h>
 #include <time.h>
+
+#include <jansson.h>
+#include <curl/curl.h>
+
 #include "sram.h"
 #include "trunner_if.h"
 

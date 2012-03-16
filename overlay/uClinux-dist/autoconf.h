@@ -1,7 +1,7 @@
 /*
  * Automatically generated C config: don't edit
  * Dist builder
- * Sun Mar 11 17:42:43 2012
+ * Fri Mar 16 08:03:13 2012
  */
 #define AUTOCONF_INCLUDED
 #define CONFIG_DEFAULTS_ALTERA_NIOS2 1
@@ -9,6 +9,7 @@
 #define CONFIG_DEFAULTS_LIBC_NONE 1
 #define CONFIG_DEFAULTS_ALTERA 1
 #define CONFIG_DEFAULTS_KERNEL 1
+#define CONFIG_DEFAULTS_VENDOR 1
 #define CONFIG_DEFAULTS_KERNEL_2_6 1
 #define CONFIG_VENDOR "Altera"
 #define CONFIG_PRODUCT "nios2"
