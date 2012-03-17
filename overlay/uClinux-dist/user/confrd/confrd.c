@@ -153,9 +153,6 @@ static int suspend_emit(void *p);
 
 struct keyword tv_keywords[] = {
 	{ .keyword = "design"	, .lp = parse_line_design  },
-#if 0
-	{ .keyword = "team"	, .lp = parse_line_team    },
-#endif
 	{ .keyword = "pindef"	, .lp = parse_line_pindef  },
 	{ .keyword = "vectors"	, .lp = parse_line_vectors },
 	{ .keyword = "clock"	, .lp = parse_line_clock   },
