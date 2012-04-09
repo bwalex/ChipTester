@@ -44,16 +44,16 @@ terminal:
 	LD_LIBRARY_PATH=$(LIBRARY_PATH) nios2-terminal
 
 bootstrap:
-	sh ./bootstrap.sh
+	bash ./bootstrap.sh
 
 submodules-clean:
-	sh ./submod.sh clean
+	bash ./submod.sh clean
 
 overlay: bootstrap
-	sh ./patch_overlay.sh -o
+	bash ./patch_overlay.sh -o
 
 patch: submodules-clean bootstrap
-	sh ./patch_overlay.sh -po
+	bash ./patch_overlay.sh -po
 
 .PHONY: config flashimage download terminal
 .PHONY: bootstrap submodules-clean patch overlay

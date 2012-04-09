@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 for submod in $(git submodule | cut -d ' ' -f 3); do
