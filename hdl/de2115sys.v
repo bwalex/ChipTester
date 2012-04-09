@@ -25,6 +25,11 @@ module de2115sys(
   // Switch
   input         SW_SEL,
 
+  // UART
+  input         UART_RXD,
+  input         UART_RTS,
+  output        UART_TXD,
+  output        UART_CTS,
 
   // LED
   output [ 3:0] LEDR,
@@ -114,6 +119,7 @@ module de2115sys(
   wire          set_1000_to_the_tse_mac;
   wire          set_10_to_the_tse_mac;
 
+  wire          UART_CTS_n;
 
   wire          sopc_sram_clock;
   wire   [19:0] sopc_sram_address;
@@ -147,6 +153,7 @@ module de2115sys(
 
   wire          sigtap_clk;
 
+  assign UART_CTS = ~UART_CTS_n;
 
   // Ethernet
   assign enet_rx_clk             = ENET0_RX_CLK;
@@ -383,6 +390,11 @@ module de2115sys(
 //  .spi_1_external_MOSI                    (),
 //  .spi_1_external_SCLK                    (),
 //  .spi_1_external_SS_n                    (),
+
+    .uart_0_external_rxd                    (UART_RXD),
+    .uart_0_external_txd                    (UART_TXD),
+    .uart_0_external_cts_n                  (UART_CTS_n),
+    .uart_0_external_rts_n                  (~UART_RTS),
 
     .eep_i2c_scl_external_connection_export (EEP_I2C_SCLK),
     .eep_i2c_sda_external_connection_export (EEP_I2C_SDAT),

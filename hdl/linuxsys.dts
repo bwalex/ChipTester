@@ -262,6 +262,15 @@
 			}; //end spidev@0
 		}; //end spi@0xba20000 (spi_1)
 
+		uart_0: serial@0xd100000 {
+			compatible = "ALTR,uart-11.1", "ALTR,uart-1.0";
+			reg = < 0x0D100000 0x00000020 >;
+			interrupt-parent = < &cpu >;
+			interrupts = < 11 >;
+			current-speed = < 115200 >;	/* embeddedsw.CMacro.BAUD type NUMBER */
+			clock-frequency = < 100000000 >;	/* embeddedsw.CMacro.FREQ type NUMBER */
+		}; //end serial@0xd100000 (uart_0)
+
 		test_runner_0: trunner@0xd000000 {
 			compatible = "trunner,trunner-1.0";
 			reg = < 0x0D000000 0x00000100 >;
