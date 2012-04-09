@@ -1,0 +1,106 @@
+files:
+PLL.v    ------ ALTPLL IP file
+		This is the PLL IP core, generating stable clock.
+		The output frequency is configurable by changing
+		internal counter values. The feedback counter M
+		and post-scale counter C are changed to reconfigure
+		the output frequency. Leaving other counters
+		untouched, Frequency_out = Frequency_refer * M/C
+		Each counter has high count and low count, they
+		need to be equal for a 50% duty cycle.
+
+REPLL.v  ------ ALTPLL_RECONFIG IP file
+		This file is used for dynamically reconfiguring 
+		the PLL. The PLL needs to receive serial data to
+		configure the parameters from a complete scan chain
+		which contains all the information for every counters
+		even those we don't change. This module can take
+		paralell input to make change to individual counter
+		parameter one by one, and then feed the scan chain to
+		the PLL.
+
+REPLL_CONTROL.sv
+	 ------ Module to control the custom dynamic reconfigure
+		process. 
+		
+		Inputs: 
+		1. the same clock with the REPLL module.
+		2. a system reset to initialize the entire block
+		   (PLL, REPLL, Control)
+		3. a trigger to start the reconfigure process.
+		   It is syncroneous signal, but only needs to be
+		   high for > 1.5 clock cycles that allows the clock
+		   to sample the '1' state for once (unlike enable).
+		4. MultiFactor, multiplication factor, the reference
+		   clock of PLL will be multiplied by this number.
+		5. DividFactor, division factor, the reference clock
+		   is divided by this number after multiplication.
+		   Thus Frequency_out = Frequency_refer * Multifactor/
+		   DividFactor. Both data are 8 bits.
+		6. busy_ctr. This is fed back from the REPLL module
+		   to indicate if the reconfigure module is busy. No
+		   need for manual handling.
+		
+		Its working process:
+		The state machine will start to reset the PLL and REPLL
+		once the sys_reset is asserted, then the state goes to
+		Idle.
+		Once a high trigger is sampled, it starts to write the
+		parameters of M high count, M low count, C high count,
+		C low count to the cache of REPLL. 
+		After all the parameters are written, a configure signal
+		is sent to REPLL, and the REPLL is starting to send the 
+		scan chain to PLL.
+		The 'busy' signal from REPLL will go low after the scan
+		is complete. And the state machine will go to Idle.
+
+		It contains a state machine for the control process and
+		two counters for timing.
+
+PLL_INTERFACE.sv
+	 ------ The description of connections of previous modules.
+		
+		Inputs:
+		inclk0 ------ PLL reference clock
+		clock  ------ REPLL, CONTROL clock
+		reset  ------ system reset of the Control
+		trigger
+		[7:0] MultiFactor
+		[7:0] DividFactor
+		
+		Outputs:
+		c0     ------ Output clock
+		locked ------ indicates if PLL is locked
+		busy   ------ REPLL busy
+		data_out ---- [8:0] data_out of REPLL
+		
+		The only outputs of interest are c0 and locked.
+
+TestInterface.sv
+	 ------ Test Bench of the whole system.
+		Simulate this file with the following libraries for 20us
+		in Modelsim-Altera:
+			220model_ver
+			altera_lnsim_ver
+			altera_mf_ver
+			altera_ver
+			cycloneive_ver
+		(Select those in the 'search librarie's of the 'libraries' 
+		 tab of the 'star simulation'. Choosing any other libraries
+		 might result in simulation failure or wrong waveforms)
+		 If everything goes well, you should be able to observe
+		 from the waveform that the output clock frequency is
+		 changing from x2, x1, x10, x0.1 of the reference clock.
+
+FOR THE UPPER LEVEL
+		All you need to tell this thing is the multiplication and 
+		division factors, a reset and a trigger signal. Both the 
+		factors are 8 bits. And remember that the trigger should
+		come several hundred (maybe) clock cycles after the reset,
+		so that everything is ready. My suggestion is to reset 
+		this thing right after the whole board is online so
+		when you type the command of the frequency reconfiguration
+		the PLL is ready.
+		
+		And what you can get from it is the c0 and locked. The 
+		frequency is stable when locked is high.
