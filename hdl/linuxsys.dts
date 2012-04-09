@@ -241,11 +241,42 @@
 
 			mmc_spi@0 {
 				compatible = "mmc-spi-slot";
-				spi-max-frequency = < 2000000 >;
+				spi-max-frequency = < 10000000 >;
 				reg = < 0x00000000 >;
 				voltage-ranges = < 3300 3300 >;
 			}; //end mmc_spi@0
 		}; //end spi@0xba10000 (spi_0)
+
+		spi_1: spi@0xba20000 {
+			compatible = "ALTR,spi-11.1", "ALTR,spi-1.0";
+			reg = < 0x0BA20000 0x00000020 >;
+			interrupt-parent = < &cpu >;
+			interrupts = < 8 >;
+			#address-cells = < 1 >;
+			#size-cells = < 0 >;
+
+			spidev@0 {
+				compatible = "spidev";
+                                spi-max-frequency = < 10000000 >;
+                                reg = < 0x00000000 >;
+			}; //end spidev@0
+		}; //end spi@0xba20000 (spi_1)
+
+		uart_0: serial@0xd100000 {
+			compatible = "ALTR,uart-11.1", "ALTR,uart-1.0";
+			reg = < 0x0D100000 0x00000020 >;
+			interrupt-parent = < &cpu >;
+			interrupts = < 11 >;
+			current-speed = < 115200 >;	/* embeddedsw.CMacro.BAUD type NUMBER */
+			clock-frequency = < 100000000 >;	/* embeddedsw.CMacro.FREQ type NUMBER */
+		}; //end serial@0xd100000 (uart_0)
+
+		test_runner_0: trunner@0xd000000 {
+			compatible = "trunner,trunner-1.0";
+			reg = < 0x0D000000 0x00000100 >;
+			interrupt-parent = < &cpu >;
+			interrupts = < 7 >;
+		}; //end trunner@0xd000000 (test_runner_0)
 
 		sram_bridge: sram_bridge@0xc000000 {
 			compatible = "sram-bridge";

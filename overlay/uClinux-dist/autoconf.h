@@ -1,0 +1,19 @@
+/*
+ * Automatically generated C config: don't edit
+ * Dist builder
+ * Fri Mar 16 08:03:13 2012
+ */
+#define AUTOCONF_INCLUDED
+#define CONFIG_DEFAULTS_ALTERA_NIOS2 1
+#define CONFIG_DISTVERSION "4.0"
+#define CONFIG_DEFAULTS_LIBC_NONE 1
+#define CONFIG_DEFAULTS_ALTERA 1
+#define CONFIG_DEFAULTS_KERNEL 1
+#define CONFIG_DEFAULTS_VENDOR 1
+#define CONFIG_DEFAULTS_KERNEL_2_6 1
+#define CONFIG_VENDOR "Altera"
+#define CONFIG_PRODUCT "nios2"
+#define CONFIG_LINUXDIR "linux-2.6.x"
+#define CONFIG_LIBCDIR ""
+#define VENDORS_AUTOCONF_INCLUDED
+#undef AUTOCONF_INCLUDED

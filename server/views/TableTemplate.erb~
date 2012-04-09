@@ -1,0 +1,15 @@
+<table border="1">
+<tr>
+  <td>ID Test</td>
+  <td>Chip Number</td>
+  <td>Team Number</td>
+  <td>Team Passed</td></tr>
+      <% results.each do |result| %> 
+          <tr>
+	       <td> <%=result.id_test %></td>
+               <td><%=result.chip_number.to_s() %></td>
+	       <td><%=result.team_number.to_s() %></td>
+	       <td><%=result.test_passed.to_s() %></td>
+	  </tr>
+      <% end %>
+ </table> 

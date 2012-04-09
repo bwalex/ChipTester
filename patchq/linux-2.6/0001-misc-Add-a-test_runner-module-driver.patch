@@ -1,0 +1,38 @@
+From bcda00fdcf51627c601c9136e75de918a7963cc6 Mon Sep 17 00:00:00 2001
+From: Alex Hornung <alex@alexhornung.com>
+Date: Sat, 10 Mar 2012 23:10:32 +0000
+Subject: [PATCH 1/1] misc - Add a test_runner module driver
+
+---
+ drivers/misc/Kconfig       |    5 +
+ drivers/misc/Makefile      |    1 +
+ 2 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index 6b6fc13..facc068 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -514,6 +514,11 @@ config ALTERA_SYSID
+ 	  This enables support for the Altera SYSID core wich identifies a
+ 	  system created with Altera's SOPCBuilder
+ 
++config TEST_RUNNER
++	tristate "Test Runner Module Driver"
++	help
++	  This enables support for the custom Test Runner module.
++
+ source "drivers/misc/c2port/Kconfig"
+ source "drivers/misc/eeprom/Kconfig"
+ source "drivers/misc/cb710/Kconfig"
+diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+index fa435f8..7650fcb 100644
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@ -50,3 +50,4 @@ obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
+ obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
+ obj-$(CONFIG_MAX8997_MUIC)	+= max8997-muic.o
+ obj-$(CONFIG_ALTERA_SYSID)	+= altsysid.o
++obj-$(CONFIG_TEST_RUNNER)	+= trunner_dev.o
+-- 
+1.7.3.4
+
