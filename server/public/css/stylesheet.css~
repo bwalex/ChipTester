@@ -38,13 +38,13 @@
 	#leftBar {
 	      float: left; 
 	      width: 20%; 
-	      background: #EBEBEB; 
+	      background: #009999; 
 	}
 
 	#content {
 	      float:left;
-	      width:60%;
-	      background-color: #cdcde6;
+	      width:80%;
+	      background-color: #009966;
 	}
 
 	#rightBar { 
@@ -55,5 +55,5 @@
 
 	#footer { 
 	      clear:both;
-	      background:#DDDDDD;
+	      background:#009999;
 	} 

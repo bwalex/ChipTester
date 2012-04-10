@@ -1,5 +1,5 @@
 #DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
-DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
+DataMapper.setup(:default, 'mysql://root@localhost/ChipTester')
 class DUV_Descriptor
   include DataMapper::Resource
   

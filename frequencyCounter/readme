@@ -1,8 +1,0 @@
-frequency is counted by counting the clock ticks of the FPGA clock within each clock cycle of the input signal (the frequency under test).
-at the start of each input cycle (oscillator output), the measurement is stored in the first place of a 8-place buffer. The output is the rolling average of the last 8 periods.
-
-two versions implemented:
-v2.0  - everything happens within one process
-vb0.5 - things are split into two processes, one does the counting and one stores the data in a buffer with 8 places
-
-both give almost the same logic usage etc and both have maximum operating frequencies much higher than needed. version b (vb0.5) can run faster than version a, but is already too quick.

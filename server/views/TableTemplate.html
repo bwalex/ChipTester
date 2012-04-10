@@ -5,12 +5,18 @@
     
   <div id="container">
     <div id="header_layout">
-     <img src = "http://localhost:4567/img/WebBanner.svg" alt="University of Southampton Automated Chip Tester"/>
+     <img src = "http://localhost:4567/img/WebBanner.svg" alt="University of Southampton Automated Chip Tester" width="100%" alt="" />
     </div>
     <div id="leftBar">
-      Left Bar
+		<p align=center>
+		<a href=AdminMode>Administrator Mode</a><br>
+		<a href=insertJson>Insert JSON</a><br>
+		more stuff<br>
+		even more stuff<br>
     </div>
+    
     <div align="center" id="content">
+    	<p align=center>
       <table>
       <tr class = "header">
 
@@ -29,7 +35,8 @@
 	  <% end %>
       </table>
     </div>
-    <div id="rightBar">
+    
+    <div align="center" id="footer">
 	<p>Post here your JSON FILE</p>
 	<form method="post" action="/">
 	    <input type="text" name="json_posted" />
@@ -41,7 +48,8 @@
 	</form>
     </div>
     <div id="footer">
-      Footer
+      <p align=center>
+      University of Southampton 2012 - MSc System on Chip - ELEC6027 VLSI Project - Team I - Southampton Superchip Tester
     </div>
     </div>
   </html> 
