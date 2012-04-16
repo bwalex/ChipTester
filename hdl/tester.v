@@ -49,6 +49,13 @@ module tester #(
   wire                     dififo_rdreq;
   wire                     dififo_rdempty;
   wire    [ DIF_WIDTH-1:0] dififo_dataq;
+  
+  wire                     pll_clock;
+  wire                     pll_reset;
+  wire                     pll_trigger;
+  wire                     pll_switch;
+  wire                     pll_locked;
+  wire   [           15:0] pll_data;
 
 
   test_controller#(
@@ -89,7 +96,13 @@ module tester #(
     .dififo_rdreq       (dififo_rdreq),
     .dififo_rdempty     (dififo_rdempty),
 
-    .target_sel         (target_sel)
+    .target_sel         (target_sel),
+	 
+	 .pll_reset          (pll_reset),
+    .pll_data           (pll_data),
+    .pll_trigger        (pll_trigger),
+    .pll_switch         (pll_switch),
+    .pll_locked         (pll_locked)
   );
 
   dut_if #(
@@ -114,8 +127,23 @@ module tester #(
     .rfifo_wrfull       (rfifo_wrfull),
 
     .mosi_data          (mosi),
-    .miso_data          (miso)
+    .miso_data          (miso),
+	 
+	 .pll_clock          (pll_clock),
+    .pll_switch         (pll_switch)
   );
+  
+  PLL_INTERFACE pll_if(
+   .clock               (clock),
+	.reset_n             (reset_n),
+	.trigger             (pll_trigger),            
+	.PLL_DATA            (pll_data),
+	
+	.c0                  (pll_clock),
+	.locked              (pll_locked)
+  );
+
+  
 
 
 endmodule

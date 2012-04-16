@@ -50,7 +50,13 @@ module test_controller #(
   output                   dififo_rdempty,
   output  [ DIF_WIDTH-1:0] dififo_dataq,
 
-  output  [DSEL_WIDTH-1:0] target_sel
+  output  [DSEL_WIDTH-1:0] target_sel,
+  
+  output                      pll_reset,
+  output     [          15:0] pll_data,
+  output                      pll_trigger,
+  output                      pll_switch,
+  input                       pll_locked  
 );
 
 
@@ -174,7 +180,13 @@ module test_controller #(
     .sc_data            (sc_data),
     .sc_ready           (sc_ready),
 
-    .target_sel         (target_sel)
+    .target_sel         (target_sel),
+	 
+	 .pll_reset          (pll_reset),
+    .pll_data           (pll_data),
+    .pll_trigger        (pll_trigger),
+    .pll_switch         (pll_switch),
+    .pll_locked         (pll_locked)  
   );
 
 

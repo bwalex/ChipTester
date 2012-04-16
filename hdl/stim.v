@@ -52,7 +52,14 @@ module stim #(
   /* CHECK <=> STIM interface */
   output reg [ SCC_WIDTH-1:0] sc_cmd,
   output reg [ SCD_WIDTH-1:0] sc_data,
-  input                       sc_ready
+  input                       sc_ready,
+  
+  /*PLL RECONFIG interface*/
+  output                      pll_reset,
+  output     [          15:0] pll_data,
+  output                      pll_trigger,
+  output                      pll_switch,
+  input                       pll_locked  
 );
 
   parameter SC_CMD_IDLE       = 5'b00000;
@@ -63,6 +70,7 @@ module stim #(
   parameter REQ_SETUP_BITMASK = 3'b010;
   parameter REQ_SEND_DICMD    = 3'b011;
   parameter REQ_END           = 3'b111;
+  parameter REQ_PLLRECONFIG   = 3'b110;
 
   parameter STATE_WIDTH       = 6;
   parameter IDLE              = 6'b000000;
@@ -75,6 +83,10 @@ module stim #(
   parameter SEND_DICMD        = 6'b000111;
   parameter WR_DIFIFO         = 6'b001000;
   parameter END               = 6'b001001;
+  parameter START_REPLL       = 6'b001010; /*new*/
+  parameter PLL_RECONFIG      = 6'b001011; /*new*/
+  parameter SWITCH_TOPLL      = 6'b001100; /*new*/
+
 
   reg    [STATE_WIDTH-1:0] state;
   reg    [STATE_WIDTH-1:0] next_state; /* comb */
@@ -100,8 +112,10 @@ module stim #(
   wire   [ BOFF_WIDTH-1:0] buffer_offset;
   wire   [  REQ_WIDTH-1:0] req_type;
   reg    [            5:0] tv_len;
-
-
+  
+  reg    [            1:0] pll_ready; /*pll reconfig fully done*/
+  reg    [            1:0] pll_triggertimer;
+  
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
       state <= END;
@@ -163,7 +177,42 @@ module stim #(
     else if (mem_readdataready)
       buffer[(buffer_offset << 4 /* XXX: 4 is log2(word size in bits) */) +: DATA_WIDTH] <= mem_readdata;
 
-
+ /*pll ready: when the locked is from 0 to 1
+    trigger 1:          pll_ready  00
+	locked 0:           pll_ready  01
+	locked 1 && pll_ready 01:           pll_ready  11*/
+  always @(posedge clock, negedge reset_n)
+  if (~reset_n)  
+	 pll_ready <= 2'b00;
+  else if ( pll_trigger )
+	 pll_ready <= 2'b00;
+  else if ( ~pll_locked )
+	 pll_ready <= 2'b01;
+  else if ( pll_locked &&
+	         pll_ready == 2'b01)
+	 pll_ready <= 2'b11;
+  
+  
+  /* pll triger only needs to last for two clock cycles */
+  always @(posedge clock, negedge reset_n)
+  if (~reset_n)
+    pll_triggertimer <= 2'b00;
+  else if (state == IDLE)
+    pll_triggertimer <= 2'b00;
+  else if (pll_triggertimer == 2'b11)
+    pll_triggertimer <= 2'b11;
+  else if (state == PLL_RECONFIG )
+    pll_triggertimer <= pll_triggertimer + 1;
+	 
+//  always @(posedge clock, negedge reset_n)
+//  if (~reset_n)
+//    pll_trigger <= 0;
+//  else if ( pll_triggertimer == 2'b11 )
+//    pll_trigger <= 0;
+//  else if ( state == PLL_RECONFIG )
+//    pll_trigger <= 1;
+	 
+	 
   assign mem_address    = address;
   assign mem_byteenable = 2'b11;
   assign mem_read       =    (state == IDLE          && (~sfifo_wrfull && ~cfifo_wrfull))
@@ -172,7 +221,8 @@ module stim #(
                           || (state == SEND_DICMD    && (reads_requested < 3))
                           || (state == SWITCH_TARGET && (reads_requested < 3))
                           || (state == SWITCH_VDD    && (reads_requested < 3))
-                          || (state == READ_TV       && (reads_requested < tv_len));
+                          || (state == READ_TV       && (reads_requested < tv_len))
+								  || (state == START_REPLL   && (reads_requested < 3));  /*read pll param*/
 
   assign sfifo_wrreq    =    (state == WR_FIFOS);
   assign cfifo_wrreq    =    (state == WR_FIFOS);
@@ -197,6 +247,12 @@ module stim #(
   assign cfifo_data[CHF_WIDTH-STF_WIDTH-1            -: ADDR_WIDTH] = address-2;
 
   assign dififo_data   = { {REQ_WIDTH{1'b0}}, buffer[REQ_WIDTH +: CMD_WIDTH], buffer[8 +: STF_WIDTH] };
+  
+  assign pll_reset   = (next_state == IDLE);
+  assign pll_triggrer = pll_triggertimer == 2'b01 ||
+                        pll_triggertimer == 2'b10;
+  assign pll_switch  = (next_state == SWITCH_TOPLL);
+
 
   /* Convenient shortcuts for sections of the buffer */
   assign req_type       = buffer[0:REQ_WIDTH-1];
@@ -204,6 +260,7 @@ module stim #(
   assign result_vector  = buffer[8+STF_WIDTH   +: STF_WIDTH];
   assign output_bitmask = buffer[8             +: STF_WIDTH];
   assign new_target_sel = buffer[16-DSEL_WIDTH +: DSEL_WIDTH];
+  assign pll_data       = buffer[8             +: STF_WIDTH]; /* store PLL data*/
 
 
   always @(
@@ -244,6 +301,7 @@ module stim #(
             REQ_SETUP_BITMASK:  next_state = SETUP_BITMASK;
             REQ_SEND_DICMD:     next_state = SEND_DICMD;
             REQ_END:            next_state = END;
+				REQ_PLLRECONFIG:    next_state = START_REPLL;
             default:            next_state = IDLE;
           endcase
         end
@@ -302,6 +360,23 @@ module stim #(
         next_state = IDLE;
       end
 
+		
+		/*Joey*/
+		START_REPLL: begin 
+		  if (pll_locked)
+		    next_state = PLL_RECONFIG;
+		end
+		
+		PLL_RECONFIG: begin
+		  if (pll_ready == 2'b11)
+		    next_state = SWITCH_TOPLL;
+		end
+		
+		SWITCH_TOPLL: 
+		  next_state = IDLE;
+		
+		/*Joey*/
+		
 
       END: begin
         /* Drain FIFOs and wait for enable before starting again */

@@ -26,7 +26,11 @@ module dut_if #(
 
   /* DUT interface */
   output     [ STF_WIDTH-1:0] mosi_data,
-  input      [ RTF_WIDTH-1:0] miso_data
+  input      [ RTF_WIDTH-1:0] miso_data,
+  
+  /* pll reconfig interface */
+  input                       pll_clock,
+  input                       pll_switch
 );
 
   parameter DICMD_SETUP_MUXES = 8'b00000001;
@@ -53,6 +57,10 @@ module dut_if #(
 
   wire    [CMD_EXT_WIDTH-1:0] cmd;
   wire                        load_mux_config;
+  
+  /* post pll reconfig clock */
+  wire                        post_pll_clock;
+  
 
 
   assign sfifo_rdreq =  (~sfifo_rdempty && stall_n);
@@ -86,7 +94,9 @@ module dut_if #(
    *       internally on the FPGA and a DDR I/O register (ALTDDIO)
    *       on all the output pins.
    */
-  assign clock_gated =  (stall_n & clock);
+  assign post_pll_clock = pll_switch? pll_clock : clock; /*switch between pll_recongfig and original clock*/
+
+  assign clock_gated =  (stall_n & post_pll_clock);
 
   always @(negedge clock, negedge reset_n)
     if (~reset_n)
