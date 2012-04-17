@@ -1,10 +1,10 @@
 module REPLL_CONTROL
-( sys_reset,
-  clock_ctr,
-  trigger,
-  busy_ctr,
-  MultiFactor,
-  DividFactor,
+(  sys_reset,
+   clock_ctr,
+   trigger,
+   busy_ctr,
+   MultiFactor,
+   DividFactor,
  	counter_param_ctr,
 	counter_type_ctr,
 	reset_ctr,
@@ -32,165 +32,130 @@ module REPLL_CONTROL
 	output logic pll_read_param;
 	output logic [8:0] config_data_in;
 	
+	parameter Idle         = 4'b0000;
+	parameter ResetPLL     = 4'b0001;
+	parameter ResetREC     = 4'b0010;
+	parameter SetTypeM     = 4'b0011;
+	parameter SetParamHM   = 4'b0100;
+	parameter SetParamLM   = 4'b0101;
+	parameter WriteHM      = 4'b0110;
+	parameter WriteLM      = 4'b0111;
+	parameter Interval     = 4'b1000;
+	parameter SetTypeC     = 4'b1001;
+	parameter SetParamHC   = 4'b1010;
+	parameter SetParamLC   = 4'b1011;
+	parameter WriteHC      = 4'b1100;
+	parameter WriteLC      = 4'b1101;
+	parameter Reconfig     = 4'b1110;
+	parameter Busy         = 4'b1111;
+	
+	
+	reg  [3:0]  state;
+	reg  [4:0]  next_state;
+	
+	reg [2:0] counter_5;
+   reg [3:0] counter_10;
+   reg Delay_5;
+   reg Delay_10;
+   reg timed_5;
+   reg timed_10;
+	
 	assign pll_pfdena = 1;
 	assign pll_read_param = 0;
 	assign config_data_in[8] = 0;
 	
-  enum {Idle, ResetPLL, ResetREC, SetTypeM, SetParamHM,SetParamLM, WriteHM, WriteLM, Interval, SetTypeC, SetParamHC, SetParamLC, WriteHC, WriteLC, Reconfig, Busy} state;
-  
-  logic [2:0] counter_5;
-  logic [3:0] counter_10;
-  logic Delay_5;
-  logic Delay_10;
-  logic timed_5;
-  logic timed_10;
-  
-  
-always_ff @(posedge clock_ctr, posedge sys_reset)
-begin
-  if (sys_reset)
-    state <= ResetPLL;
-  else
-      case (state)
+	
+	assign counter_param_ctr =   ( state == Idle 
+	                            || state == ResetPLL
+								       || state == ResetREC
+										 || state == SetTypeM
+										 || state == SetParamHM
+										 || state == WriteHM
+										 || state == SetParamHC
+										 || state == WriteHC )?        3'b000:3'b001;
+	assign counter_type_ctr  =   ( state == Idle 
+	                            || state == ResetPLL
+								       || state == ResetREC
+										 || state == SetTypeC
+										 || state == SetParamHC
+										 || state == WriteHC
+										 || state == SetParamLC
+										 || state == WriteLC
+										 || state == Reconfig
+										 || state == Busy )?        4'b0000:4'b0001;
+	assign reset_ctr         =   ( state == ResetREC );
+   assign pll_areset_in_ctr =   ( state == ResetPLL );
+	assign write_param_ctr   =   ( state == WriteHM
+	                            || state == WriteLM
+										 || state == WriteHC
+										 || state == WriteLC );
+   assign reconfig_ctr      =   ( state == Busy );
+	assign Delay_5           =   ( state == SetTypeM
+	                            || state == WriteHM
+										 || state == SetTypeC
+										 || state == WriteHC
+										 || state == WriteLC );
+	assign Delay_10          =   ( state == ResetPLL
+	                            || state == SetParamHM
+										 || state == SetParamLM
+										 || state == Interval
+										 || state == SetParamHC
+										 || state == SetParamLC );
+
+ always @(posedge clock_ctr, negedge sys_reset)
+    if (~sys_reset)
+      state <= ResetPLL;
+    else
+      state <= next_state;
+
+ always @(
+       state
+    or trigger
+	 or timed_5
+	 or timed_10
+	 or busy_ctr
+    )
+  begin
+    next_state    = state;
+
+    case (state)
         Idle:     if (trigger)
-                    state <= SetTypeM;
-        ResetPLL: 
-                    state <= ResetREC;
-        ResetREC: if (timed_10)
-                    state <= Idle;
+                    next_state = SetTypeM;
+        ResetPLL:  next_state = ResetREC;
+		
+	 	  ResetREC: if (timed_10)
+                    next_state = Idle;
         SetTypeM:  
-                    state <= SetParamHM;
+                    next_state = SetParamHM;
         SetParamHM:if (timed_5)
-                    state <= WriteHM;
+                    next_state = WriteHM;
         WriteHM:   if (timed_10)
-                    state <= SetParamLM;
+                    next_state = SetParamLM;
         SetParamLM:if (timed_5)
-                    state <= WriteLM;
+                    next_state = WriteLM;
         WriteLM:   if (timed_10)
-                    state <= Interval;
-        Interval:   state <= SetTypeC;
+                    next_state = Interval;
+        Interval:   next_state = SetTypeC;
                    
         SetTypeC:  if (timed_10)
-                    state <= SetParamHC;
+                    next_state = SetParamHC;
         SetParamHC:if (timed_5)
-                    state <= WriteHC;
+                    next_state = WriteHC;
         WriteHC:   if (timed_10)
-                    state <= SetParamLC;
+                    next_state = SetParamLC;
         SetParamLC:if (timed_5)
-                    state <= WriteLC;
+                    next_state = WriteLC;
         WriteLC:   if (timed_10)
-                    state <= Reconfig;         
+                    next_state = Reconfig;         
         Reconfig: if (timed_5)
-                    state <= Busy;
+                    next_state = Busy;
         Busy:     if (~busy_ctr)
-                    state <= Idle;
-        default:    state <= Idle;
-      endcase
-end
-
-always
-begin
-  case (state)
-    Idle:     begin
-                 counter_param_ctr = 3'b000;
-                 counter_type_ctr  = 4'b0000;
-                 reset_ctr         = 1'b0;
-	              pll_areset_in_ctr = 1'b0;
-	              write_param_ctr   = 1'b0;
-	              reconfig_ctr      = 1'b0;    
-	              Delay_5           = 1'b0;
-	              Delay_10          = 1'b0;
-	              config_data_in[7:0]= 8'b00000000;        
-              end
-    ResetPLL: begin
-                pll_areset_in_ctr = 1'b1;
-                Delay_10          = 1'b1;
-              end
-    ResetREC: begin
-                pll_areset_in_ctr = 1'b0;
-                reset_ctr         = 1'b1;
-                Delay_10          = 1'b0;
-              end
-    SetTypeM:  begin
-                reset_ctr         = 1'b0;
-                counter_type_ctr  = 4'b0001;
-                Delay_5           = 1'b1;
-                config_data_in[7:0]= MultiFactor;
-              end
-    SetParamHM:begin
-                counter_param_ctr = 3'b000;
-                Delay_5           = 1'b0;
-                Delay_10          = 1'b1;
-              end
-    WriteHM:   begin
-                write_param_ctr   = 1'b1;
-                Delay_10          = 1'b0;
-                Delay_5           = 1'b1;
-              end
-    SetParamLM:begin
-                write_param_ctr   = 1'b0;
-                counter_param_ctr = 3'b001;
-                Delay_5           = 1'b0;
-                Delay_10          = 1'b1;
-              end
-    WriteLM:   begin
-                write_param_ctr   = 1'b1;
-                Delay_10          = 1'b0;
-                Delay_5           = 1'b0;
-              end
-    Interval:  begin
-                write_param_ctr   = 1'b0;
-                Delay_10          = 1'b1;
-                Delay_5           = 1'b0;
-               end
-    SetTypeC:  begin
-                reset_ctr         = 1'b0;
-                counter_type_ctr  = 4'b0100;
-                Delay_5           = 1'b1;
-                Delay_10          = 1'b0;
-                config_data_in[7:0]= DividFactor;
-              end
-    SetParamHC:begin
-                counter_param_ctr = 3'b000;
-                Delay_5           = 1'b0;
-                Delay_10          = 1'b1;
-              end
-    WriteHC:   begin
-                write_param_ctr   = 1'b1;
-                Delay_10          = 1'b0;
-                Delay_5           = 1'b1;
-              end
-    SetParamLC:begin
-                write_param_ctr   = 1'b0;
-                counter_param_ctr = 3'b001;
-                Delay_5           = 1'b0;
-                Delay_10          = 1'b1;
-              end
-    WriteLC:   begin
-                write_param_ctr   = 1'b1;
-                Delay_10          = 1'b0;
-                Delay_5           = 1'b1;
-              end          
-    Reconfig: begin
-                write_param_ctr   = 1'b0;
-               	Delay_5           = 1'b0;
-              end
-    Busy:     begin
-                reconfig_ctr      = 1'b1;
-              end
-    default:  begin
-                counter_param_ctr = 3'b000;
-                counter_type_ctr  = 4'b0000;
-               	reset_ctr         = 1'b0;
-	              pll_areset_in_ctr = 1'b0;
-	              write_param_ctr   = 1'b0;
-	              reconfig_ctr      = 1'b0;
-	              Delay_5           = 1'b0;
-	              Delay_10          = 1'b0;
-              end
-  endcase
-end    
-
+                    next_state = Idle;
+     endcase 
+	end 
+	
+	
+	
 always_ff @(posedge clock_ctr, posedge Delay_5)
 begin:Delay5Cycles
   if (Delay_5)
