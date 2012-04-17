@@ -107,7 +107,6 @@ module REPLL_CONTROL
       state <= ResetPLL;
     else
       state <= next_state;
-
  always @(
        state
     or trigger
