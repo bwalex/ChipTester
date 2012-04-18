@@ -3,22 +3,21 @@ module TestInterface;
   	
 	logic	  inclk0;
 	logic   clock;
-	logic   reset;
-	wire    reset_n;
+	logic   reset_n;
 	logic   trigger;
+	logic   [15:0]PLL_DATA;
 	logic   [7:0] MultiFactor;
-	logic   [7:0] DividFactor;
-	wire   [15:0] PLL_DATA;
+  logic   [7:0] DividFactor;
 	logic	c0;
 	logic	locked;
 
 	logic   busy;
 	logic   [8:0]  data_out;
-
-	assign reset_n  = ~reset;
-	assign PLL_DATA = { MultiFactor, DividFactor };
-
+	
 	PLL_INTERFACE PI2 (.*);
+	
+	assign PLL_DATA [15:8] = MultiFactor;
+	assign PLL_DATA [ 7:0] = DividFactor;
 	
 	initial
 	begin
@@ -35,13 +34,13 @@ module TestInterface;
 	
 	initial
 	begin
-	  reset = 0;
+	  reset_n = 1;
 	  trigger = 0;
 	  MultiFactor = 8'b00000110; // 6/3 = 2
 	  DividFactor = 8'b00000011;
 	  
-	  #6ns reset = 1;
-	  #10ns reset = 0;
+	  #6ns reset_n = 0;
+	  #10ns reset_n = 1;
 
     #100ns trigger =1;
     #50ns trigger =0;
