@@ -1,5 +1,10 @@
+require 'data_mapper'
+
 #DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
-DataMapper.setup(:default, 'mysql://root@localhost/ChipTester')
+#DataMapper.setup(:default, 'mysql://root@localhost/ChipTester')
+DataMapper.setup(:default, 'sqlite:test.db')
+DataMapper::Logger.new($stdout, :debug)
+
 class DUV_Descriptor
   include DataMapper::Resource
   
@@ -49,6 +54,7 @@ def Store_DUV_Fail(json_parsed)
       )
     @duv_fail.save
 end
+
 DataMapper.finalize
 #DataMapper.auto_migrate!
-DataMapper.auto_upgrade!
+#DataMapper.auto_upgrade!

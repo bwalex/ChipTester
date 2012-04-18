@@ -1,23 +1,23 @@
 require 'rubygems'
-require 'sinatra'
-require 'data_mapper' 
-require 'database.rb'
+require 'sinatra' 
+require './database.rb'
 require 'erb'
-require 'erb_binding.rb'
+require './erb_binding.rb'
 require 'json'
 
-#Open the view file
-f = File.open("views/TableTemplate.html")
-  rhtml = ERB.new(f.read)
-f.close
 
-#Map from the database the test result.
-results = Results_Bind.new('',Result.all,'')
+get '/css/style.css' do
+   scss :style, :style => :expanded
+end
 
 get '/' do
-   results = Results_Bind.new('',Result.all,'')
-   return rhtml.result(results.get_binding)
-end 
+   @results = Result.all
+   erb :overview
+end
+
+get '/admin' do
+   erb :admin
+end
 
 post '/' do
    unless params['json_posted'].nil?
@@ -27,7 +27,7 @@ post '/' do
 	    id = Store_DUV_Result(json_parsed)
 	    test = { "id" => id }
       end
-      if json_parsed.has_key? "DUV_Fail"
+      if json_parsed.has_key? "Fail"
 	    Store_DUV_Fail(json_parsed)
       end
    end

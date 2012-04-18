@@ -1,0 +1,16 @@
+require './database.rb'
+
+namespace :dm do
+  desc "Perform automigration (reset your db data)"
+  task :migrate do
+    DataMapper.auto_migrate!
+    puts "<= dm:auto:migrate executed"
+  end
+
+  desc "Perform non destructive automigration"
+  task :upgrade do
+    DataMapper.auto_upgrade!
+    puts "<= dm:auto:upgrade executed"
+  end
+end
+

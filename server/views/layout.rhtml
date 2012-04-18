@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <!--[if lte IE 9]>
+	<link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen"/>
+	<![endif]-->
+    <link rel="stylesheet" type="text/css" href="/css/1140.css" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="/css/style.css" media="screen"/>
+  </head>
+  
+  <div id="header" class="container">
+    <div class="row">
+      <div id="header-logo" class="twelvecol">
+        <img src = "/img/logo_smaller.png" alt="University of Southampton Automated Chip Tester" width="100%" alt="" />
+      </div>
+    </div>
+
+    <div id="header-navbar" class="row">
+      <div id="navbar-menu" class="twelvecol">
+	<ul>
+	  <li><a href="/">Overview</a></li>
+	  <li><a href="/admin">Admin</a></li>
+	</ul>
+      </div>
+    </div>
+
+    <div class="row spacer">
+    </div>
+  </div>
+  <div id="main" class="container">
+    <%= yield %>
+  </div>
+  <div id="footer" class="content">
+    <div class="row">
+      <p>
+	University of Southampton 2012 - MSc System on Chip - ELEC6027 VLSI Project - Team I - Southampton Superchip Tester
+      </p>
+    </div>
+  </div>
+</html> 
