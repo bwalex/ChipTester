@@ -52,7 +52,7 @@ module PLL_INTERFACE
 	assign pll_scandataout = scandataout;
 	assign pll_scandone = scandone;
 	assign MultiFactor = PLL_DATA[15:8];
-	assign DividFActor = PLL_DATA[7:0];
+	assign DividFactor = PLL_DATA[7:0];
 	
 	
 	

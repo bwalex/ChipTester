@@ -22,15 +22,15 @@ module REPLL_CONTROL
 	input [7:0] MultiFactor;
 	input [7:0] DividFactor;
 	
-	output logic [2:0] counter_param_ctr;
-	output logic [3:0] counter_type_ctr;
-	output logic reset_ctr;
-	output logic pll_areset_in_ctr;
-	output logic write_param_ctr;
-	output logic reconfig_ctr;
-	output logic pll_pfdena;
-	output logic pll_read_param;
-	output logic [8:0] config_data_in;
+	output reg [2:0] counter_param_ctr;
+	output reg [3:0] counter_type_ctr;
+	output reg reset_ctr;
+	output reg pll_areset_in_ctr;
+	output reg write_param_ctr;
+	output reg reconfig_ctr;
+	output reg pll_pfdena;
+	output reg pll_read_param;
+	output reg [8:0] config_data_in;
 	
 	parameter Idle         = 4'b0000;
 	parameter ResetPLL     = 4'b0001;
@@ -51,7 +51,7 @@ module REPLL_CONTROL
 	
 	
 	reg  [3:0]  state;
-	reg  [4:0]  next_state;
+	reg  [3:0]  next_state;
 	
 	reg [2:0] counter_5;
    reg [3:0] counter_10;
@@ -102,8 +102,18 @@ module REPLL_CONTROL
 										 || state == SetParamHC
 										 || state == SetParamLC );
 
- always @(posedge clock_ctr, negedge sys_reset)
-    if (~sys_reset)
+  always @(posedge clock_ctr, posedge sys_reset)
+    if (sys_reset)
+	   config_data_in[7:0] <= 8'b0;
+	 else case (state)
+	   Idle:     config_data_in[7:0] <= 8'b0;
+		SetTypeM: config_data_in[7:0] <= MultiFactor;
+		SetTypeC: config_data_in[7:0] <= DividFactor;
+	 endcase
+	   
+
+ always @(posedge clock_ctr, posedge sys_reset)
+    if (sys_reset)
       state <= ResetPLL;
     else
       state <= next_state;
