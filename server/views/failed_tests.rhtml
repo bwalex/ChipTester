@@ -2,10 +2,9 @@
   <div class="test-listview">
     <table>
       <tr>
-	<th>Chip Number</th>
-	<th>Team Number</th>
-	<th>Team Passed</th>
-	<th>File Name</th>
+	<th>Index</th>
+	<th>Fail Result</th>
+	<th>Expected Result</th>
       </tr>
       <% @fails.each_index do |idx| fail=@fails[idx] %> 
       <tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">

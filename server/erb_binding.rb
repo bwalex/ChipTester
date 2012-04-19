@@ -1,8 +1,8 @@
 class Results_Bind
-  def initialize(configuration, results, results_fail)
+  def initialize(configuration, results, fail)
     @configuration = configuration
     @results = results
-    @results_fail
+    @fail = fail
   end
 
   def get_binding

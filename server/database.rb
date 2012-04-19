@@ -1,8 +1,8 @@
 require 'data_mapper'
 
-#DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
+DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
 #DataMapper.setup(:default, 'mysql://root@localhost/ChipTester')
-DataMapper.setup(:default, 'sqlite:test.db')
+#DataMapper.setup(:default, 'sqlite:test.db')
 DataMapper::Logger.new($stdout, :debug)
 
 class DUV_Descriptor
@@ -21,6 +21,8 @@ class Result
   property :chip_number, Integer, :required => true #The number of the chip
   property :team_number, Integer 
   property :test_passed, Boolean, :required => true #If the test passed or not
+  property :frequency, Integer
+  property :temperature, Integer
   property :file_name, String #File name of the test
 
   has n, :fails
@@ -41,20 +43,21 @@ def Store_DUV_Result(json_parsed)
 	:chip_number => json_parsed["Result"]["chip_number"],
 	:team_number => json_parsed["Result"]["team_number"],
 	:test_passed => json_parsed["Result"]["test_passed"],
-	:file_name => json_parsed ["Result"]["file_name"]
+	:file_name => json_parsed ["Result"]["file_name"],
+	:frequency => json_parsed ["Result"]["frequency"],
+	:temperature => json_parsed ["Result"]["temperature"]
       )
       @duv_result.save     
-      return @duv_result.id
+      return @duv_result
 end      
 def Store_DUV_Fail(json_parsed)
-    @duv_fail = Fail.create(
+    @duv_fail = Result.get!(json_parsed["Fail"]["id"]).fails.create(
 	:index => json_parsed["Fail"]["index"],
 	:fail_result => json_parsed["Fail"]["fail_result"],
 	:expected_result => json_parsed["Fail"]["expected_result"]
       )
-    @duv_fail.save
+    return @duv_fail
 end
-
 DataMapper.finalize
 #DataMapper.auto_migrate!
-#DataMapper.auto_upgrade!
+DataMapper.auto_upgrade!

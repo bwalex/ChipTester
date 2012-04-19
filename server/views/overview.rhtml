@@ -6,13 +6,22 @@
 	<th>Team Number</th>
 	<th>Team Passed</th>
 	<th>File Name</th>
+	<th>Frequency</th>
+	<th>Temperature</td>
       </tr>
       <% @results.each_index do |idx| result=@results[idx] %> 
       <tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
 	<td><%=result.chip_number.to_s() %></td>
 	<td><%=result.team_number.to_s() %></td>
-	<td><%=result.test_passed.to_s() %></td>
+	<td><%=if(!result.test_passed)
+			"<a href=\"failed_tests/"+ result.id.to_s() + "\">" + result.test_passed.to_s() + "</a>"
+			else
+			    result.test_passed.to_s()
+			end %>
+		  </td>
 	<td><%=result.file_name %></td>
+	<td><%=result.frequency.to_s() %></td>
+	<td><%=result.temperature.to_s() %></td>
       </tr>
       <% end %>
     </table>

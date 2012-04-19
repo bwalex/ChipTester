@@ -1,16 +1,19 @@
 {
   "Result":{
-       "chip_number":32,
-       "team_number":6,
+       "chip_number":3,
+       "team_number":2,
        "test_passed":false,
-	"file_name":"UN_ARCHIVO.txt"
+	"file_name":"OTRO_ARCHIVO.txt",
+	"frequency":3000,
+	"temperature":285
   }
 }
 
 {
-  "DUV_Fail":{
-       "id_test":"IDD",
-       "fail_result":"Shit happens",
-       "expected_result":"Shit happens often",
+  "Fail":{
+       "id": 1,
+       "index":1,
+       "fail_result":"0xB3",
+       "expected_result":"0xB4"
   }
 }

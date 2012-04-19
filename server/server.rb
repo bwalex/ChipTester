@@ -19,20 +19,31 @@ get '/admin' do
    erb :admin
 end
 
+get '/failed_tests' do
+  @fails = Fail.all
+    erb :failed_tests
+end
+
+get '/failed_tests/:result_id' do
+    @fails = Fail.all(:result_id => params[:result_id])
+    erb :failed_tests
+end
+
 post '/' do
    unless params['json_posted'].nil?
       test = {}
+      previous_result = nil
       json_parsed = JSON.parse(params['json_posted'])
       if json_parsed.has_key? "Result"
-	    id = Store_DUV_Result(json_parsed)
-	    test = { "id" => id }
+	    previous_result = Store_DUV_Result(json_parsed)
+	    test = { "id" => previous_result.id }
       end
       if json_parsed.has_key? "Fail"
-	    Store_DUV_Fail(json_parsed)
+	    id = Store_DUV_Fail(json_parsed).id
+	    test = { "id" => id }
       end
    end
       #rhtml.result(results.get_binding)
-      "Something Has Happened REMEMBER TO DO THE JSON RETURN"
       test.to_json()
 end
 
