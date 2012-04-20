@@ -3,6 +3,7 @@ module dut_if #(
             RTF_WIDTH     = 24,
             REQ_WIDTH     = 3,
             CMD_WIDTH     = 5,
+				CYCLE_RANGE   = 5,
             CMD_EXT_WIDTH = REQ_WIDTH + CMD_WIDTH,
             DIF_WIDTH     = REQ_WIDTH + CMD_WIDTH + STF_WIDTH
 )(
@@ -10,7 +11,7 @@ module dut_if #(
   input                       reset_n,
 
   /* STIM_FIFO interface */
-  input      [ STF_WIDTH-1:0] sfifo_data,
+  input      [ STF_WIDTH+CYCLE_RANGE:0] sfifo_data,
   output                      sfifo_rdreq,
   input                       sfifo_rdempty,
 
@@ -30,15 +31,23 @@ module dut_if #(
   
   /* pll reconfig interface */
   input                       pll_clock,
-  input                       pll_switch
+  input                       pll_switch,
+  
+  input      [ STF_WIDTH-1:0] di_data,
+  input      [ CMD_WIDTH-1:0] di_cmd
 );
 
   parameter DICMD_SETUP_MUXES = 8'b00000001;
+  parameter DICMD_IDLE       = 5'b00000;  
+  parameter DICMD_TRGMASK    = 5'b00001;
 
   parameter STATE_WIDTH       = 3;
   parameter IDLE              = 3'b000;
   parameter READ_CMD          = 3'b001;
-
+  parameter DELAY             = 3'b010;
+  parameter TRIG_STANDBY      = 3'b011;
+ 
+  
   reg     [  STATE_WIDTH-1:0] state;
   reg     [  STATE_WIDTH-1:0] next_state;
 
@@ -53,15 +62,26 @@ module dut_if #(
   reg                         sfifo_rdreq_d4;
 
   reg                         stall_n;
+
+  reg      [ CYCLE_RANGE-1:0] cycle_counter;
+  reg      [   STF_WIDTH-1:0] trigger_mask;
+  
   wire                        clock_gated;
 
   wire    [CMD_EXT_WIDTH-1:0] cmd;
   wire                        load_mux_config;
   
+  wire    [    STF_WIDTH-1:0] test_vector;
+  wire                        cycle_info;
+  wire                        mode_select;
   /* post pll reconfig clock */
   wire                        post_pll_clock;
-  
+    
+  wire                         cycle_timed;
 
+  assign test_vector = sfifo_data [STF_WIDTH+CYCLE_RANGE : CYCLE_RANGE];
+  assign cycle_info  = sfifo_data [CYCLE_RANGE : 1];
+  assign mode_select = sfifo_data [0];
 
   assign sfifo_rdreq =  (~sfifo_rdempty && stall_n);
   assign rfifo_wrreq =  sfifo_rdreq_d3;
@@ -116,7 +136,7 @@ module dut_if #(
     if (~reset_n)
       mosi_data_r <= 'b0;
     else if (sfifo_rdreq_d1)
-      mosi_data_r <= sfifo_data;
+      mosi_data_r <= test_vector;
 
 
   always @(posedge clock_gated, negedge reset_n)
@@ -146,30 +166,62 @@ module dut_if #(
       state <= IDLE;
     else
       state <= next_state;
+		
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+	   cycle_counter <= 5'b00000;
+	 else if (state == IDLE)
+	   cycle_counter <= 5'b00000;
+	 else if (state == DELAY && cycle_counter < cycle_info)
+	   cycle_counter <= cycle_counter +1;
 
+
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+	   trigger_mask <= 'b0;
+	 else if ( di_cmd == DICMD_TRGMASK )
+	   trigger_mask <= di_data;
+		
 
   assign cmd              = dififo_data[DIF_WIDTH-1 -: CMD_EXT_WIDTH];
 
   assign dififo_rdreq     = (state == IDLE)       && (~dififo_rdempty);
   assign load_mux_config  = (state == READ_CMD)   && (cmd == DICMD_SETUP_MUXES);
-
+  assign cycle_timed = (cycle_counter == cycle_info);
+  
+  assign trigger_indic    =  miso_data & trigger_mask;
 
   always @(
        state
     or dififo_rdempty)
   begin
     next_state    = state;
-
+	 
     case (state)
       IDLE: begin
-        if (~dififo_rdempty) begin
+        if (~dififo_rdempty && cycle_timed && mode_select == 0) begin
           next_state = READ_CMD;
         end
+		  else if (cycle_info > 5'b00000)
+		    next_state = DELAY;
+		  else if (mode_select == 1)
+		    next_state = TRIG_STANDBY;
+		  
       end
 
       READ_CMD: begin
         next_state   = IDLE;
       end
+		
+		DELAY: begin
+		if (cycle_timed)
+		  next_state   = READ_CMD;
+		end
+		
+		TRIG_STANDBY: begin
+		if ( trigger_indic > 0 )
+		  next_state   = READ_CMD;
+		end
     endcase
   end
 

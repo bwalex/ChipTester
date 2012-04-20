@@ -13,6 +13,7 @@ module tester #(
 
             WAIT_WIDTH = 16,
             DSEL_WIDTH = 5, /* Target design select */
+				CYCLE_RANGE = 5,
 
             DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH
 )(
@@ -40,7 +41,7 @@ module tester #(
 
   wire                     sfifo_rdreq;
   wire                     sfifo_rdempty;
-  wire    [ STF_WIDTH-1:0] sfifo_dataq;
+  wire    [ STF_WIDTH+CYCLE_RANGE:0] sfifo_dataq;
 
   wire    [ RTF_WIDTH-1:0] rfifo_data;
   wire                     rfifo_wrreq;
@@ -56,6 +57,9 @@ module tester #(
   wire                     pll_switch;
   wire                     pll_locked;
   wire   [           15:0] pll_data;
+  
+  wire    [ CMD_WIDTH-1:0] di_cmd;
+  wire    [ STF_WIDTH-1:0] di_data;
 
 
   test_controller#(
@@ -66,7 +70,8 @@ module tester #(
     .DSEL_WIDTH         (DSEL_WIDTH),
     .REQ_WIDTH          (REQ_WIDTH),
     .CMD_WIDTH          (CMD_WIDTH),
-    .WAIT_WIDTH         (WAIT_WIDTH)
+    .WAIT_WIDTH         (WAIT_WIDTH),
+	 .CYCLE_RANGE        (CYCLE_RANGE)
   ) test_controller(
     .clock              (clock),
     .reset_n            (reset_n),
@@ -102,14 +107,18 @@ module tester #(
     .pll_data           (pll_data),
     .pll_trigger        (pll_trigger),
     .pll_switch         (pll_switch),
-    .pll_locked         (pll_locked)
+    .pll_locked         (pll_locked),
+	 
+	 .di_data            (di_data),
+	 .di_cmd             (di_cmd)
   );
 
   dut_if #(
     .STF_WIDTH          (STF_WIDTH),
     .RTF_WIDTH          (RTF_WIDTH),
     .REQ_WIDTH          (REQ_WIDTH),
-    .CMD_WIDTH          (CMD_WIDTH)
+    .CMD_WIDTH          (CMD_WIDTH),
+	 .CYCLE_RANGE        (CYCLE_RANGE)
   ) dut_if(
     .clock              (fifo_clock),
     .reset_n            (reset_n),
@@ -130,7 +139,10 @@ module tester #(
     .miso_data          (miso),
 	 
 	 .pll_clock          (pll_clock),
-    .pll_switch         (pll_switch)
+    .pll_switch         (pll_switch),
+	 
+	 .di_data            (di_data),
+	 .di_cmd             (di_cmd)
   );
   
   PLL_INTERFACE pll_if(

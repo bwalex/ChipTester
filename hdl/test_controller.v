@@ -18,6 +18,7 @@ module test_controller #(
 
             WAIT_WIDTH = 16,
             DSEL_WIDTH = 5, /* Target design select */
+				CYCLE_RANGE = 5,
 
             DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH,
             CHF_WIDTH  = STF_WIDTH+ADDR_WIDTH /* (output vector), (address) */
@@ -40,7 +41,7 @@ module test_controller #(
 
   input                    sfifo_rdreq,
   output                   sfifo_rdempty,
-  output  [ STF_WIDTH-1:0] sfifo_dataq,
+  output  [ STF_WIDTH+CYCLE_RANGE:0] sfifo_dataq,
 
   input   [ RTF_WIDTH-1:0] rfifo_data,
   input                    rfifo_wrreq,
@@ -56,8 +57,10 @@ module test_controller #(
   output     [          15:0] pll_data,
   output                      pll_trigger,
   output                      pll_switch,
-  input                       pll_locked  
-);
+  input                       pll_locked,  
+  
+  output  [ CMD_WIDTH-1:0] di_cmd,
+  output  [ STF_WIDTH-1:0] di_data);
 
 
   wire                     reset;
@@ -186,7 +189,10 @@ module test_controller #(
     .pll_data           (pll_data),
     .pll_trigger        (pll_trigger),
     .pll_switch         (pll_switch),
-    .pll_locked         (pll_locked)  
+    .pll_locked         (pll_locked),  
+	 
+	 .di_cmd             (di_cmd),
+	 .di_data            (di_data)
   );
 
 
@@ -222,7 +228,7 @@ module test_controller #(
 
 
   dcfifo_custom#(
-    .DATA_WIDTH         (STF_WIDTH),
+    .DATA_WIDTH         (STF_WIDTH+CYCLE_RANGE+1),
     .FIFO_DEPTH         (16)
   ) sfifo_inst(
     .aclr               (reset),

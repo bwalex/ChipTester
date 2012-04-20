@@ -13,7 +13,8 @@ module stim #(
             SCD_WIDTH  = 24,
             WAIT_WIDTH = 16,
             TEST_VECTOR_WORDS = 4,
-            DSEL_WIDTH = 5 /* Target design select */
+            DSEL_WIDTH = 5, /* Target design select */
+				CYCLE_RANGE = 5
 )(
   input                       clock,
   input                       reset_n,
@@ -33,7 +34,7 @@ module stim #(
   output reg [DSEL_WIDTH-1:0] target_sel,
 
   /* STIM_FIFO interface */
-  output     [ STF_WIDTH-1:0] sfifo_data,
+  output     [ STF_WIDTH+CYCLE_RANGE:0] sfifo_data,
   output                      sfifo_wrreq,
   input                       sfifo_wrfull,
   input                       sfifo_wrempty,
@@ -59,18 +60,30 @@ module stim #(
   output     [          15:0] pll_data,
   output                      pll_trigger,
   output                      pll_switch,
-  input                       pll_locked  
+  input                       pll_locked,  
+  
+  /* trigger mask lane */
+  output reg [ CMD_WIDTH-1:0] di_cmd,
+  output reg [ STF_WIDTH-1:0] di_data
 );
 
   parameter SC_CMD_IDLE       = 5'b00000;
   parameter SC_CMD_BITMASK    = 5'b00001;
+  
+  parameter DI_CMD_IDLE       = 5'b00000;  
+  parameter DI_CMD_TRGMASK    = 5'b00001;
 
-  parameter REQ_SWITCH_TARGET = 3'b000;
-  parameter REQ_TEST_VECTOR   = 3'b001;
-  parameter REQ_SETUP_BITMASK = 3'b010;
-  parameter REQ_SEND_DICMD    = 3'b011;
-  parameter REQ_END           = 3'b111;
-  parameter REQ_PLLRECONFIG   = 3'b110;
+  //parameter SC_CMD_CYCLEMODE  = 5'b00010;
+  //parameter SC_CMD_TRIGRMODE  = 5'b00011;
+  
+  parameter REQ_SWITCH_TARGET   = 3'b000;
+  parameter REQ_TEST_VECTOR     = 3'b001;
+  parameter REQ_SETUP_BITMASK   = 3'b010;
+  parameter REQ_SEND_DICMD      = 3'b011;
+  parameter REQ_END             = 3'b111;
+  parameter REQ_PLLRECONFIG     = 3'b110;
+  parameter REQ_TOGGLE_MODE     = 3'b101;
+  parameter REQ_SETUP_TRIGRMASK = 3'b100;
 
   parameter STATE_WIDTH       = 6;
   parameter IDLE              = 6'b000000;
@@ -86,6 +99,8 @@ module stim #(
   parameter START_REPLL       = 6'b001010; /*new*/
   parameter PLL_RECONFIG      = 6'b001011; /*new*/
   parameter SWITCH_TOPLL      = 6'b001100; /*new*/
+  parameter TOGGLE_MODE       = 6'b001101;
+  parameter SETUP_TRIGRMASK   = 6'b001110;
 
 
   reg    [STATE_WIDTH-1:0] state;
@@ -115,6 +130,12 @@ module stim #(
   
   reg    [            1:0] pll_ready; /*pll reconfig fully done*/
   reg    [            1:0] pll_triggertimer;
+  
+  wire   [            4:0] cycle_info;
+  reg                      mode_select;
+  
+  wire   [  STF_WIDTH-1:0] trigger_mask;
+
   
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
@@ -203,15 +224,15 @@ module stim #(
     pll_triggertimer <= 2'b11;
   else if (state == PLL_RECONFIG )
     pll_triggertimer <= pll_triggertimer + 1;
-	 
-//  always @(posedge clock, negedge reset_n)
-//  if (~reset_n)
-//    pll_trigger <= 0;
-//  else if ( pll_triggertimer == 2'b11 )
-//    pll_trigger <= 0;
-//  else if ( state == PLL_RECONFIG )
-//    pll_trigger <= 1;
-	 
+  
+  always @(posedge clock, negedge reset_n)
+  if (~reset_n)
+    mode_select <= 0;
+  else if (state == END)
+    mode_select <= 0;
+  else if (state == REQ_TOGGLE_MODE)
+    mode_select <= 1;
+
 	 
   assign mem_address    = address;
   assign mem_byteenable = 2'b11;
@@ -241,7 +262,7 @@ module stim #(
   assign inc_address    = (mem_read && ~mem_waitrequest);
   assign buffer_offset  = words_stored;
 
-  assign sfifo_data     = input_vector;
+  assign sfifo_data    = {input_vector, cycle_info, mode_select};   /* expanded Sfifo */
 
   assign cfifo_data[CHF_WIDTH-1                      -: STF_WIDTH ] = result_vector;
   assign cfifo_data[CHF_WIDTH-STF_WIDTH-1            -: ADDR_WIDTH] = address-2;
@@ -252,15 +273,19 @@ module stim #(
   assign pll_triggrer = pll_triggertimer == 2'b01 ||
                         pll_triggertimer == 2'b10;
   assign pll_switch  = (next_state == SWITCH_TOPLL);
-
+  
+  //assign mode_select = (next_state == SET_TRIGRMODE);
 
   /* Convenient shortcuts for sections of the buffer */
   assign req_type       = buffer[0:REQ_WIDTH-1];
   assign input_vector   = buffer[8             +: STF_WIDTH];
-  assign result_vector  = buffer[8+STF_WIDTH   +: STF_WIDTH];
+  assign result_vector  = buffer[8+STF_WIDTH   +: SCD_WIDTH];
   assign output_bitmask = buffer[8             +: STF_WIDTH];
   assign new_target_sel = buffer[16-DSEL_WIDTH +: DSEL_WIDTH];
-  assign pll_data       = buffer[8             +: STF_WIDTH]; /* store PLL data*/
+  assign pll_data       = buffer[8             +: STF_WIDTH]; /* store PLL data */
+  assign cycle_info     = buffer[56+2           : 56+2+CYCLE_RANGE]; /* store cycle info */
+  assign trigger_mask   = buffer[8             +: STF_WIDTH];  /* store trigger mask*/
+  
 
 
   always @(
@@ -285,6 +310,8 @@ module stim #(
     next_state    = state;
     sc_cmd        = SC_CMD_IDLE;
     sc_data       = 'b0;
+	 di_cmd        = DI_CMD_IDLE;
+	 di_data       = 'b0;
 
     case (state)
       IDLE: begin
@@ -302,6 +329,8 @@ module stim #(
             REQ_SEND_DICMD:     next_state = SEND_DICMD;
             REQ_END:            next_state = END;
 				REQ_PLLRECONFIG:    next_state = START_REPLL;
+				REQ_TOGGLE_MODE:    next_state = TOGGLE_MODE;
+				REQ_SETUP_TRIGRMASK:next_state = SETUP_TRIGRMASK;
             default:            next_state = IDLE;
           endcase
         end
@@ -322,10 +351,7 @@ module stim #(
 
       SETUP_BITMASK: begin
         /* Wait for FIFOs to drain before changing the bitmask */
-        if (words_stored == 3 &&
-            sc_ready          &&
-            sfifo_wrempty     &&
-            cfifo_wrempty       ) begin
+        if (words_stored == 3 ) begin
           next_state = IDLE;
 
           sc_cmd  = SC_CMD_BITMASK;
@@ -374,6 +400,20 @@ module stim #(
 		
 		SWITCH_TOPLL: 
 		  next_state = IDLE;
+		  
+		TOGGLE_MODE:
+		  next_state = IDLE;
+		
+		SETUP_TRIGRMASK:
+		  if (words_stored == 3 &&
+            sc_ready          &&
+            sfifo_wrempty     &&
+            cfifo_wrempty       ) begin
+          next_state = IDLE;
+
+          di_cmd  = DI_CMD_TRGMASK;
+			 di_data = trigger_mask;
+		  end
 		
 		/*Joey*/
 		
