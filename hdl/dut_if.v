@@ -7,27 +7,28 @@ module dut_if #(
             CMD_EXT_WIDTH = REQ_WIDTH + CMD_WIDTH,
             DIF_WIDTH     = REQ_WIDTH + CMD_WIDTH + STF_WIDTH
 )(
-  input                       clock,
-  input                       reset_n,
+  input                            clock,
+  input                            reset_n,
 
   /* STIM_FIFO interface */
-  input      [ STF_WIDTH+CYCLE_RANGE:0] sfifo_data,
-  output                      sfifo_rdreq,
-  input                       sfifo_rdempty,
+  input [ STF_WIDTH+CYCLE_RANGE:0] sfifo_data,
+  output                           sfifo_rdreq,
+  input                            sfifo_rdempty,
+  
 
   /* DI_FIFO interface */
-  input      [ DIF_WIDTH-1:0] dififo_data,
-  output                      dififo_rdreq,
-  input                       dififo_rdempty,
+  input [ DIF_WIDTH-1:0]           dififo_data,
+  output                           dififo_rdreq,
+  input                            dififo_rdempty,
   
   /* RES_FIFO interface */
-  output     [ RTF_WIDTH-1:0] rfifo_data,
-  output                      rfifo_wrreq,
-  input                       rfifo_wrfull,
+  output [ RTF_WIDTH-1:0]          rfifo_data,
+  output                           rfifo_wrreq,
+  input                            rfifo_wrfull,
 
   /* DUT interface */
-  output     [ STF_WIDTH-1:0] mosi_data,
-  input      [ RTF_WIDTH-1:0] miso_data
+  output [ STF_WIDTH-1:0]          mosi_data,
+  input [ RTF_WIDTH-1:0]           miso_data
 );
 
   parameter DICMD_SETUP_MUXES = 8'b00000001;
@@ -224,3 +225,247 @@ module dut_if #(
   end
 
 endmodule
+
+
+module dut_fetch(
+  input      clock,
+  input      reset_n,
+  input      rd_empty,
+  output     rd_req,
+
+  /* Pipeline signals */
+  input      stall,
+  output reg bubble_r
+);
+
+   assign rd_req = (~rd_empty & ~stall);
+
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       bubble_r <= 1'b1;
+     else
+       bubble_r <= rd_empty;
+endmodule
+
+
+
+
+module dut_decode #(
+  parameter STF_WIDTH   = 24,
+            CYCLE_RANGE = 5,
+            FIFO_WIDTH  = STF_WIDTH + CYCLE_RANGE + 1
+)(
+  input                        clock,
+  input                        reset_n,
+  input [FIFO_WIDTH-1:0]       rd_data,
+
+  input                        stall,
+  input                        bubble,
+  output                       stall_o,
+  output reg                   bubble_r,
+
+  output reg                   st_mode_r,
+  output reg [CYCLE_RANGE-1:0] cycle_count_r,
+  output reg [STF_WIDTH-1:0]   st_data_r   
+);
+
+   assign stall_o = 0;
+
+   
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       bubble_r <= 1'b1;
+     else
+       bubble_r <= bubble;
+
+   
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       st_mode_r <= 1'b0;
+     else if (~stall & ~bubble)
+       st_mode_r <= rd_data[0];
+
+   
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       cycle_count_r <= 0;
+     else if (~stall & ~bubble)
+       cycle_count_r <= rd_data[CYCLE_RANGE -: CYCLE_RANGE];
+
+
+    always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       st_data_r <= 0;
+     else if (~stall & ~bubble)
+       st_data_r <= rd_data[STF_WIDTH+CYCLE_RANGE -: STF_WIDTH];
+endmodule // dut_decode
+
+
+
+
+
+
+
+
+
+
+
+module dut_execute #(
+  parameter STF_WIDTH   = 24,
+            RTF_WIDTH   = 24,
+            CYCLE_RANGE = 5,
+            FIFO_WIDTH  = STF_WIDTH + CYCLE_RANGE + 1
+)(
+  input                        clock,
+  input                        reset_n,
+  input [RTF_WIDTH-1:0]        trigger_mask,        
+  input [RTF_WIDTH-1:0]        miso_data,
+  output [STF_WIDTH-1:0]       mosi_data,
+
+  input                        stall,
+  input                        bubble,
+  output                       stall_o,
+  output reg                   bubble_r,
+
+  input                        st_mode,
+  input [CYCLE_RANGE-1:0]      cycle_count,
+  input [STF_WIDTH-1:0]        st_data,
+
+  output reg                   mode_r,
+  output reg                   timeout_r,
+  output reg [RTF_WIDTH-1:0]   result_r,
+  output reg [CYCLE_RANGE-1:0] cycle_count_r 
+);
+
+   wire                        trigger_match;
+   wire                        counter_match;
+
+   
+   parameter STATE_WIDTH       = 2;
+   parameter IDLE              = 2'b00;
+   parameter WAIT_COUNT        = 2'b01;
+   parameter WAIT_TRIGGER      = 2'b10;
+
+
+   reg [STATE_WIDTH-1:0]       state;
+   reg [STATE_WIDTH-1:0]       next_state; /* comb */
+
+
+   assign counter_match   = (cycle_count_r == cycle_count);
+   assign trigger_match   = ((miso_data & trigger_mask) == miso_data); /* AND'ing trigger mask */
+
+   assign stall_o =   (next_state != IDLE);
+
+   assign mosi_data =  st_data;
+
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       state <= IDLE;
+     else if (~stall)
+       state <= next_state;
+
+   always @(
+     state,
+     st_mode,
+     cycle_count,
+     trigger_match,
+     counter_match
+   ) begin
+
+     next_state = state;
+
+     case (state)
+       IDLE: begin
+          if (st_mode == 1'b0 && cycle_count != 0)
+            next_state = WAIT_COUNT;
+          else if (st_mode == 1'b1 && cycle_count > 0 && ~trigger_match)
+            next_state = WAIT_TRIGGER;
+       end
+
+       WAIT_COUNT: begin
+          if (counter_match)
+            next_state = IDLE;
+       end
+
+       WAIT_TRIGGER: begin
+          if (counter_match /* timeout */ || trigger_match)
+            next_state = IDLE;
+       end
+     endcase
+   end // always @ (...
+
+
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       bubble_r <= 1'b1;
+     else
+       bubble_r <= bubble | stall_o;
+
+
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       cycle_count_r <= 0;
+     else if (state == IDLE && ~stall)
+       cycle_count_r <= 0;
+     else if (~stall)
+       cycle_count_r <= cycle_count_r + 1;
+
+
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       timeout_r <= 1'b0;
+     else if (~stall)
+       timeout_r <= counter_match;
+
+
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       result_r <= 0;
+     else if (~stall)
+       result_r <= miso_data;
+
+
+endmodule
+
+
+
+
+
+
+module dut_writeback #(
+  parameter RTF_WIDTH   = 24,
+            CYCLE_RANGE = 5,
+            FIFO_WIDTH  = RTF_WIDTH
+            //FIFO_WIDTH  = RTF_WIDTH + CYCLE_RANGE + 1
+)(
+  input                       clock,
+  input                       reset_n,
+  input                       wr_full,
+  output reg                  wr_req_r, 
+  output reg [FIFO_WIDTH-1:0] wr_data_r,
+
+  input                       bubble,
+  output                      stall_o,
+
+  input                       mode,
+  input                       timeout,
+  input [RTF_WIDTH-1:0]       result,
+  input [CYCLE_RANGE-1:0]     cycle_count     
+);
+
+   assign stall_o = wr_full;
+
+
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       wr_req_r <= 1'b0;
+     else if (~bubble & ~wr_full)
+       wr_req_r <= 1'b1;
+
+   
+   always @(posedge clock, negedge reset_n)
+     if (~reset_n)
+       wr_data_r <= 1'b0;
+     else if (~bubble & ~wr_full)
+       wr_data_r <= { result };
+endmodule // dut_decode

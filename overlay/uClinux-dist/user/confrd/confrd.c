@@ -344,9 +344,10 @@ parse_line_vectors(char *s, void *priv)
 				return -1;
 			}
 
-
+			cycles = 31; /* XXX */
 			mode = 1; /* XXX */
 			mode_set = 1;
+
 			++s;
 		} else if (*s == '0' || *s == '1') {
 			if (n >= pi->pin_count) {
