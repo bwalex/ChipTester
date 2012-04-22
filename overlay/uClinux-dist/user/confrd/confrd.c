@@ -41,9 +41,14 @@
 #define REQ_END			0x07
 
 #define DICMD_SETUP_MUXES	0x01
+#define DICMD_TRGMASK           0x02
 
 #define MD2_FAIL		0x01
 #define MD2_RUN			0x80
+#define MD2_SET_CYCLES(c)       ((c & 0x1f) << 1)
+#define MD2_SET_MODE(m)         ((m & 0x01) << 6)
+#define MD2_CYCLES(md2)         ((md2 >> 1) & 0x1f)
+#define MD2_MODE(md2)           ((md2 >> 6) & 0x01)
 
 
 #define REQ_TYPE(r)		((r & 0x07) << 5)
@@ -145,6 +150,7 @@ static int parse_line_design(char *, void *);
 static int parse_line_pindef(char *, void *);
 static int parse_line_vectors(char *, void *);
 static int parse_line_clock(char *, void *);
+static int parse_line_trgmask(char *, void *);
 
 static int run_trunner(parserinfo_t pi);
 static int emit(parserinfo_t pi, void *b, size_t bufsz);
@@ -156,6 +162,7 @@ struct keyword tv_keywords[] = {
 	{ .keyword = "pindef"	, .lp = parse_line_pindef  },
 	{ .keyword = "vectors"	, .lp = parse_line_vectors },
 	{ .keyword = "clock"	, .lp = parse_line_clock   },
+	{ .keyword = "trigger"  , .lp = parse_line_trgmask },
 	{ .keyword = NULL	, .lp = NULL }
 };
 
@@ -299,36 +306,73 @@ parse_line_vectors(char *s, void *priv)
 {
 	parserinfo_t pi = priv;
 	test_vector tv;
+	char *e;
 	int n = 0;
+	int cycles = 1;
+	int mode = 0; /* XXX: add constant #defines */
+	int mode_set = 0;
 
 	memset(&tv, 0, sizeof(tv));
 
 	while (*s != '\0') {
-		if (*s != '0' && *s != '1') {
+		if (*s == 'w' || *s == 'W') {
+			if (mode_set) {
+				syntax_error("Vector already defined wait/trigger mode");
+				return -1;
+			}
+
+			++s;
+
+			for (; *s != '\0' && iswhitespace(*s); s++)
+				;
+
+			cycles = strtol(s, &e, 10);
+			if (e)
+				s = e;
+
+			/* XXX */
+			if (cycles < 1 || cycles > 32) {
+				syntax_error("Wait cycles must be between 1 and 32");
+				return -1;
+			}
+
+			mode = 0;
+			mode_set = 1;
+		} else if (*s == 't' || *s == 'T') {
+			if (mode_set) {
+				syntax_error("Vector already defined wait/trigger mode");
+				return -1;
+			}
+
+
+			mode = 1; /* XXX */
+			mode_set = 1;
+			++s;
+		} else if (*s == '0' || *s == '1') {
+			if (n >= pi->pin_count) {
+				syntax_error("Vector contains too many pins");
+				return -1;
+			}
+
+			/*
+			 * Set the correct pin according to the pin info assembled
+			 * earlier when parsing the pindef.
+			 */
+			if (pi->pins[n].type == INPUT_PIN)
+				tv.input_vector[pi->pins[n].bidx] |=
+					(*s - '0') << pi->pins[n].shiftl;
+			else
+				tv.output_vector[pi->pins[n].bidx] |=
+					(*s - '0') << pi->pins[n].shiftl;
+
+			++n;
+
+			++s;
+		} else {
 			syntax_error("Vector contains invalid "
 			    "character: %c", *s);
 			return -1;
 		}
-
-		if (n >= pi->pin_count) {
-			syntax_error("Vector contains too many pins");
-			return -1;
-		}
-
-		/*
-		 * Set the correct pin according to the pin info assembled
-		 * earlier when parsing the pindef.
-		 */
-		if (pi->pins[n].type == INPUT_PIN)
-			tv.input_vector[pi->pins[n].bidx] |=
-			    (*s - '0') << pi->pins[n].shiftl;
-		else
-			tv.output_vector[pi->pins[n].bidx] |=
-			    (*s - '0') << pi->pins[n].shiftl;
-
-		++n;
-
-		++s;
 
 		/* Skip all whitespace and commas after each bit */
 		for (; *s != '\0' && (iswhitespace(*s) || *s == ','); s++)
@@ -341,6 +385,8 @@ parse_line_vectors(char *s, void *priv)
 	}
 
 	tv.metadata = REQ_TYPE(REQ_TEST_VECTOR);
+	tv.metadata2 |= MD2_SET_CYCLES((cycles-1));
+	tv.metadata2 |= MD2_SET_MODE(mode);
 
 	return emit(pi, &tv, sizeof(tv));
 }
@@ -444,6 +490,62 @@ parse_line_clock(char *s, void *priv)
 		if (type == OUTPUT_PIN) {
 			syntax_error("clock signals need to be "
 			    "connected to input pins, not output pins");
+			return -1;
+		}
+
+		/* Pin number follows the pin type character */
+		pin_no = strtol(&(pins[i][1]), &e, 10);
+		if (*e != '\0') {
+			syntax_error("pin number must consist "
+			    "of only decimal digits");
+			return -1;
+		}
+
+		if (pin_no > MAX_INPUT_PIN) {
+			syntax_error("pin number %d is out "
+			    "of range", pin_no);
+		}
+
+		/* Find byte index as well as bit within that byte index */
+		bidx = 2 /* XXX, magical constant */ - pin_no / 8;
+		shiftl = pin_no % 8;
+
+		sd.payload[bidx] |= (1 << shiftl);
+	}
+
+	return emit(pi, &sd, sizeof(sd));
+}
+
+
+static
+int
+parse_line_trgmask(char *s, void *priv)
+{
+	parserinfo_t pi = priv;
+	send_dicmd sd;
+	pin_type_t type;
+	char *pins[MAX_PINS];
+	char *e;
+	int pin_no, bidx, shiftl;
+	int ntoks, i;
+
+	memset(&sd, 0, sizeof(sd));
+
+	sd.metadata = REQ_TYPE(REQ_SEND_DICMD) | DICMD(DICMD_TRGMASK);
+
+	/* Tokenize pindef, tokens being separated by whitespace or comma */
+	if ((ntoks = tokenizer(s, pins, MAX_INPUT_OUTPUT_SIZE)) == -1) {
+		syntax_error("maximum number of pins "
+		    "exceeded");
+		return -1;
+	}
+
+	for (i = 0; i < ntoks; i++) {
+		/* Determine pin type by first character of pin */
+		type = (pins[i][0] == INPUT_PIN) ? INPUT_PIN : OUTPUT_PIN;
+		if (type == INPUT_PIN) {
+			syntax_error("trigger mask signals need to be "
+			    "connected to output pins, not input pins");
 			return -1;
 		}
 
@@ -589,9 +691,11 @@ print_mem(uint8_t *buf, int sz, int *end)
 			bprint(tv->input_vector, sizeof(tv->input_vector));
 			printf(", ov=");
 			bprint(tv->output_vector, sizeof(tv->output_vector));
-			printf(", metadata2=%c %c\n",
+			printf(", metadata2=%c %c (cycles: %d, mode: %s)\n",
 			    (tv->metadata2 & MD2_RUN)  ? 'R' : ' ',
-			    (tv->metadata2 & MD2_FAIL) ? 'F' : ' ');
+			    (tv->metadata2 & MD2_FAIL) ? 'F' : ' ',
+			    (MD2_CYCLES(tv->metadata2)),
+			    (MD2_MODE(tv->metadata2) ? "TRIG":"WAIT") );
 			break;
 
 		case REQ_SEND_DICMD:
@@ -600,6 +704,11 @@ print_mem(uint8_t *buf, int sz, int *end)
 			switch (DICMD(sd->metadata)) {
 			case DICMD_SETUP_MUXES:
 				printf("DICMD_SETUP_MUXES, mux_config=");
+				bprint(sd->payload, sizeof(sd->payload));
+				putchar('\n');
+				break;
+ 			case DICMD_TRGMASK:
+				printf("DICMD_TRGMASK, trigger_mask=");
 				bprint(sd->payload, sizeof(sd->payload));
 				putchar('\n');
 				break;
