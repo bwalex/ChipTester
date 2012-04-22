@@ -13,7 +13,7 @@ module tester #(
 
             WAIT_WIDTH = 16,
             DSEL_WIDTH = 5, /* Target design select */
-				CYCLE_RANGE = 5,
+				    CYCLE_RANGE = 5,
 
             DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH
 )(
@@ -58,9 +58,6 @@ module tester #(
   wire                     pll_locked;
   wire   [           15:0] pll_data;
   
-  wire    [ CMD_WIDTH-1:0] di_cmd;
-  wire    [ STF_WIDTH-1:0] di_data;
-
 
   test_controller#(
     .ADDR_WIDTH         (ADDR_WIDTH),
@@ -103,14 +100,11 @@ module tester #(
 
     .target_sel         (target_sel),
 	 
-	 .pll_reset          (pll_reset),
+	  .pll_reset          (pll_reset),
     .pll_data           (pll_data),
     .pll_trigger        (pll_trigger),
     .pll_switch         (pll_switch),
-    .pll_locked         (pll_locked),
-	 
-	 .di_data            (di_data),
-	 .di_cmd             (di_cmd)
+    .pll_locked         (pll_locked)
   );
 
   dut_if #(
@@ -138,21 +132,18 @@ module tester #(
     .mosi_data          (mosi),
     .miso_data          (miso),
 	 
-	 .pll_clock          (pll_clock),
-    .pll_switch         (pll_switch),
-	 
-	 .di_data            (di_data),
-	 .di_cmd             (di_cmd)
+	  .pll_clock          (pll_clock),
+    .pll_switch         (pll_switch)
   );
   
   PLL_INTERFACE pll_if(
-   .clock               (clock),
-	.reset_n             (reset_n),
-	.trigger             (pll_trigger),            
-	.PLL_DATA            (pll_data),
+    .clock              (clock),
+	  .reset_n            (reset_n),
+	  .trigger            (pll_trigger),            
+	  .PLL_DATA           (pll_data),
 	
-	.c0                  (pll_clock),
-	.locked              (pll_locked)
+	  .c0                 (pll_clock),
+	  .locked             (pll_locked)
   );
 
   

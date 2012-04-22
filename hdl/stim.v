@@ -14,7 +14,7 @@ module stim #(
             WAIT_WIDTH = 16,
             TEST_VECTOR_WORDS = 4,
             DSEL_WIDTH = 5, /* Target design select */
-				CYCLE_RANGE = 5
+				    CYCLE_RANGE = 5
 )(
   input                       clock,
   input                       reset_n,
@@ -60,21 +60,11 @@ module stim #(
   output     [          15:0] pll_data,
   output                      pll_trigger,
   output                      pll_switch,
-  input                       pll_locked,  
-  
-  /* trigger mask lane */
-  output reg [ CMD_WIDTH-1:0] di_cmd,
-  output reg [ STF_WIDTH-1:0] di_data
+  input                       pll_locked
 );
 
   parameter SC_CMD_IDLE       = 5'b00000;
   parameter SC_CMD_BITMASK    = 5'b00001;
-  
-  parameter DI_CMD_IDLE       = 5'b00000;  
-  parameter DI_CMD_TRGMASK    = 5'b00001;
-
-  //parameter SC_CMD_CYCLEMODE  = 5'b00010;
-  //parameter SC_CMD_TRIGRMODE  = 5'b00011;
   
   parameter REQ_SWITCH_TARGET   = 3'b000;
   parameter REQ_TEST_VECTOR     = 3'b001;
@@ -82,8 +72,6 @@ module stim #(
   parameter REQ_SEND_DICMD      = 3'b011;
   parameter REQ_END             = 3'b111;
   parameter REQ_PLLRECONFIG     = 3'b110;
-  parameter REQ_TOGGLE_MODE     = 3'b101;
-  parameter REQ_SETUP_TRIGRMASK = 3'b100;
 
   parameter STATE_WIDTH       = 6;
   parameter IDLE              = 6'b000000;
@@ -99,8 +87,6 @@ module stim #(
   parameter START_REPLL       = 6'b001010; /*new*/
   parameter PLL_RECONFIG      = 6'b001011; /*new*/
   parameter SWITCH_TOPLL      = 6'b001100; /*new*/
-  parameter TOGGLE_MODE       = 6'b001101;
-  parameter SETUP_TRIGRMASK   = 6'b001110;
 
 
   reg    [STATE_WIDTH-1:0] state;
@@ -132,7 +118,7 @@ module stim #(
   reg    [            1:0] pll_triggertimer;
   
   wire   [            4:0] cycle_info;
-  reg                      mode_select;
+  wire                     mode_select;
   
   wire   [  STF_WIDTH-1:0] trigger_mask;
 
@@ -225,14 +211,6 @@ module stim #(
   else if (state == PLL_RECONFIG )
     pll_triggertimer <= pll_triggertimer + 1;
   
-  always @(posedge clock, negedge reset_n)
-  if (~reset_n)
-    mode_select <= 0;
-  else if (state == END)
-    mode_select <= 0;
-  else if (state == REQ_TOGGLE_MODE)
-    mode_select <= 1;
-
 	 
   assign mem_address    = address;
   assign mem_byteenable = 2'b11;
@@ -243,7 +221,7 @@ module stim #(
                           || (state == SWITCH_TARGET && (reads_requested < 3))
                           || (state == SWITCH_VDD    && (reads_requested < 3))
                           || (state == READ_TV       && (reads_requested < tv_len))
-								  || (state == START_REPLL   && (reads_requested < 3));  /*read pll param*/
+                          || (state == START_REPLL   && (reads_requested < 3));  /*read pll param*/
 
   assign sfifo_wrreq    =    (state == WR_FIFOS);
   assign cfifo_wrreq    =    (state == WR_FIFOS);
@@ -274,8 +252,6 @@ module stim #(
                         pll_triggertimer == 2'b10;
   assign pll_switch  = (next_state == SWITCH_TOPLL);
   
-  //assign mode_select = (next_state == SET_TRIGRMODE);
-
   /* Convenient shortcuts for sections of the buffer */
   assign req_type       = buffer[0:REQ_WIDTH-1];
   assign input_vector   = buffer[8             +: STF_WIDTH];
@@ -283,7 +259,8 @@ module stim #(
   assign output_bitmask = buffer[8             +: STF_WIDTH];
   assign new_target_sel = buffer[16-DSEL_WIDTH +: DSEL_WIDTH];
   assign pll_data       = buffer[8             +: STF_WIDTH]; /* store PLL data */
-  assign cycle_info     = buffer[56+2           : 56+2+CYCLE_RANGE]; /* store cycle info */
+  assign mode_select    = buffer[57];
+  assign cycle_info     = buffer[56+2          +: CYCLE_RANGE]; /* store cycle info */
   assign trigger_mask   = buffer[8             +: STF_WIDTH];  /* store trigger mask*/
   
 
@@ -305,13 +282,13 @@ module stim #(
     or sfifo_wrempty
     or waitcnt
     or output_bitmask
+    or pll_locked
+    or pll_ready
     or sc_ready/* XXX */)
   begin
     next_state    = state;
     sc_cmd        = SC_CMD_IDLE;
     sc_data       = 'b0;
-	 di_cmd        = DI_CMD_IDLE;
-	 di_data       = 'b0;
 
     case (state)
       IDLE: begin
@@ -328,9 +305,7 @@ module stim #(
             REQ_SETUP_BITMASK:  next_state = SETUP_BITMASK;
             REQ_SEND_DICMD:     next_state = SEND_DICMD;
             REQ_END:            next_state = END;
-				REQ_PLLRECONFIG:    next_state = START_REPLL;
-				REQ_TOGGLE_MODE:    next_state = TOGGLE_MODE;
-				REQ_SETUP_TRIGRMASK:next_state = SETUP_TRIGRMASK;
+            REQ_PLLRECONFIG:    next_state = START_REPLL;
             default:            next_state = IDLE;
           endcase
         end
@@ -386,37 +361,22 @@ module stim #(
         next_state = IDLE;
       end
 
-		
-		/*Joey*/
-		START_REPLL: begin 
-		  if (pll_locked)
-		    next_state = PLL_RECONFIG;
-		end
-		
-		PLL_RECONFIG: begin
-		  if (pll_ready == 2'b11)
-		    next_state = SWITCH_TOPLL;
-		end
-		
-		SWITCH_TOPLL: 
-		  next_state = IDLE;
-		  
-		TOGGLE_MODE:
-		  next_state = IDLE;
-		
-		SETUP_TRIGRMASK:
-		  if (words_stored == 3 &&
-            sc_ready          &&
-            sfifo_wrempty     &&
-            cfifo_wrempty       ) begin
-          next_state = IDLE;
 
-          di_cmd  = DI_CMD_TRGMASK;
-			 di_data = trigger_mask;
+		  /*Joey*/
+		  START_REPLL: begin
+		     if (words_stored == 3 &&
+             pll_locked          )
+		       next_state = PLL_RECONFIG;
 		  end
-		
-		/*Joey*/
-		
+		  
+		  PLL_RECONFIG: begin
+		     if (pll_ready == 2'b11)
+		       next_state = SWITCH_TOPLL;
+		  end
+		  
+		  SWITCH_TOPLL: 
+		    next_state = IDLE;
+		  
 
       END: begin
         /* Drain FIFOs and wait for enable before starting again */

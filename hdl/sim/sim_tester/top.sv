@@ -30,7 +30,7 @@ module top();
 
   wire         sfifo_rdreq;
   wire         sfifo_rdempty;
-  wire  [23:0] sfifo_dataq;
+  wire  [29:0] sfifo_dataq;
 
   wire  [23:0] rfifo_data;
   wire         rfifo_wrreq;
@@ -55,7 +55,7 @@ module top();
 
   async_sram#(
     .USE_INIT           (1),
-    .INIT_FILE          ("sram_contents.txt")
+    .INIT_FILE          ("sram_contents_2.txt")
   ) sram(
     .A                  (sram_address),
     .IO                 (sram_data),

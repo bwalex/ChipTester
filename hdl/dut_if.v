@@ -3,7 +3,7 @@ module dut_if #(
             RTF_WIDTH     = 24,
             REQ_WIDTH     = 3,
             CMD_WIDTH     = 5,
-				CYCLE_RANGE   = 5,
+            CYCLE_RANGE   = 5,
             CMD_EXT_WIDTH = REQ_WIDTH + CMD_WIDTH,
             DIF_WIDTH     = REQ_WIDTH + CMD_WIDTH + STF_WIDTH
 )(
@@ -27,19 +27,11 @@ module dut_if #(
 
   /* DUT interface */
   output     [ STF_WIDTH-1:0] mosi_data,
-  input      [ RTF_WIDTH-1:0] miso_data,
-  
-  /* pll reconfig interface */
-  input                       pll_clock,
-  input                       pll_switch,
-  
-  input      [ STF_WIDTH-1:0] di_data,
-  input      [ CMD_WIDTH-1:0] di_cmd
+  input      [ RTF_WIDTH-1:0] miso_data
 );
 
   parameter DICMD_SETUP_MUXES = 8'b00000001;
-  parameter DICMD_IDLE       = 5'b00000;  
-  parameter DICMD_TRGMASK    = 5'b00001;
+  parameter DICMD_TRGMASK     = 8'b00000010;
 
   parameter STATE_WIDTH       = 3;
   parameter IDLE              = 3'b000;
@@ -70,6 +62,8 @@ module dut_if #(
 
   wire    [CMD_EXT_WIDTH-1:0] cmd;
   wire                        load_mux_config;
+  wire                        load_trigger_mask;
+
   
   wire    [    STF_WIDTH-1:0] test_vector;
   wire                        cycle_info;
@@ -77,9 +71,11 @@ module dut_if #(
   /* post pll reconfig clock */
   wire                        post_pll_clock;
     
-  wire                         cycle_timed;
+  wire                        cycle_timed;
+  wire                        trigger_match;
+                       
 
-  assign test_vector = sfifo_data [STF_WIDTH+CYCLE_RANGE : CYCLE_RANGE];
+  assign test_vector = sfifo_data [STF_WIDTH+CYCLE_RANGE -: STF_WIDTH];
   assign cycle_info  = sfifo_data [CYCLE_RANGE : 1];
   assign mode_select = sfifo_data [0];
 
@@ -114,8 +110,9 @@ module dut_if #(
    *       internally on the FPGA and a DDR I/O register (ALTDDIO)
    *       on all the output pins.
    */
-  assign post_pll_clock = pll_switch? pll_clock : clock; /*switch between pll_recongfig and original clock*/
+  assign post_pll_clock = clock; /*switch between pll_recongfig and original clock*/
 
+  //XXX: need some pll signal, but not a specific pll_clock, that should be the normal clock.
   assign clock_gated =  (stall_n & post_pll_clock);
 
   always @(negedge clock, negedge reset_n)
@@ -179,17 +176,19 @@ module dut_if #(
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
 	   trigger_mask <= 'b0;
-	 else if ( di_cmd == DICMD_TRGMASK )
-	   trigger_mask <= di_data;
+	 else if (load_trigger_mask)
+	   trigger_mask <= dififo_data[STF_WIDTH-1:0];
 		
 
   assign cmd              = dififo_data[DIF_WIDTH-1 -: CMD_EXT_WIDTH];
 
   assign dififo_rdreq     = (state == IDLE)       && (~dififo_rdempty);
   assign load_mux_config  = (state == READ_CMD)   && (cmd == DICMD_SETUP_MUXES);
+  assign load_trigger_mask= (state == READ_CMD)   && (cmd == DICMD_TRGMASK);
+
   assign cycle_timed = (cycle_counter == cycle_info);
   
-  assign trigger_indic    =  miso_data & trigger_mask;
+  assign trigger_match    = miso_data & trigger_mask;
 
   always @(
        state
@@ -199,13 +198,12 @@ module dut_if #(
 	 
     case (state)
       IDLE: begin
-        if (~dififo_rdempty && cycle_timed && mode_select == 0) begin
+        if (~dififo_rdempty)
           next_state = READ_CMD;
-        end
-		  else if (cycle_info > 5'b00000)
-		    next_state = DELAY;
-		  else if (mode_select == 1)
-		    next_state = TRIG_STANDBY;
+		    else if (cycle_info > 5'b00000)
+		      next_state = DELAY;
+		    else if (mode_select == 1)
+		      next_state = TRIG_STANDBY;
 		  
       end
 
@@ -213,15 +211,15 @@ module dut_if #(
         next_state   = IDLE;
       end
 		
-		DELAY: begin
-		if (cycle_timed)
-		  next_state   = READ_CMD;
-		end
-		
-		TRIG_STANDBY: begin
-		if ( trigger_indic > 0 )
-		  next_state   = READ_CMD;
-		end
+		  DELAY: begin
+		     if (cycle_timed)
+		       next_state   = READ_CMD;
+		  end
+		  
+		  TRIG_STANDBY: begin
+		     if (trigger_match)
+		       next_state   = READ_CMD;
+		  end
     endcase
   end
 

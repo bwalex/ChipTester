@@ -167,6 +167,10 @@ module check #(
       end
 
       CMP_AND_MASK: begin
+        $display("----------------------------------------------------");
+        $display("CHECK: result: %b", result_vector);
+        $display("CHECK: expect: %b", c_result_vector);
+ 
         next_state = WRITEBACK;
       end
 
