@@ -49,6 +49,7 @@ end
 
 post '/reset' do
     #Destroying all the records
+     Fail.all.destroy
      Result.all.destroy
      return '<p>The database has been cleaned</p>'
 end

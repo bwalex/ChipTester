@@ -1,18 +1,22 @@
 <div id="content" class="row">
-  <div class="test-listview">
-    <table>
-      <tr>
-	<th>Index</th>
-	<th>Fail Result</th>
-	<th>Expected Result</th>
-      </tr>
-      <% @fails.each_index do |idx| fail=@fails[idx] %> 
-      <tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
-		  <td><%=fail.index.to_s() %></td>
-		  <td><%=fail.fail_result%></td>
-		  <td><%=fail.expected_result %></td>
-      </tr>
-      <% end %>
-    </table>
-  </div>
+	<div class="post">
+		<h2 class="title"><a href="#">Chip Tester Results </a></h2>
+		<p class="meta">Updating from database...</p>
+		<div class="entry">
+		<table>
+		<tr>
+			<th>Index</th>
+			<th>Fail Result</th>
+			<th>Expected Result</th>
+		</tr>
+		<% @fails.each_index do |idx| fail=@fails[idx] %> 
+		<tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+			<td><%=fail.index.to_s() %></td>
+			<td><%=fail.fail_result%></td>
+			<td><%=fail.expected_result %></td>
+		</tr>
+		<% end %>
+		</table>
+		</div>
+	</div>
 </div>

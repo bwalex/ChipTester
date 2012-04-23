@@ -1,40 +1,88 @@
-<html>
-  <head>
-    <!--[if lte IE 9]>
-	<link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen"/>
-	<![endif]-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Limitless   
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20120203
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>ELEC6027 Team I Project - Chip Tester</title>
+<link href='http://fonts.googleapis.com/css?family=Arvo' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="/css/1140.css" media="screen"/>
     <link rel="stylesheet" type="text/css" href="/css/style.css" media="screen"/>
   </head>
   
-  <div id="header" class="container">
-    <div class="row">
-      <div id="header-logo" class="twelvecol">
-        <img src = "/img/logo_smaller.png" alt="University of Southampton Automated Chip Tester" width="100%" alt="" />
-      </div>
-    </div>
+<body>
+	<div id="menu-wrapper">
+		<div id="menu">
+			<ul>
+				<li><a href="/">Overview</a></li>
+				<li><a href="/admin">Admin</a></li>
+				<li><a href="/failed_tests">Failed tests</a></li>
+			</ul>
+		</div>
+<!-- end #menu -->
+	</div>
 
-    <div id="header-navbar" class="row">
-      <div id="navbar-menu" class="twelvecol">
-	<ul>
-	  <li><a href="/">Overview</a></li>
-	  <li><a href="/admin">Admin</a></li>
-	  <li><a href="/failed_tests">Failed tests</a></li>
-	</ul>
-      </div>
-    </div>
-
-    <div class="row spacer">
-    </div>
-  </div>
-  <div id="main" class="container">
-    <%= yield %>
-  </div>
-  <div id="footer" class="content">
-    <div class="row">
-      <p>
-	University of Southampton 2012 - MSc System on Chip - ELEC6027 VLSI Project - Team I - Southampton Superchip Tester
-      </p>
-    </div>
-  </div>
-</html> 
+	<div id="wrapper">
+		<div id="header-wrapper">
+			<div id="header">
+				<div id="logo">
+					<h1><a href="#">ELEC6027 Team Project</a></h1>
+					<p>University of Southampton Automated Chip Tester</a></p>
+				</div>
+			</div>
+		</div>
+<!-- end #header -->
+		<div id="page">
+			<div id="page-bgtop">
+			<div id="page-bgbtm">
+  			<div id="main" class="container">
+    			<%= yield %>
+  		</div>
+<!-- end #content -->
+		<div id="sidebar">
+			<ul>
+				<li>
+					<h2>Team Members</h2>
+						<ul>
+							<li><a href="https://secure.ecs.soton.ac.uk/people/ah3e11">Alexander Hornung</a></li>
+							<li><a href="https://secure.ecs.soton.ac.uk/people/xl1g11">Xiaolong Li</a></li>
+							<li><a href="https://secure.ecs.soton.ac.uk/people/pp5g11">Pavlos Progias</a></li>
+							<li><a href="https://secure.ecs.soton.ac.uk/people/rt5g11">Romel Torres</a></li>
+							<li><a href="https://secure.ecs.soton.ac.uk/people/bz1g11">Bo Zhou</a></li>
+						</ul>
+				</li>
+				<li>
+					<h2>Links</h2>
+					<ul>
+						<li><a href="http://www.google.com">Google</a></li>
+						<li><a href="http://www.soton.ac.uk">The University of Southampton</a></li>
+						<li><a href="http://www.ecs.soton.ac.uk">School of Electronics and Computer Science</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+<!-- end #sidebar -->
+		<div style="clear: both;">&nbsp;</div>
+		</div>
+		</div>
+	</div>
+	<!-- end #page -->
+</div>
+<div id="footer">
+	<p>University of Southampton 2012 - MSc System on Chip - ELEC6027 VLSI Project - Team I - Southampton Superchip Tester</p>
+	<p>Website based on design by <a href="http://www.freecsstemplates.org/"> CSS Templates</a>.</p>
+</div>
+<!-- end #footer -->
+</body>
+</html>

@@ -1,12 +1,54 @@
 <div id="content" class="row">
   <div class="test-json">
-    <p>Post here your JSON FILE</p>
-    <form method="post" action="/">
-      <textarea name="json_posted"></textarea>
-      <input text="Submit Json" type="submit" />
-    </form>
-    <form method="post" action="/reset">
-      <input type="submit" name="reset_value" VALUE="Reset Database"/>
-    </form>
+    <div class="post">
+		<h2 class="title"><a href="#">Post JSON File Here </a></h2>
+		<p class="meta">Update the database...</p>
+		<div class="entry">
+			<form method="post" action="/">
+				<input type="text" name="json_posted" />
+				<input text="Submit Json" type="submit" />
+			</form>
+		</div>
+	</div>
+
+	<div class="post">
+		<p class="meta">Reset the database...</p>
+		<div class="entry">
+			<form method="post" action="/reset">
+				<input type="submit" name="reset_value" VALUE="Reset Database"/>
+			</form>
+		</div>
+	</div>
+	
+	<div class="post">
+		<h2 class="title"><a href="#">JSON File Samples </a></h2>
+		<p class="meta">Result...</p>
+		<div class="entry">
+			{
+			  "Result":{
+			       "chip_number":3,
+			       "team_number":2,
+			       "test_passed":false,
+				"file_name":"OTRO_ARCHIVO.txt",
+				"frequency":3000,
+				"temperature":285
+			  }
+			}
+		</div>
+	</div>
+	
+	<div class="post">
+		<p class="meta">Failed Result...</p>
+		<div class="entry">
+			{
+			  "Fail":{
+			       "id": 1,
+			       "index":1,
+			       "fail_result":"0xB3",
+			       "expected_result":"0xB4"
+			  }
+			}
+		</div>
+	</div>
   </div>
 </div>
