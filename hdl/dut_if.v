@@ -14,13 +14,13 @@ module dut_if #(
   input [ STF_WIDTH+CYCLE_RANGE:0] sfifo_data,
   output                           sfifo_rdreq,
   input                            sfifo_rdempty,
-  
+
 
   /* DI_FIFO interface */
   input [ DIF_WIDTH-1:0]           dififo_data,
   output                           dififo_rdreq,
   input                            dififo_rdempty,
-  
+
   /* RES_FIFO interface */
   output [ RTF_WIDTH-1:0]          rfifo_data,
   output                           rfifo_wrreq,
@@ -39,50 +39,122 @@ module dut_if #(
   parameter READ_CMD          = 3'b001;
   parameter DELAY             = 3'b010;
   parameter TRIG_STANDBY      = 3'b011;
- 
-  
+
+
   reg     [  STATE_WIDTH-1:0] state;
   reg     [  STATE_WIDTH-1:0] next_state;
 
-  reg     [    STF_WIDTH-1:0] mosi_data_r;
-  reg     [    RTF_WIDTH-1:0] miso_data_r;
+  wire    [    STF_WIDTH-1:0] mosi_data_int;
 
   reg     [    STF_WIDTH-1:0] mux_config;
-
-  reg                         sfifo_rdreq_d1;
-  reg                         sfifo_rdreq_d2;
-  reg                         sfifo_rdreq_d3;
-  reg                         sfifo_rdreq_d4;
 
   reg                         stall_n;
 
   reg      [ CYCLE_RANGE-1:0] cycle_counter;
-  reg      [   STF_WIDTH-1:0] trigger_mask;
-  
+  reg      [   RTF_WIDTH-1:0] trigger_mask;
+
   wire                        clock_gated;
 
   wire    [CMD_EXT_WIDTH-1:0] cmd;
   wire                        load_mux_config;
   wire                        load_trigger_mask;
 
-  
+
   wire    [    STF_WIDTH-1:0] test_vector;
   wire                        cycle_info;
   wire                        mode_select;
   /* post pll reconfig clock */
   wire                        post_pll_clock;
-    
+
   wire                        cycle_timed;
   wire                        trigger_match;
-                       
+  wire                        stall_fetch;
+  wire                        stall_decode;
+  wire                        stall_execute;
+  wire                        stall_writeback;
+  wire                        stall_decode_o;
+  wire                        stall_execute_o;
+  wire                        stall_writeback_o;
+  wire                        bubble_fetch_decode;
+  wire                        bubble_decode_execute;
+  wire                        bubble_execute_writeback;
+  wire                        mode_decode_execute;
+  wire [CYCLE_RANGE-1:0]      count_decode_execute;
+  wire [STF_WIDTH-1:0]        data_tv_decode_execute;
+  wire                        mode_execute_writeback;
+  wire [CYCLE_RANGE-1:0]      count_execute_writeback;
+  wire [RTF_WIDTH-1:0]        result_execute_writeback;
+  wire                        timeout_execute_writeback;
 
-  assign test_vector = sfifo_data [STF_WIDTH+CYCLE_RANGE -: STF_WIDTH];
-  assign cycle_info  = sfifo_data [CYCLE_RANGE : 1];
-  assign mode_select = sfifo_data [0];
 
-  assign sfifo_rdreq =  (~sfifo_rdempty && stall_n);
-  assign rfifo_wrreq =  sfifo_rdreq_d3;
-  assign rfifo_data  =  miso_data_r;
+  dut_fetch dut_fetch(
+                      // Outputs
+                      .rd_req           (sfifo_rdreq),
+                      .bubble_r         (bubble_fetch_decode),
+                      // Inputs
+                      .clock            (clock),
+                      .reset_n          (reset_n),
+                      .rd_empty         (sfifo_rdempty),
+                      .stall            (stall_fetch)
+  );
+
+  dut_decode dut_decode(
+                        // Outputs
+                        .stall_o        (stall_decode_o),
+                        .bubble_r       (bubble_decode_execute),
+                        .st_mode_r      (mode_decode_execute),
+                        .cycle_count_r  (count_decode_execute),
+                        .st_data_r      (data_tv_decode_execute),
+                        // Inputs
+                        .clock          (clock),
+                        .reset_n        (reset_n),
+                        .rd_data        (sfifo_data),
+                        .stall          (stall_decode),
+                        .bubble         (bubble_fetch_decode)
+  );
+
+  dut_execute dut_execute(
+                          // Outputs
+                          .mosi_data            (mosi_data_int),
+                          .stall_o              (stall_execute_o),
+                          .bubble_r             (bubble_execute_writeback),
+                          .mode_r               (mode_execute_writeback),
+                          .timeout_r            (timeout_execute_writeback),
+                          .result_r             (result_execute_writeback),
+                          .cycle_count_r        (count_execute_writeback),
+                          // Inputs
+                          .clock                (clock),
+                          .reset_n              (reset_n),
+                          .trigger_mask         (trigger_mask),
+                          .miso_data            (miso_data),
+                          .stall                (stall_execute),
+                          .bubble               (bubble_decode_execute),
+                          .st_mode              (mode_decode_execute),
+                          .cycle_count          (count_decode_execute),
+                          .st_data              (data_tv_decode_execute)
+  );
+
+  dut_writeback dut_writeback(
+                              // Outputs
+                              .wr_req_r         (rfifo_wrreq),
+                              .wr_data_r        (rfifo_data),
+                              .stall_o          (stall_writeback_o),
+                              // Inputs
+                              .clock            (clock),
+                              .reset_n          (reset_n),
+                              .wr_full          (rfifo_wrfull),
+                              .bubble           (bubble_execute_writeback),
+                              .mode             (mode_execute_writeback),
+                              .timeout          (timeout_execute_writeback),
+                              .result           (result_execute_writeback),
+                              .cycle_count      (count_execute_writeback)
+  );
+
+
+
+  assign stall_fetch    = stall_decode_o | stall_execute_o | stall_writeback_o;
+  assign stall_decode   = stall_execute_o | stall_writeback_o;
+  assign stall_execute  = stall_writeback_o;
 
   /*
    * Generate MUXes for each output to be able to switch the clock to any
@@ -91,7 +163,7 @@ module dut_if #(
   genvar i;
   generate
     for (i = 0; i < STF_WIDTH; i = i+1) begin : OUT_MUXES
-      assign mosi_data[i] = mux_config[i] ? clock_gated : mosi_data_r[i];
+      assign mosi_data[i] = mux_config[i] ? clock_gated : mosi_data_int[i];
     end
   endgenerate
 
@@ -123,35 +195,6 @@ module dut_if #(
       stall_n <= ~rfifo_wrfull;
 
 
-  always @(posedge clock_gated, negedge reset_n)
-    if (~reset_n)
-      miso_data_r <= 'b0;
-    else if (sfifo_rdreq_d2) /* XXX */
-      miso_data_r <= miso_data;
-
-
-  always @(posedge clock_gated, negedge reset_n)
-    if (~reset_n)
-      mosi_data_r <= 'b0;
-    else if (sfifo_rdreq_d1)
-      mosi_data_r <= test_vector;
-
-
-  always @(posedge clock_gated, negedge reset_n)
-    if (~reset_n) begin
-      sfifo_rdreq_d1 <= 1'b0;
-      sfifo_rdreq_d2 <= 1'b0;
-      sfifo_rdreq_d3 <= 1'b0;
-      sfifo_rdreq_d4 <= 1'b0;
-    end
-    else begin
-      sfifo_rdreq_d1 <= sfifo_rdreq;
-      sfifo_rdreq_d2 <= sfifo_rdreq_d1;
-      sfifo_rdreq_d3 <= sfifo_rdreq_d2;
-      sfifo_rdreq_d4 <= sfifo_rdreq_d3;
-    end
-
-
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
       mux_config <= 'b0;
@@ -164,14 +207,6 @@ module dut_if #(
       state <= IDLE;
     else
       state <= next_state;
-		
-  always @(posedge clock, negedge reset_n)
-    if (~reset_n)
-	   cycle_counter <= 5'b00000;
-	 else if (state == IDLE)
-	   cycle_counter <= 5'b00000;
-	 else if (state == DELAY && cycle_counter < cycle_info)
-	   cycle_counter <= cycle_counter +1;
 
 
   always @(posedge clock, negedge reset_n)
@@ -179,52 +214,48 @@ module dut_if #(
 	   trigger_mask <= 'b0;
 	 else if (load_trigger_mask)
 	   trigger_mask <= dififo_data[STF_WIDTH-1:0];
-		
 
-  assign cmd              = dififo_data[DIF_WIDTH-1 -: CMD_EXT_WIDTH];
 
-  assign dififo_rdreq     = (state == IDLE)       && (~dififo_rdempty);
-  assign load_mux_config  = (state == READ_CMD)   && (cmd == DICMD_SETUP_MUXES);
-  assign load_trigger_mask= (state == READ_CMD)   && (cmd == DICMD_TRGMASK);
 
-  assign cycle_timed = (cycle_counter == cycle_info);
-  
-  assign trigger_match    = miso_data & trigger_mask;
+
+  assign cmd                = dififo_data[DIF_WIDTH-1 -: CMD_EXT_WIDTH];
+
+  assign dififo_rdreq       = (state == IDLE)       && (~dififo_rdempty);
+  assign load_mux_config    = (state == READ_CMD)   && (cmd == DICMD_SETUP_MUXES);
+  assign load_trigger_mask  = (state == READ_CMD)   && (cmd == DICMD_TRGMASK);
+
+
+  assign cycle_timed        = (cycle_counter == cycle_info);
+
+  assign trigger_match      = miso_data & trigger_mask;
 
   always @(
-       state
-    or dififo_rdempty)
+           state
+           or dififo_rdempty)
   begin
     next_state    = state;
-	 
+
     case (state)
       IDLE: begin
         if (~dififo_rdempty)
           next_state = READ_CMD;
-		    else if (cycle_info > 5'b00000)
-		      next_state = DELAY;
-		    else if (mode_select == 1)
-		      next_state = TRIG_STANDBY;
-		  
       end
 
       READ_CMD: begin
         next_state   = IDLE;
       end
-		
-		  DELAY: begin
-		     if (cycle_timed)
-		       next_state   = READ_CMD;
-		  end
-		  
-		  TRIG_STANDBY: begin
-		     if (trigger_match)
-		       next_state   = READ_CMD;
-		  end
     endcase
   end
 
 endmodule
+
+
+
+
+
+
+
+
 
 
 module dut_fetch(
@@ -244,7 +275,7 @@ module dut_fetch(
      if (~reset_n)
        bubble_r <= 1'b1;
      else
-       bubble_r <= rd_empty;
+       bubble_r <= ~rd_req; //rd_empty;
 endmodule
 
 
@@ -266,26 +297,26 @@ module dut_decode #(
 
   output reg                   st_mode_r,
   output reg [CYCLE_RANGE-1:0] cycle_count_r,
-  output reg [STF_WIDTH-1:0]   st_data_r   
+  output reg [STF_WIDTH-1:0]   st_data_r
 );
 
    assign stall_o = 0;
 
-   
+
    always @(posedge clock, negedge reset_n)
      if (~reset_n)
        bubble_r <= 1'b1;
      else
        bubble_r <= bubble;
 
-   
+
    always @(posedge clock, negedge reset_n)
      if (~reset_n)
        st_mode_r <= 1'b0;
      else if (~stall & ~bubble)
        st_mode_r <= rd_data[0];
 
-   
+
    always @(posedge clock, negedge reset_n)
      if (~reset_n)
        cycle_count_r <= 0;
@@ -318,7 +349,7 @@ module dut_execute #(
 )(
   input                        clock,
   input                        reset_n,
-  input [RTF_WIDTH-1:0]        trigger_mask,        
+  input [RTF_WIDTH-1:0]        trigger_mask,
   input [RTF_WIDTH-1:0]        miso_data,
   output [STF_WIDTH-1:0]       mosi_data,
 
@@ -334,13 +365,13 @@ module dut_execute #(
   output reg                   mode_r,
   output reg                   timeout_r,
   output reg [RTF_WIDTH-1:0]   result_r,
-  output reg [CYCLE_RANGE-1:0] cycle_count_r 
+  output reg [CYCLE_RANGE-1:0] cycle_count_r
 );
 
    wire                        trigger_match;
    wire                        counter_match;
 
-   
+
    parameter STATE_WIDTH       = 2;
    parameter IDLE              = 2'b00;
    parameter WAIT_COUNT        = 2'b01;
@@ -441,7 +472,7 @@ module dut_writeback #(
   input                       clock,
   input                       reset_n,
   input                       wr_full,
-  output reg                  wr_req_r, 
+  output reg                  wr_req_r,
   output reg [FIFO_WIDTH-1:0] wr_data_r,
 
   input                       bubble,
@@ -450,7 +481,7 @@ module dut_writeback #(
   input                       mode,
   input                       timeout,
   input [RTF_WIDTH-1:0]       result,
-  input [CYCLE_RANGE-1:0]     cycle_count     
+  input [CYCLE_RANGE-1:0]     cycle_count
 );
 
    assign stall_o = wr_full;
@@ -462,10 +493,10 @@ module dut_writeback #(
      else if (~bubble & ~wr_full)
        wr_req_r <= 1'b1;
 
-   
+
    always @(posedge clock, negedge reset_n)
      if (~reset_n)
        wr_data_r <= 1'b0;
      else if (~bubble & ~wr_full)
        wr_data_r <= { result };
-endmodule // dut_decode
+endmodule // dut_writeback
