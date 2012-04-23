@@ -45,9 +45,9 @@
 
 #define MD2_FAIL		0x01
 #define MD2_RUN			0x80
-#define MD2_SET_CYCLES(c)       ((c & 0x1f) << 1)
+#define MD2_SET_CYCLES(c)       ((((c)-1) & 0x1f) << 1)
 #define MD2_SET_MODE(m)         ((m & 0x01) << 6)
-#define MD2_CYCLES(md2)         ((md2 >> 1) & 0x1f)
+#define MD2_CYCLES(md2)         (((md2 >> 1) & 0x1f) + 1)
 #define MD2_MODE(md2)           ((md2 >> 6) & 0x01)
 
 
@@ -344,7 +344,7 @@ parse_line_vectors(char *s, void *priv)
 				return -1;
 			}
 
-			cycles = 31; /* XXX */
+			cycles = 32; /* XXX */
 			mode = 1; /* XXX */
 			mode_set = 1;
 
@@ -386,7 +386,7 @@ parse_line_vectors(char *s, void *priv)
 	}
 
 	tv.metadata = REQ_TYPE(REQ_TEST_VECTOR);
-	tv.metadata2 |= MD2_SET_CYCLES((cycles-1));
+	tv.metadata2 |= MD2_SET_CYCLES(cycles);
 	tv.metadata2 |= MD2_SET_MODE(mode);
 
 	return emit(pi, &tv, sizeof(tv));

@@ -69,18 +69,12 @@ module dut_if #(
   wire                        cycle_timed;
   wire                        trigger_match;
   wire                        stall_fetch;
-  wire                        stall_decode;
   wire                        stall_execute;
   wire                        stall_writeback;
-  wire                        stall_decode_o;
   wire                        stall_execute_o;
   wire                        stall_writeback_o;
-  wire                        bubble_fetch_decode;
-  wire                        bubble_decode_execute;
+  wire                        bubble_fetch_execute;
   wire                        bubble_execute_writeback;
-  wire                        mode_decode_execute;
-  wire [CYCLE_RANGE-1:0]      count_decode_execute;
-  wire [STF_WIDTH-1:0]        data_tv_decode_execute;
   wire                        mode_execute_writeback;
   wire [CYCLE_RANGE-1:0]      count_execute_writeback;
   wire [RTF_WIDTH-1:0]        result_execute_writeback;
@@ -90,7 +84,7 @@ module dut_if #(
   dut_fetch dut_fetch(
                       // Outputs
                       .rd_req           (sfifo_rdreq),
-                      .bubble_r         (bubble_fetch_decode),
+                      .bubble_r         (bubble_fetch_execute),
                       // Inputs
                       .clock            (clock),
                       .reset_n          (reset_n),
@@ -98,20 +92,6 @@ module dut_if #(
                       .stall            (stall_fetch)
   );
 
-  dut_decode dut_decode(
-                        // Outputs
-                        .stall_o        (stall_decode_o),
-                        .bubble_r       (bubble_decode_execute),
-                        .st_mode_r      (mode_decode_execute),
-                        .cycle_count_r  (count_decode_execute),
-                        .st_data_r      (data_tv_decode_execute),
-                        // Inputs
-                        .clock          (clock),
-                        .reset_n        (reset_n),
-                        .rd_data        (sfifo_data),
-                        .stall          (stall_decode),
-                        .bubble         (bubble_fetch_decode)
-  );
 
   dut_execute dut_execute(
                           // Outputs
@@ -128,11 +108,10 @@ module dut_if #(
                           .trigger_mask         (trigger_mask),
                           .miso_data            (miso_data),
                           .stall                (stall_execute),
-                          .bubble               (bubble_decode_execute),
-                          .st_mode              (mode_decode_execute),
-                          .cycle_count          (count_decode_execute),
-                          .st_data              (data_tv_decode_execute)
+                          .bubble               (bubble_fetch_execute),
+                          .rd_data              (sfifo_data)
   );
+
 
   dut_writeback dut_writeback(
                               // Outputs
@@ -152,8 +131,7 @@ module dut_if #(
 
 
 
-  assign stall_fetch    = stall_decode_o | stall_execute_o | stall_writeback_o;
-  assign stall_decode   = stall_execute_o | stall_writeback_o;
+  assign stall_fetch    = stall_execute_o | stall_writeback_o;
   assign stall_execute  = stall_writeback_o;
 
   /*
@@ -211,9 +189,9 @@ module dut_if #(
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
-	   trigger_mask <= 'b0;
-	 else if (load_trigger_mask)
-	   trigger_mask <= dififo_data[STF_WIDTH-1:0];
+	    trigger_mask <= 'b0;
+	  else if (load_trigger_mask)
+	    trigger_mask <= dififo_data[STF_WIDTH-1:0];
 
 
 
@@ -232,20 +210,20 @@ module dut_if #(
   always @(
            state
            or dififo_rdempty)
-  begin
-    next_state    = state;
+    begin
+      next_state    = state;
 
-    case (state)
-      IDLE: begin
-        if (~dififo_rdempty)
-          next_state = READ_CMD;
-      end
+      case (state)
+        IDLE: begin
+          if (~dififo_rdempty)
+            next_state = READ_CMD;
+        end
 
-      READ_CMD: begin
-        next_state   = IDLE;
-      end
-    endcase
-  end
+        READ_CMD: begin
+          next_state   = IDLE;
+        end
+      endcase
+    end
 
 endmodule
 
@@ -275,69 +253,8 @@ module dut_fetch(
      if (~reset_n)
        bubble_r <= 1'b1;
      else
-       bubble_r <= ~rd_req; //rd_empty;
+       bubble_r <= ~rd_req; //rd_req;
 endmodule
-
-
-
-
-module dut_decode #(
-  parameter STF_WIDTH   = 24,
-            CYCLE_RANGE = 5,
-            FIFO_WIDTH  = STF_WIDTH + CYCLE_RANGE + 1
-)(
-  input                        clock,
-  input                        reset_n,
-  input [FIFO_WIDTH-1:0]       rd_data,
-
-  input                        stall,
-  input                        bubble,
-  output                       stall_o,
-  output reg                   bubble_r,
-
-  output reg                   st_mode_r,
-  output reg [CYCLE_RANGE-1:0] cycle_count_r,
-  output reg [STF_WIDTH-1:0]   st_data_r
-);
-
-   assign stall_o = 0;
-
-
-   always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       bubble_r <= 1'b1;
-     else
-       bubble_r <= bubble;
-
-
-   always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       st_mode_r <= 1'b0;
-     else if (~stall & ~bubble)
-       st_mode_r <= rd_data[0];
-
-
-   always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       cycle_count_r <= 0;
-     else if (~stall & ~bubble)
-       cycle_count_r <= rd_data[CYCLE_RANGE -: CYCLE_RANGE];
-
-
-    always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       st_data_r <= 0;
-     else if (~stall & ~bubble)
-       st_data_r <= rd_data[STF_WIDTH+CYCLE_RANGE -: STF_WIDTH];
-endmodule // dut_decode
-
-
-
-
-
-
-
-
 
 
 
@@ -352,15 +269,12 @@ module dut_execute #(
   input [RTF_WIDTH-1:0]        trigger_mask,
   input [RTF_WIDTH-1:0]        miso_data,
   output [STF_WIDTH-1:0]       mosi_data,
+  input [FIFO_WIDTH-1:0]       rd_data,
 
   input                        stall,
   input                        bubble,
   output                       stall_o,
   output reg                   bubble_r,
-
-  input                        st_mode,
-  input [CYCLE_RANGE-1:0]      cycle_count,
-  input [STF_WIDTH-1:0]        st_data,
 
   output reg                   mode_r,
   output reg                   timeout_r,
@@ -368,94 +282,109 @@ module dut_execute #(
   output reg [CYCLE_RANGE-1:0] cycle_count_r
 );
 
-   wire                        trigger_match;
-   wire                        counter_match;
+  wire                         trigger_match;
+  wire                         counter_match;
+
+  wire                         st_mode;
+  wire [CYCLE_RANGE-1:0]       cycle_count;
+  wire [STF_WIDTH-1:0]         st_data;
+  
+
+  
+  parameter STATE_WIDTH       = 2;
+  parameter IDLE              = 2'b00;
+  parameter WAIT_COUNT        = 2'b01;
+  parameter WAIT_TRIGGER      = 2'b10;
 
 
-   parameter STATE_WIDTH       = 2;
-   parameter IDLE              = 2'b00;
-   parameter WAIT_COUNT        = 2'b01;
-   parameter WAIT_TRIGGER      = 2'b10;
+  reg [STATE_WIDTH-1:0]        state;
+  reg [STATE_WIDTH-1:0]        next_state; /* comb */
 
 
-   reg [STATE_WIDTH-1:0]       state;
-   reg [STATE_WIDTH-1:0]       next_state; /* comb */
+  assign st_mode        = rd_data[0];
+  assign cycle_count    = rd_data[CYCLE_RANGE -: CYCLE_RANGE];
+  assign st_data        = rd_data[STF_WIDTH+CYCLE_RANGE -: STF_WIDTH];
+  
+  
+  assign counter_match  = (cycle_count_r == cycle_count);
+  assign trigger_match  = ((miso_data & trigger_mask) == miso_data); /* AND'ing trigger mask */
+
+  assign stall_o        = (next_state != IDLE);
+
+  assign mosi_data      = st_data;
+
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      state <= IDLE;
+    else if (~stall)
+      state <= next_state;
+
+  always @(
+           state,
+           st_mode,
+           cycle_count,
+           trigger_match,
+           counter_match
+           ) begin
+
+    next_state = state;
+
+    case (state)
+      IDLE: begin
+        if (st_mode == 1'b0 && cycle_count != 0)
+          next_state = WAIT_COUNT;
+        else if (st_mode == 1'b1 && cycle_count > 0 && ~trigger_match)
+          next_state = WAIT_TRIGGER;
+      end
+
+      WAIT_COUNT: begin
+        if (counter_match)
+          next_state = IDLE;
+      end
+
+      WAIT_TRIGGER: begin
+        if (counter_match /* timeout */ || trigger_match)
+          next_state = IDLE;
+      end
+    endcase
+  end // always @ (...
 
 
-   assign counter_match   = (cycle_count_r == cycle_count);
-   assign trigger_match   = ((miso_data & trigger_mask) == miso_data); /* AND'ing trigger mask */
-
-   assign stall_o =   (next_state != IDLE);
-
-   assign mosi_data =  st_data;
-
-   always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       state <= IDLE;
-     else if (~stall)
-       state <= next_state;
-
-   always @(
-     state,
-     st_mode,
-     cycle_count,
-     trigger_match,
-     counter_match
-   ) begin
-
-     next_state = state;
-
-     case (state)
-       IDLE: begin
-          if (st_mode == 1'b0 && cycle_count != 0)
-            next_state = WAIT_COUNT;
-          else if (st_mode == 1'b1 && cycle_count > 0 && ~trigger_match)
-            next_state = WAIT_TRIGGER;
-       end
-
-       WAIT_COUNT: begin
-          if (counter_match)
-            next_state = IDLE;
-       end
-
-       WAIT_TRIGGER: begin
-          if (counter_match /* timeout */ || trigger_match)
-            next_state = IDLE;
-       end
-     endcase
-   end // always @ (...
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      bubble_r <= 1'b1;
+    else if (~stall)
+      bubble_r <= bubble | stall_o;
 
 
-   always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       bubble_r <= 1'b1;
-     else
-       bubble_r <= bubble | stall_o;
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      cycle_count_r <= 0;
+    else if (next_state == IDLE && ~stall)
+      cycle_count_r <= 0;
+    else if (~stall)
+      cycle_count_r <= cycle_count_r + 1;
 
 
-   always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       cycle_count_r <= 0;
-     else if (state == IDLE && ~stall)
-       cycle_count_r <= 0;
-     else if (~stall)
-       cycle_count_r <= cycle_count_r + 1;
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      timeout_r <= 1'b0;
+    else if (~stall)
+      timeout_r <= counter_match;
 
 
-   always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       timeout_r <= 1'b0;
-     else if (~stall)
-       timeout_r <= counter_match;
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      result_r <= 0;
+    else if (~stall)
+      result_r <= miso_data;
 
 
-   always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       result_r <= 0;
-     else if (~stall)
-       result_r <= miso_data;
-
-
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      mode_r <= 1'b0;
+    else if (~stall)
+      mode_r <= st_mode;
 endmodule
 
 
@@ -484,19 +413,21 @@ module dut_writeback #(
   input [CYCLE_RANGE-1:0]     cycle_count
 );
 
-   assign stall_o = wr_full;
+  assign stall_o = wr_full;
 
 
-   always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       wr_req_r <= 1'b0;
-     else if (~bubble & ~wr_full)
-       wr_req_r <= 1'b1;
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      wr_req_r <= 1'b0;
+    else if (~bubble & ~wr_full)
+      wr_req_r <= 1'b1;
+    else
+      wr_req_r <= 1'b0;
 
 
-   always @(posedge clock, negedge reset_n)
-     if (~reset_n)
-       wr_data_r <= 1'b0;
-     else if (~bubble & ~wr_full)
-       wr_data_r <= { result };
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      wr_data_r <= 1'b0;
+    else if (~bubble & ~wr_full)
+      wr_data_r <= { result };
 endmodule // dut_writeback
