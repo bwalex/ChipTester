@@ -203,6 +203,13 @@ add wave -noupdate -divider
 add wave -noupdate /top/dut_if/dut_execute/st_mode
 add wave -noupdate -radix unsigned /top/dut_if/dut_execute/cycle_count
 add wave -noupdate -radix hexadecimal /top/dut_if/dut_execute/st_data
+add wave -noupdate -radix unsigned /top/dut_if/dut_execute/cycle_count_int
+add wave -noupdate -radix unsigned /top/dut_if/dut_execute/cycle_count_r
+add wave -noupdate -divider
+add wave -noupdate /top/dut_if/dut_writeback/wr_req_r
+add wave -noupdate -radix hexadecimal /top/dut_if/dut_writeback/wr_data_r
+
+
 add wave -noupdate -divider
 add wave -noupdate /top/dut_if/mode_execute_writeback
 add wave -noupdate -radix unsigned /top/dut_if/count_execute_writeback

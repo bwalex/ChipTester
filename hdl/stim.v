@@ -248,7 +248,7 @@ module stim #(
   assign dififo_data   = { {REQ_WIDTH{1'b0}}, buffer[REQ_WIDTH +: CMD_WIDTH], buffer[8 +: STF_WIDTH] };
   
   assign pll_reset   = (next_state == IDLE);
-  assign pll_triggrer = pll_triggertimer == 2'b01 ||
+  assign pll_trigger = pll_triggertimer == 2'b01 ||
                         pll_triggertimer == 2'b10;
   assign pll_switch  = (next_state == SWITCH_TOPLL);
   

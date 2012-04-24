@@ -8,32 +8,33 @@ module check #(
             CHF_WIDTH  = RTF_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
             SCC_WIDTH  = 5,
             SCD_WIDTH  = 24,
-            RESULT_VECTOR_WORDS = 2
+            RESULT_VECTOR_WORDS = 2,
+            CYCLE_RANGE = 5
 )(
-  input                       clock,
-  input                       reset_n,
+  input                            clock,
+  input                            reset_n,
 
   /* Avalon MM master interface to mem_if */
-  output     [ADDR_WIDTH-1:0] mem_address,
-  output     [  BE_WIDTH-1:0] mem_byteenable,
-  output                      mem_write,
-  output     [DATA_WIDTH-1:0] mem_writedata,
-  input                       mem_waitrequest,
+  output [ADDR_WIDTH-1:0]          mem_address,
+  output [ BE_WIDTH-1:0]           mem_byteenable,
+  output                           mem_write,
+  output [DATA_WIDTH-1:0]          mem_writedata,
+  input                            mem_waitrequest,
 
   /* RES_FIFO interface */
-  input      [ RTF_WIDTH-1:0] rfifo_data,
-  output                      rfifo_rdreq,
-  input                       rfifo_rdempty,
+  input [ RTF_WIDTH+CYCLE_RANGE:0] rfifo_data,
+  output                           rfifo_rdreq,
+  input                            rfifo_rdempty,
   
   /* CHECK_FIFO interface */
-  input      [ CHF_WIDTH-1:0] cfifo_data,
-  output                      cfifo_rdreq,
-  input                       cfifo_rdempty,
+  input [ CHF_WIDTH-1:0]           cfifo_data,
+  output                           cfifo_rdreq,
+  input                            cfifo_rdempty,
 
   /* CHECK <=> STIM interface */
-  input      [ SCC_WIDTH-1:0] sc_cmd,
-  input      [ SCD_WIDTH-1:0] sc_data,
-  output                      sc_ready
+  input [ SCC_WIDTH-1:0]           sc_cmd,
+  input [ SCD_WIDTH-1:0]           sc_data,
+  output                           sc_ready
 );
 
   parameter META_RUN          = 8'b10000000;
@@ -56,6 +57,12 @@ module check #(
   wire   [  ADDR_WIDTH-1:0] c_address;
 
   wire   [   RTF_WIDTH-1:0] c_result_vector;
+
+  wire   [   RTF_WIDTH-1:0] r_result_vector;
+  wire   [   RTF_WIDTH-1:0] r_cycle_count;
+  wire   [   RTF_WIDTH-1:0] r_timeout;
+
+
   wire   [   RTF_WIDTH-1:0] result_vector;
   reg    [   RTF_WIDTH-1:0] result_bitmask;
   wire   [   RTF_WIDTH-1:0] bitmask;
@@ -113,33 +120,40 @@ module check #(
     if (~reset_n)
       result_bitmask <= 'hFFFFFFFF;
     else if (load_bitmask)
-      result_bitmask <= bitmask;
+      result_bitmask     <= bitmask;
 
 
-  assign sc_ready       =    (state == IDLE && rfifo_rdempty && cfifo_rdempty);
-  assign reset_wstored  =    (state == IDLE);
+  assign sc_ready         = (state == IDLE && rfifo_rdempty && cfifo_rdempty);
+  assign reset_wstored    = (state == IDLE);
 
-  assign mem_address    = address;
-  assign mem_byteenable = 2'b11;
-  assign mem_write      =    (state == WRITEBACK);
+  assign mem_address      = address;
+  assign mem_byteenable   = 2'b11;
+  assign mem_write        = (state == WRITEBACK);
 
-  assign rfifo_rdreq    =    (state == RD_FIFOS);
-  assign cfifo_rdreq    =    (state == RD_FIFOS);
-  assign load_address   =    (state == CMP_AND_MASK);
+  assign rfifo_rdreq      = (state == RD_FIFOS);
+  assign cfifo_rdreq      = (state == RD_FIFOS);
+  assign load_address     = (state == CMP_AND_MASK);
 
-  assign load_fail      =    (state == CMP_AND_MASK);
+  assign load_fail        = (state == CMP_AND_MASK);
 
-  assign check_fail     = (c_result_vector != result_vector);
+  assign check_fail       = (c_result_vector != result_vector);
 
-  assign inc_address    = (mem_write && ~mem_waitrequest);
+  assign inc_address      = (mem_write && ~mem_waitrequest);
 
   assign load_bitmask     = (sc_cmd == SC_CMD_BITMASK);
   assign bitmask          = sc_data;
 
   assign c_result_vector  = cfifo_data[CHF_WIDTH-1                      -: RTF_WIDTH ] & result_bitmask;
   assign c_address        = cfifo_data[CHF_WIDTH-RTF_WIDTH-1            -: ADDR_WIDTH];
-  assign meta_info        = 8'b0 | META_RUN | check_fail_r;
-  assign result_vector    = rfifo_data & result_bitmask;
+
+  assign meta_info        = { 1'b1, r_timeout, r_cycle_count, check_fail_r }; //8'b0 | META_RUN | check_fail_r;
+
+  assign r_result_vector  = rfifo_data[RTF_WIDTH+CYCLE_RANGE -: RTF_WIDTH];
+  assign r_cycle_count    = rfifo_data[CYCLE_RANGE -: CYCLE_RANGE];
+  assign r_timeout        = rfifo_data[0];
+
+  assign result_vector    = r_result_vector & result_bitmask;
+
   assign mem_writedata    = (words_stored == 0) ?
                                   result_vector[RTF_WIDTH-1            -: DATA_WIDTH  ] :
                                 { result_vector[RTF_WIDTH-DATA_WIDTH-1 -: DATA_WIDTH/2], meta_info };
@@ -170,6 +184,8 @@ module check #(
         $display("----------------------------------------------------");
         $display("CHECK: result: %b", result_vector);
         $display("CHECK: expect: %b", c_result_vector);
+        $display("CHECK: cycles: %u, timeout: %b", r_cycle_count, r_timeout);
+        
  
         next_state = WRITEBACK;
       end

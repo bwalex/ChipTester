@@ -43,7 +43,7 @@ module test_controller #(
   output                   sfifo_rdempty,
   output  [ STF_WIDTH+CYCLE_RANGE:0] sfifo_dataq,
 
-  input   [ RTF_WIDTH-1:0] rfifo_data,
+  input   [ RTF_WIDTH+CYCLE_RANGE:0] rfifo_data,
   input                    rfifo_wrreq,
   output                   rfifo_wrfull,
 
@@ -83,7 +83,7 @@ module test_controller #(
 
   wire                     rfifo_rdreq;
   wire                     rfifo_rdempty;
-  wire    [ RTF_WIDTH-1:0] rfifo_dataq;
+  wire    [ RTF_WIDTH+CYCLE_RANGE:0] rfifo_dataq;
 
   wire    [ DIF_WIDTH-1:0] dififo_data;
   wire                     dififo_wrreq;
@@ -240,7 +240,7 @@ module test_controller #(
 
 
   dcfifo_custom#(
-    .DATA_WIDTH         (RTF_WIDTH),
+    .DATA_WIDTH         (RTF_WIDTH+CYCLE_RANGE+1),
     .FIFO_DEPTH         (16)
   ) rfifo_inst(
     .aclr               (reset),
