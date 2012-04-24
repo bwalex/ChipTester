@@ -32,7 +32,7 @@ module top();
   wire         sfifo_rdempty;
   wire  [29:0] sfifo_dataq;
 
-  wire  [23:0] rfifo_data;
+  wire  [29:0] rfifo_data;
   wire         rfifo_wrreq;
   wire         rfifo_wrfull;
 

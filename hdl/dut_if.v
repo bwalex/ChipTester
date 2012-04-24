@@ -7,28 +7,28 @@ module dut_if #(
             CMD_EXT_WIDTH = REQ_WIDTH + CMD_WIDTH,
             DIF_WIDTH     = REQ_WIDTH + CMD_WIDTH + STF_WIDTH
 )(
-  input                            clock,
-  input                            reset_n,
+  input                             clock,
+  input                             reset_n,
 
   /* STIM_FIFO interface */
-  input [ STF_WIDTH+CYCLE_RANGE:0] sfifo_data,
-  output                           sfifo_rdreq,
-  input                            sfifo_rdempty,
+  input [ STF_WIDTH+CYCLE_RANGE:0]  sfifo_data,
+  output                            sfifo_rdreq,
+  input                             sfifo_rdempty,
 
 
   /* DI_FIFO interface */
-  input [ DIF_WIDTH-1:0]           dififo_data,
-  output                           dififo_rdreq,
-  input                            dififo_rdempty,
+  input [ DIF_WIDTH-1:0]            dififo_data,
+  output                            dififo_rdreq,
+  input                             dififo_rdempty,
 
   /* RES_FIFO interface */
-  output [ RTF_WIDTH-1:0]          rfifo_data,
-  output                           rfifo_wrreq,
-  input                            rfifo_wrfull,
+  output [ RTF_WIDTH+CYCLE_RANGE:0] rfifo_data,
+  output                            rfifo_wrreq,
+  input                             rfifo_wrfull,
 
   /* DUT interface */
-  output [ STF_WIDTH-1:0]          mosi_data,
-  input [ RTF_WIDTH-1:0]           miso_data
+  output [ STF_WIDTH-1:0]           mosi_data,
+  input [ RTF_WIDTH-1:0]            miso_data
 );
 
   parameter DICMD_SETUP_MUXES = 8'b00000001;
@@ -253,7 +253,7 @@ module dut_fetch(
      if (~reset_n)
        bubble_r <= 1'b1;
      else
-       bubble_r <= ~rd_req; //rd_req;
+       bubble_r <= rd_empty;//~rd_req;
 endmodule
 
 
@@ -297,6 +297,7 @@ module dut_execute #(
   parameter WAIT_TRIGGER      = 2'b10;
 
 
+  reg [CYCLE_RANGE-1:0]        cycle_count_int;
   reg [STATE_WIDTH-1:0]        state;
   reg [STATE_WIDTH-1:0]        next_state; /* comb */
 
@@ -306,7 +307,7 @@ module dut_execute #(
   assign st_data        = rd_data[STF_WIDTH+CYCLE_RANGE -: STF_WIDTH];
   
   
-  assign counter_match  = (cycle_count_r == cycle_count);
+  assign counter_match  = (cycle_count_int == cycle_count);
   assign trigger_match  = ((miso_data & trigger_mask) == miso_data); /* AND'ing trigger mask */
 
   assign stall_o        = (next_state != IDLE);
@@ -359,18 +360,25 @@ module dut_execute #(
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
-      cycle_count_r <= 0;
+      cycle_count_int <= 0;
     else if (next_state == IDLE && ~stall)
-      cycle_count_r <= 0;
+      cycle_count_int <= 0;
     else if (~stall)
-      cycle_count_r <= cycle_count_r + 1;
+      cycle_count_int <= cycle_count_int + 1;
+
+
+  always @(posedge clock, negedge reset_n)
+    if (~reset_n)
+      cycle_count_r <= 0;
+    else
+      cycle_count_r <= cycle_count_int;
 
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
       timeout_r <= 1'b0;
     else if (~stall)
-      timeout_r <= counter_match;
+      timeout_r <= st_mode & counter_match;
 
 
   always @(posedge clock, negedge reset_n)
@@ -395,8 +403,8 @@ endmodule
 module dut_writeback #(
   parameter RTF_WIDTH   = 24,
             CYCLE_RANGE = 5,
-            FIFO_WIDTH  = RTF_WIDTH
-            //FIFO_WIDTH  = RTF_WIDTH + CYCLE_RANGE + 1
+            //FIFO_WIDTH  = RTF_WIDTH
+            FIFO_WIDTH  = RTF_WIDTH + CYCLE_RANGE + 1
 )(
   input                       clock,
   input                       reset_n,
@@ -429,5 +437,5 @@ module dut_writeback #(
     if (~reset_n)
       wr_data_r <= 1'b0;
     else if (~bubble & ~wr_full)
-      wr_data_r <= { result };
+      wr_data_r <= { result, cycle_count, timeout };
 endmodule // dut_writeback
