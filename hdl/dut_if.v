@@ -63,8 +63,6 @@ module dut_if #(
   wire    [    STF_WIDTH-1:0] test_vector;
   wire                        cycle_info;
   wire                        mode_select;
-  /* post pll reconfig clock */
-  wire                        post_pll_clock;
 
   wire                        cycle_timed;
   wire                        trigger_match;
@@ -161,16 +159,14 @@ module dut_if #(
    *       internally on the FPGA and a DDR I/O register (ALTDDIO)
    *       on all the output pins.
    */
-  assign post_pll_clock = clock; /*switch between pll_recongfig and original clock*/
-
   //XXX: need some pll signal, but not a specific pll_clock, that should be the normal clock.
-  assign clock_gated =  (stall_n & post_pll_clock);
+  assign clock_gated =  (stall_n & clock);
 
   always @(negedge clock, negedge reset_n)
     if (~reset_n)
       stall_n <= 1'b1;
     else
-      stall_n <= ~rfifo_wrfull;
+      stall_n <= ~stall_execute & ~bubble_fetch_execute;
 
 
   always @(posedge clock, negedge reset_n)
