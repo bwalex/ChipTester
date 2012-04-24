@@ -44,7 +44,9 @@
 `timescale 1 ps / 1 ps
 //synopsys translate_on
 (* ALTERA_ATTRIBUTE = {"ADV_NETLIST_OPT_ALLOWED=\"NEVER_ALLOW\";suppress_da_rule_internal=C106;{-to le_comb10} PLL_SCAN_RECONFIG_COUNTER_REMAP_LCELL=2;{-to le_comb8} PLL_SCAN_RECONFIG_COUNTER_REMAP_LCELL=0;{-to le_comb9} PLL_SCAN_RECONFIG_COUNTER_REMAP_LCELL=1"} *)
-module  REPLL_pllrcfg_1a01
+module  REPLL_pllrcfg_1a01 #(
+  parameter FILELOCATION_AND_NAME = "H:\.das\Desktop\VLSI\April Progress\hdl.mif"
+  )
 	( 
 	busy,
 	clock,
@@ -325,7 +327,7 @@ module  REPLL_pllrcfg_1a01
 	`endif
 	);
 	defparam
-		altsyncram4.init_file = "H:\.das\Desktop\VLSI\April Progress\hdl.mif",
+		altsyncram4.init_file = FILELOCATION_AND_NAME,
 		altsyncram4.numwords_a = 144,
 		altsyncram4.operation_mode = "SINGLE_PORT",
 		altsyncram4.width_a = 1,

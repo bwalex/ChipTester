@@ -1,4 +1,7 @@
-module PLL_INTERFACE
+module PLL_INTERFACE#(
+  parameter	FILELOCATION_AND_NAME = "H:\.das\Desktop\VLSI\April Progress\hdl.mif" ,
+  parameter FILENAME = "PLL.mif"
+  )
 	(
 
 	input   clock,
@@ -10,8 +13,8 @@ module PLL_INTERFACE
 	output	locked,
 
 	output   busy,
-	output   [8:0]  data_out
-
+	output   [8:0]  data_out,
+	output	stable_reconfig
 	
 	);
 	
@@ -54,7 +57,7 @@ module PLL_INTERFACE
 	assign MultiFactor = PLL_DATA[15:8];
 	assign DividFactor = PLL_DATA[7:0];
 	
-	
+	assign stable_reconfig = locked && ~busy;
 	
 REPLL_CONTROL ctr2
 ( reset,
@@ -73,8 +76,9 @@ REPLL_CONTROL ctr2
 	read_param,
 	data_in);	
 	
- PLL p0
-(
+ PLL #(
+    .FILENAME         (FILENAME)
+	 )  p0 (
 	areset,
 	configupdate,
 	clock,
@@ -87,8 +91,9 @@ REPLL_CONTROL ctr2
 	scandataout,
 	scandone);	
 	
-  REPLL_pllrcfg_1a01  pr0
-	( 
+  REPLL_pllrcfg_1a01  #(
+    .FILELOCATION_AND_NAME         (FILELOCATION_AND_NAME)
+	 ) pr0 ( 
 	busy,
 	clock,
 	counter_param,

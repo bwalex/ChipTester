@@ -36,7 +36,10 @@
 // synopsys translate_off
 `timescale 1 ps / 1 ps
 // synopsys translate_on
-module PLL (
+module PLL #(
+  parameter	FILENAME = "PLL.mif"
+  )
+  (
 	areset,
 	configupdate,
 	inclk0,
@@ -179,7 +182,7 @@ module PLL (
 		altpll_component.port_extclk3 = "PORT_UNUSED",
 		altpll_component.self_reset_on_loss_lock = "ON",
 		altpll_component.width_clock = 5,
-		altpll_component.scan_chain_mif_file = "PLL.mif";
+		altpll_component.scan_chain_mif_file = FILENAME;
 
 
 endmodule

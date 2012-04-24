@@ -131,9 +131,9 @@ module tester #(
 
     .mosi_data          (mosi),
     .miso_data          (miso),
-	 
-	  .pll_clock          (pll_clock),
-    .pll_switch         (pll_switch)
+//	 
+//	  .pll_clock          (pll_clock),
+//    .pll_switch         (pll_switch)
   );
   
   PLL_INTERFACE pll_if(
@@ -143,7 +143,8 @@ module tester #(
 	  .PLL_DATA           (pll_data),
 	
 	  .c0                 (pll_clock),
-	  .locked             (pll_locked)
+	  .locked             (pll_locked),
+	  .stable_reconfig    (stable_reconfig)
   );
 
   
