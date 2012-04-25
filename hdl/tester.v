@@ -14,6 +14,7 @@ module tester #(
             WAIT_WIDTH = 16,
             DSEL_WIDTH = 5, /* Target design select */
 				    CYCLE_RANGE = 5,
+            PLL_MIF_FILE = "hdl.mif",
 
             DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH
 )(
@@ -54,7 +55,6 @@ module tester #(
   wire                     pll_clock;
   wire                     pll_reset;
   wire                     pll_trigger;
-  wire                     pll_switch;
   wire                     pll_locked;
   wire                     pll_stable;
   wire   [           15:0] pll_data;
@@ -73,7 +73,7 @@ module tester #(
   ) test_controller(
     .clock              (clock),
     .reset_n            (reset_n),
-    .fifo_clock         (fifo_clock),
+    .fifo_clock         (pll_clock),
 
     .enable             (enable),
     .done               (done),
@@ -104,8 +104,8 @@ module tester #(
 	  .pll_reset          (pll_reset),
     .pll_data           (pll_data),
     .pll_trigger        (pll_trigger),
-    .pll_switch         (pll_switch),
-    .pll_locked         (pll_locked)
+    .pll_locked         (pll_locked),
+    .pll_stable         (pll_stable)
   );
 
   dut_if #(
@@ -115,7 +115,7 @@ module tester #(
     .CMD_WIDTH          (CMD_WIDTH),
 	 .CYCLE_RANGE        (CYCLE_RANGE)
   ) dut_if(
-    .clock              (fifo_clock),
+    .clock              (pll_clock),
     .reset_n            (reset_n),
 
     .sfifo_data         (sfifo_dataq),
@@ -134,7 +134,10 @@ module tester #(
     .miso_data          (miso)
   );
   
-  PLL_INTERFACE pll_if(
+  PLL_INTERFACE #(
+    .FILELOCATION_AND_NAME (PLL_MIF_FILE),
+    .FILENAME (PLL_MIF_FILE)
+  ) pll_if(
     .clock              (clock),
 	  .reset_n            (reset_n),
 	  .trigger            (pll_trigger),            

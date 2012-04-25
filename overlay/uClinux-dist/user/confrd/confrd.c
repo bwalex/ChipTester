@@ -38,6 +38,7 @@
 #define REQ_TEST_VECTOR		0x01
 #define REQ_SETUP_BITMASK	0x02
 #define REQ_SEND_DICMD		0x03
+#define REQ_PLLRECONFIG		0x06
 #define REQ_END			0x07
 
 #define DICMD_SETUP_MUXES	0x01
@@ -53,6 +54,10 @@
 
 #define REQ_TYPE(r)		((r & 0x07) << 5)
 #define DICMD(c)		(c & 0x1f)
+
+#define BASE_FREQ		100.0 /* MHz */
+#define PLL_DEFAULT_MUL		1
+#define PLL_DEFAULT_DIV		10
 
 #define iswhitespace(c)		((c == ' ') || (c == '\t'))
 
@@ -97,6 +102,16 @@ struct send_dicmd {
 typedef struct send_dicmd send_dicmd;
 
 
+struct pll_reconfig {
+	uint8_t metadata;
+	uint8_t mul_factor;
+	uint8_t div_factor;
+	uint8_t padding[3];
+} __attribute__((__packed__));
+
+typedef struct pll_reconfig pll_reconfig;
+
+
 struct mem_end {
 	uint8_t metadata;
 	uint8_t unused1;
@@ -129,6 +144,10 @@ typedef struct parserinfo {
 	size_t sram_free_bytes;
 	off_t  sram_off;
 
+	uint8_t pll_mul;
+	uint8_t pll_div;
+	int seen_vectors;
+
 	int pin_count;
 	uint8_t bitmask[BITMASK_BYTES];
 	struct pininfo pins[MAX_PINS];
@@ -151,6 +170,11 @@ static int parse_line_pindef(char *, void *);
 static int parse_line_vectors(char *, void *);
 static int parse_line_clock(char *, void *);
 static int parse_line_trgmask(char *, void *);
+static int parse_line_frequency(char *, void *);
+
+
+static int emit_pre_vectors(parserinfo_t pi);
+
 
 static int run_trunner(parserinfo_t pi);
 static int emit(parserinfo_t pi, void *b, size_t bufsz);
@@ -158,18 +182,19 @@ static int suspend_emit(void *p);
 
 
 struct keyword tv_keywords[] = {
-	{ .keyword = "design"	, .lp = parse_line_design  },
-	{ .keyword = "pindef"	, .lp = parse_line_pindef  },
-	{ .keyword = "vectors"	, .lp = parse_line_vectors },
-	{ .keyword = "clock"	, .lp = parse_line_clock   },
-	{ .keyword = "trigger"  , .lp = parse_line_trgmask },
-	{ .keyword = NULL	, .lp = NULL }
+	{ .keyword = "design"	  , .lp = parse_line_design     },
+	{ .keyword = "pindef"	  , .lp = parse_line_pindef     },
+	{ .keyword = "vectors"	  , .lp = parse_line_vectors    },
+	{ .keyword = "clock"	  , .lp = parse_line_clock      },
+	{ .keyword = "trigger"    , .lp = parse_line_trgmask    },
+	{ .keyword = "frequency"  , .lp = parse_line_frequency  },
+	{ .keyword = NULL	  , .lp = NULL }
 };
 
 struct keyword meta_keywords[] = {
-	{ .keyword = "team"	, .lp = parse_line_team    },
+	{ .keyword = "team"	  , .lp = parse_line_team       },
 	/* XXX: email, etc */
-	{ .keyword = NULL	, .lp = NULL }
+	{ .keyword = NULL	  , .lp = NULL }
 };
 
 
@@ -236,8 +261,11 @@ req_sz(int req)
 	case REQ_TEST_VECTOR:	return sizeof(test_vector);
 	case REQ_SETUP_BITMASK:	return sizeof(change_bitmask);
 	case REQ_SEND_DICMD:	return sizeof(send_dicmd);
+	case REQ_PLLRECONFIG:   return sizeof(pll_reconfig);
 	case REQ_END:		return sizeof(mem_end);
-	default:		return 0;
+	default:
+		fprintf(stderr, "Warning, unknown req type: %d\n", req);
+		return 0;
 	}
 }
 
@@ -302,6 +330,21 @@ tokenizer(char *s, char **tokens, int max_tokens)
 
 static
 int
+emit_pre_vectors(parserinfo_t pi)
+{
+	pll_reconfig pr;
+
+	memset(&pr, 0, sizeof(pr));
+	pr.metadata = REQ_TYPE(REQ_PLLRECONFIG);
+	pr.mul_factor = pi->pll_mul;
+	pr.div_factor = pi->pll_div;
+
+	return emit(pi, &pr, sizeof(pr));
+}
+
+
+static
+int
 parse_line_vectors(char *s, void *priv)
 {
 	parserinfo_t pi = priv;
@@ -311,6 +354,14 @@ parse_line_vectors(char *s, void *priv)
 	int cycles = 1;
 	int mode = 0; /* XXX: add constant #defines */
 	int mode_set = 0;
+	int error;
+
+	if (!pi->seen_vectors) {
+		error = emit_pre_vectors(pi);
+		if (error)
+			return error;
+		pi->seen_vectors = 1;
+	}
 
 	memset(&tv, 0, sizeof(tv));
 
@@ -619,6 +670,33 @@ parse_line_design(char *s, void *priv)
 
 static
 int
+parse_line_frequency(char *s, void *priv)
+{
+	parserinfo_t pi = priv;
+	char *e;
+	int freq_mhz;
+
+	freq_mhz = (int)strtol(s, &e, 10);
+	if (s == e || *e != '\0') {
+		syntax_error("frequency must contain only "
+		    "decimal digits");
+		return -1;
+	}
+
+	if (freq_mhz < 1 || freq_mhz > 200) {
+		syntax_error("frequency must be between 1 and 200 MHz");
+		return -1;
+	}
+
+	pi->pll_mul = freq_mhz;
+	pi->pll_div = (int)BASE_FREQ;
+
+	return 0;
+}
+
+
+static
+int
 emit_end(parserinfo_t pi)
 {
 	mem_end me;
@@ -654,6 +732,7 @@ print_mem(uint8_t *buf, int sz, int *end)
 	change_bitmask *cb;
 	test_vector *tv;
 	send_dicmd *sd;
+	pll_reconfig *pr;
 	mem_end *me;
 	int req;
 	size_t reqsz;
@@ -716,6 +795,13 @@ print_mem(uint8_t *buf, int sz, int *end)
 			default:
 				printf("unknown\n");
 			}
+			break;
+
+		case REQ_PLLRECONFIG:
+			pr = (pll_reconfig *)buf;
+			printf("REQ_PLLRECONFIG:\tmul_factor=%d, div_factor=%d "
+			   "=> frequency: %.1f MHz\n", pr->mul_factor, pr->div_factor,
+			   (BASE_FREQ * pr->mul_factor/pr->div_factor));
 			break;
 
 		case REQ_END:
@@ -942,6 +1028,8 @@ init_parserinfo(parserinfo_t pi)
 {
 
 	memset(pi, 0, sizeof(*pi));
+	pi->pll_mul = PLL_DEFAULT_MUL;
+	pi->pll_div = PLL_DEFAULT_DIV;
 	pi->sram_free_bytes = SRAM_SIZE;
 }
 
@@ -1017,9 +1105,12 @@ parse_cfg_file(char *filename, globaldata_t gd)
 	if (rc)
 		goto out;
 
-	rc = emit_end(&pi);
-	if (rc)
-		goto out;
+	if (!sflag || wflag) {
+		/* Don't emit the end in the sflag mode */
+		rc = emit_end(&pi);
+		if (rc)
+			goto out;
+	}
 
 	if (wflag) {
 		rc = run_trunner(&pi);

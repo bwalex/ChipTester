@@ -1,5 +1,6 @@
 design:	1-bit shift left
 clock:  A23
+frequency: 1
 trigger:
 	Q23
 pindef:

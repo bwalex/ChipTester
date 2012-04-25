@@ -14,7 +14,8 @@ module stim #(
             WAIT_WIDTH = 16,
             TEST_VECTOR_WORDS = 4,
             DSEL_WIDTH = 5, /* Target design select */
-				    CYCLE_RANGE = 5
+				    CYCLE_RANGE = 5,
+            PLL_DATA_WIDTH = 16
 )(
   input                       clock,
   input                       reset_n,
@@ -57,10 +58,10 @@ module stim #(
   
   /*PLL RECONFIG interface*/
   output                      pll_reset,
-  output     [          15:0] pll_data,
+  output     [PLL_DATA_WIDTH-1:0] pll_data,
   output                      pll_trigger,
-  output                      pll_switch,
-  input                       pll_locked
+  input                       pll_locked,
+  input                       pll_stable
 );
 
   parameter SC_CMD_IDLE       = 5'b00000;
@@ -250,7 +251,6 @@ module stim #(
   assign pll_reset   = (next_state == IDLE);
   assign pll_trigger = pll_triggertimer == 2'b01 ||
                         pll_triggertimer == 2'b10;
-  assign pll_switch  = (next_state == SWITCH_TOPLL);
   
   /* Convenient shortcuts for sections of the buffer */
   assign req_type       = buffer[0:REQ_WIDTH-1];
@@ -258,7 +258,9 @@ module stim #(
   assign result_vector  = buffer[8+STF_WIDTH   +: SCD_WIDTH];
   assign output_bitmask = buffer[8             +: STF_WIDTH];
   assign new_target_sel = buffer[16-DSEL_WIDTH +: DSEL_WIDTH];
-  assign pll_data       = buffer[8             +: STF_WIDTH]; /* store PLL data */
+  //assign pll_data       = buffer[8             +: PLL_DATA_WIDTH]; /* store PLL data */
+  assign pll_data = {8'd1, 8'd100};
+
   assign mode_select    = buffer[57];
   assign cycle_info     = buffer[56+2          +: CYCLE_RANGE]; /* store cycle info */
   assign trigger_mask   = buffer[8             +: STF_WIDTH];  /* store trigger mask*/
@@ -374,8 +376,9 @@ module stim #(
 		       next_state = SWITCH_TOPLL;
 		  end
 		  
-		  SWITCH_TOPLL: 
-		    next_state = IDLE;
+		  SWITCH_TOPLL:
+        if (pll_stable)
+		      next_state = IDLE;
 		  
 
       END: begin

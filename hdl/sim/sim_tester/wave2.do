@@ -12,6 +12,9 @@ radix define stim_states {
   6'b000111 "SEND_DICMD" -color orange,
   6'b001000 "WR_DIFIFO" -color orange,
   6'b001001 "END" -color white,
+  6'b001010 "START_REPLL" -color brown,
+  6'b001011 "PLL_RECONFIG" -color brown,
+  6'b001100 "SWITCH_TOPLL" -color brown,
   -default binary
 }
 
@@ -162,6 +165,17 @@ add wave -noupdate -radix hexadecimal /top/tester/test_controller/check_address
 add wave -noupdate /top/tester/test_controller/check_byteenable
 add wave -noupdate /top/tester/test_controller/check_write
 add wave -noupdate -radix hexadecimal /top/tester/test_controller/check_writedata
+
+add wave -noupdate -divider STIM_PLL_RECONFIG
+add wave -noupdate /top/tester/clock
+add wave -noupdate /top/tester/test_controller/fifo_clock
+add wave -noupdate -radix unsigned /top/tester/pll_if/MultiFactor
+add wave -noupdate -radix unsigned /top/tester/pll_if/DividFactor
+add wave -noupdate -radix hexadecimal /top/tester/test_controller/stim_mod/pll_data
+add wave -noupdate /top/tester/test_controller/stim_mod/pll_reset
+add wave -noupdate /top/tester/test_controller/stim_mod/pll_trigger
+add wave -noupdate /top/tester/test_controller/stim_mod/pll_locked
+add wave -noupdate /top/tester/test_controller/stim_mod/pll_stable
 
 
 add wave -noupdate -divider DUT_IF

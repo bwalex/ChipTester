@@ -79,7 +79,8 @@ module top();
   );
 
   tester#(
-    .WAIT_WIDTH         (4)
+    .WAIT_WIDTH         (4),
+    .PLL_MIF_FILE       ("../../plladditional.mif")
   ) tester (
     .clock              (clock),
     .reset_n            (reset_n),

@@ -56,8 +56,8 @@ module test_controller #(
   output                   pll_reset,
   output  [          15:0] pll_data,
   output                   pll_trigger,
-  output                   pll_switch,
-  input                    pll_locked
+  input                    pll_locked,
+  input                    pll_stable
 );
 
 
@@ -186,8 +186,8 @@ module test_controller #(
     .pll_reset          (pll_reset),
     .pll_data           (pll_data),
     .pll_trigger        (pll_trigger),
-    .pll_switch         (pll_switch),
-    .pll_locked         (pll_locked)
+    .pll_locked         (pll_locked),
+    .pll_stable         (pll_stable)
   );
 
 
