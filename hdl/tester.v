@@ -43,7 +43,7 @@ module tester #(
   wire                     sfifo_rdempty;
   wire    [ STF_WIDTH+CYCLE_RANGE:0] sfifo_dataq;
 
-  wire    [ RTF_WIDTH-1:0] rfifo_data;
+  wire    [ RTF_WIDTH+CYCLE_RANGE:0] rfifo_data;
   wire                     rfifo_wrreq;
   wire                     rfifo_wrfull;
 
@@ -56,6 +56,7 @@ module tester #(
   wire                     pll_trigger;
   wire                     pll_switch;
   wire                     pll_locked;
+  wire                     pll_stable;
   wire   [           15:0] pll_data;
   
 
@@ -130,10 +131,7 @@ module tester #(
     .rfifo_wrfull       (rfifo_wrfull),
 
     .mosi_data          (mosi),
-    .miso_data          (miso),
-//	 
-//	  .pll_clock          (pll_clock),
-//    .pll_switch         (pll_switch)
+    .miso_data          (miso)
   );
   
   PLL_INTERFACE pll_if(
@@ -144,7 +142,7 @@ module tester #(
 	
 	  .c0                 (pll_clock),
 	  .locked             (pll_locked),
-	  .stable_reconfig    (stable_reconfig)
+	  .stable_reconfig    (pll_stable)
   );
 
   

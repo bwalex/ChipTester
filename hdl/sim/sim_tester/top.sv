@@ -6,7 +6,6 @@ module top();
   logic        clock;
   logic        clock_10;
   logic        reset_n;
-  wire         reset;
 
   event        start_test;
 
@@ -28,18 +27,7 @@ module top();
   wire  [15:0] writedata;
   wire         waitrequest;
 
-  wire         sfifo_rdreq;
-  wire         sfifo_rdempty;
-  wire  [29:0] sfifo_dataq;
-
-  wire  [29:0] rfifo_data;
-  wire         rfifo_wrreq;
-  wire         rfifo_wrfull;
-
-  wire         dififo_rdreq;
-  wire         dififo_rdempty;
-  wire  [31:0] dififo_dataq;
-
+  wire  [ 4:0] target_sel;
   wire  [23:0] miso;
   wire  [23:0] mosi;
 
@@ -48,9 +36,6 @@ module top();
   /* XXX: Effectively the DUT/CUT , a 1-bit left shifter */
   assign miso  = mosi << 1;
 
-
-
-  assign reset = ~reset_n;
 
 
   async_sram#(
@@ -93,10 +78,9 @@ module top();
     .tr_writedata       (writedata)
   );
 
-
-  test_controller#(
+  tester#(
     .WAIT_WIDTH         (4)
-  ) test_controller(
+  ) tester (
     .clock              (clock),
     .reset_n            (reset_n),
     .fifo_clock         (clock_10),
@@ -112,37 +96,10 @@ module top();
     .writedata          (writedata),
     .waitrequest        (waitrequest),
 
-    .sfifo_dataq        (sfifo_dataq),
-    .sfifo_rdreq        (sfifo_rdreq),
-    .sfifo_rdempty      (sfifo_rdempty),
+    .target_sel         (target_sel),
+    .mosi               (mosi),
+    .miso               (miso)
 
-    .rfifo_data         (rfifo_data),
-    .rfifo_wrreq        (rfifo_wrreq),
-    .rfifo_wrfull       (rfifo_wrfull),
-
-    .dififo_dataq       (dififo_dataq),
-    .dififo_rdreq       (dififo_rdreq),
-    .dififo_rdempty     (dififo_rdempty)
-  );
-
-  dut_if dut_if(
-    .clock              (clock_10),
-    .reset_n            (reset_n),
-
-    .sfifo_data         (sfifo_dataq),
-    .sfifo_rdreq        (sfifo_rdreq),
-    .sfifo_rdempty      (sfifo_rdempty),
-
-    .dififo_data        (dififo_dataq),
-    .dififo_rdreq       (dififo_rdreq),
-    .dififo_rdempty     (dififo_rdempty),
-
-    .rfifo_data         (rfifo_data),
-    .rfifo_wrreq        (rfifo_wrreq),
-    .rfifo_wrfull       (rfifo_wrfull),
-
-    .mosi_data          (mosi),
-    .miso_data          (miso)
   );
 
 

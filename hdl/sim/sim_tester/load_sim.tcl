@@ -17,6 +17,7 @@ vlog     $HDL_BASE/check.v
 vlog     $HDL_BASE/dcfifo_custom.v
 vlog     $HDL_BASE/dut_if.v
 vlog     $HDL_BASE/test_controller.v
+vlog     $HDL_BASE/tester.v
 vlog     $HDL_BASE/PLL.v
 vlog     $HDL_BASE/REPLL.v
 vlog     $HDL_BASE/REPLL_CONTROL.sv
