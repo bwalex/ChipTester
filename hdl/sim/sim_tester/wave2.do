@@ -166,11 +166,38 @@ add wave -noupdate /top/tester/test_controller/check_byteenable
 add wave -noupdate /top/tester/test_controller/check_write
 add wave -noupdate -radix hexadecimal /top/tester/test_controller/check_writedata
 
+
+
+radix define repll_ctr_states {
+  4'b0000 "IDLE" -color white,
+  4'b0001 "RESET_PLL" -color green,
+  4'b0010 "RESET_REC" -color yellow,
+  4'b0011 "SET_TYPE_M" -color blue,
+  4'b0100 "SET_PARAM_HM" -color blue,
+  4'b0101 "SET_PARAM_LM" -color yellow,
+  4'b0110 "WRITE_HM" -color orange,
+  4'b0111 "WRITE_LM" -color orange,
+  4'b1000 "INTERVAL" -color orange,
+  4'b1001 "SET_TYPE_C" -color white,
+  4'b1010 "SET_PARAM_HC" -color white,
+  4'b1011 "SET_PARAM_LC" -color white,
+  4'b1100 "WRITE_HC" -color white,
+  4'b1101 "WRITE_LC" -color white,
+  4'b1110 "RECONFIG" -color white,
+  4'b1111 "BUSY" -color white,
+  -default binary
+}
+
+
+
 add wave -noupdate -divider STIM_PLL_RECONFIG
 add wave -noupdate /top/tester/clock
 add wave -noupdate /top/tester/test_controller/fifo_clock
 add wave -noupdate -radix unsigned /top/tester/pll_if/MultiFactor
 add wave -noupdate -radix unsigned /top/tester/pll_if/DividFactor
+add wave -noupdate /top/tester/pll_if/idle_state
+add wave -noupdate -radix repll_ctr_states /top/tester/pll_if/ctr2/state
+add wave -noupdate /top/tester/pll_if/busy
 add wave -noupdate -radix hexadecimal /top/tester/test_controller/stim_mod/pll_data
 add wave -noupdate /top/tester/test_controller/stim_mod/pll_reset
 add wave -noupdate /top/tester/test_controller/stim_mod/pll_trigger
