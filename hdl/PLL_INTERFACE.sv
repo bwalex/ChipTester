@@ -45,6 +45,7 @@ module PLL_INTERFACE#(
 	wire [7:0]MultiFactor;
    wire [7:0] DividFactor;
 	wire reset;
+	wire idle_state;
 
    assign reset = ~reset_n;
 	assign areset = pll_areset;
@@ -57,7 +58,7 @@ module PLL_INTERFACE#(
 	assign MultiFactor = PLL_DATA[15:8];
 	assign DividFactor = PLL_DATA[7:0];
 	
-	assign stable_reconfig = locked && ~busy;
+	assign stable_reconfig = locked && idle_state;
 	
 REPLL_CONTROL ctr2
 ( reset,
@@ -74,7 +75,8 @@ REPLL_CONTROL ctr2
 	reconfig,
 	pfdena,
 	read_param,
-	data_in);	
+	data_in,
+	idle_state);	
 	
  PLL #(
     .FILENAME         (FILENAME)

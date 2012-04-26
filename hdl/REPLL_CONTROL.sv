@@ -13,7 +13,8 @@ module REPLL_CONTROL
 	reconfig_ctr,
 	pll_pfdena,
 	pll_read_param,
-	config_data_in);
+	config_data_in,
+	idle_state);
 	
 	input sys_reset;
 	input clock_ctr;
@@ -31,6 +32,7 @@ module REPLL_CONTROL
 	output reg pll_pfdena;
 	output reg pll_read_param;
 	output reg [8:0] config_data_in;
+	output idle_state;
 	
 	parameter Idle         = 4'b0000;
 	parameter ResetPLL     = 4'b0001;
@@ -101,6 +103,7 @@ module REPLL_CONTROL
 										 || state == Interval
 										 || state == SetParamHC
 										 || state == SetParamLC );
+	assign idle_state   = state == Idle;
 
 										 
  always @(state)
