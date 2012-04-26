@@ -19,37 +19,56 @@ get '/admin' do
    erb :admin
 end
 
-get '/failed_tests' do
-  @fails = Fail.all
-    erb :failed_tests
+get '/DesignResult' do
+    @designs = DesignResult.all
+    erb :design_result
 end
 
-get '/failed_tests/:result_id' do
-    @fails = Fail.all(:result_id => params[:result_id])
-    erb :failed_tests
+get '/DesignResult/:result_id' do
+    @designs = DesignResult.all(:result_id => params[:result_id])
+    erb :design_result
+end
+
+get '/DesignResult/TestResult/:design_result_id' do
+    @tests = TestVectorResult.all(:design_result_id => params[:design_result_id])
+    erb :test_result
+end
+
+get '/LogEntries' do
+  @logs = LogEntry.all
+  erb :log_entry
 end
 
 post '/' do
    unless params['json_posted'].nil?
-      test = {}
-      previous_result = nil
+      id_value = {}
       json_parsed = JSON.parse(params['json_posted'])
-      if json_parsed.has_key? "Result"
-	    previous_result = Store_DUV_Result(json_parsed)
-	    test = { "id" => previous_result.id }
+      
+      if json_parsed.has_key? "LogEntry"
+	  log_stored = Store_LogEntry(json_parsed)
+	  id_value = {"id" => log_stored.id}
       end
-      if json_parsed.has_key? "Fail"
-	    id = Store_DUV_Fail(json_parsed).id
-	    test = { "id" => id }
+      if json_parsed.has_key? "Result"
+	    result_stored = StoreResult(json_parsed)
+	    id_value = { "id" => result_stored.id }
+      end
+      if json_parsed.has_key? "DesignResult"
+	    design_stored = StoreDesignResult(json_parsed)
+	    id_value = { "id" => design_stored.id }
+      end
+      if json_parsed.has_key? "TestVectorResult"
+	    test_stored = StoreTestVectorResult(json_parsed)
+	    id_value = { "id" => test_stored.id }
       end
    end
       #rhtml.result(results.get_binding)
-      test.to_json()
+      id_value.to_json()
 end
 
 post '/reset' do
     #Destroying all the records
-     Fail.all.destroy
+     TestVectorResult.all.destroy
+     DesignResult.all.destroy
      Result.all.destroy
      return '<p>The database has been cleaned</p>'
 end

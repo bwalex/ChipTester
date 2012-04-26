@@ -1,14 +1,13 @@
 require 'data_mapper'
 
-#DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
-DataMapper.setup(:default, 'mysql://root@localhost/ChipTester')
+DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
+#DataMapper.setup(:default, 'mysql://root@localhost/ChipTester')
 #DataMapper.setup(:default, 'sqlite:test.db')
 DataMapper::Logger.new($stdout, :debug)
 
 class LogEntry
   include DataMapper::Resource
   property :id, Serial
-
   property :type, Integer # 0 -> info, 1 -> warn, 2 -> error
   property :message, String
   property :file, String
@@ -62,28 +61,60 @@ class TestVectorResult
   property :created_at, DateTime
   property :updated_at, DateTime
 end
+def Store_LogEntry(json_parsed)
+    @duv_LogEntry = LogEntry.create(
+      :type => json_parsed["LogEntry"]["type"],
+      :message => json_parsed["LogEntry"]["message"],
+      :file => json_parsed["LogEntry"]["file"]
+      )
+    @duv_LogEntry.save
+    return @duv_LogEntry
+end
 
-
-def Store_DUV_Result(json_parsed)
+def StoreResult(json_parsed)
       @duv_result = Result.create(
-	:chip_number => json_parsed["Result"]["chip_number"],
-	:team_number => json_parsed["Result"]["team_number"],
-	:test_passed => json_parsed["Result"]["test_passed"],
-	:file_name => json_parsed ["Result"]["file_name"],
-	:frequency => json_parsed ["Result"]["frequency"],
-	:temperature => json_parsed ["Result"]["temperature"]
+	:team => json_parsed["Result"]["team"],
+	:run_date => DateTime.parse(json_parsed["Result"]["run_date"]),
+	:academic_year => json_parsed["Result"]["academic_year"],
+	:outcome => json_parsed ["Result"]["outcome"],
+	:created_at => DateTime.parse(json_parsed ["Result"]["created_at"]),
+	:updated_at => DateTime.parse(json_parsed ["Result"]["updated_at"]),
+	:virtual => json_parsed ["Result"]["virtual"]
       )
       @duv_result.save     
       return @duv_result
 end      
-def Store_DUV_Fail(json_parsed)
-    @duv_fail = Result.get!(json_parsed["Fail"]["id"]).fails.create(
-	:index => json_parsed["Fail"]["index"],
-	:fail_result => json_parsed["Fail"]["fail_result"],
-	:expected_result => json_parsed["Fail"]["expected_result"]
-      )
+def StoreDesignResult(json_parsed)
+    @duv_fail = Result.get!(json_parsed["DesignResult"]["id"]).design_results.create(
+	:outcome => json_parsed["DesignResult"]["outcome"],
+	:run_date => DateTime.parse(json_parsed["DesignResult"]["run_date"]),
+	:created_at => DateTime.parse(json_parsed["DesignResult"]["created_at"]),
+	:updated_at => DateTime.parse(json_parsed["DesignResult"]["updated_at"]),
+	:file_name => json_parsed["DesignResult"]["file_name"],
+	:clock_freq => json_parsed["DesignResult"]["clock_freq"],
+	:design_name => json_parsed["DesignResult"]["design_name"] 
+    )
+    return @duv_fail
+end
+def StoreTestVectorResult(json_parsed)
+    @duv_fail = DesignResult.get!(json_parsed["TestVectorResult"]["id"]).test_vector_results.create(
+	:type => json_parsed["TestVectorResult"]["type"],
+	:input_vector => json_parsed["TestVectorResult"]["input_vector"],
+	:expected_result => json_parsed["TestVectorResult"]["expected_result"],
+	:actual_result => json_parsed["TestVectorResult"]["actual_result"],
+	:cycle_count => json_parsed["TestVectorResult"]["cycle_count"],
+	:clock_freq => json_parsed["TestVectorResult"]["clock_freq"],
+	:clock_connections => json_parsed["TestVectorResult"]["clock_connections"],
+      	:bitmask => json_parsed["TestVectorResult"]["bitmask"],
+	:dontcare_mask => json_parsed["TestVectorResult"]["dontcare_mask"],
+	:trigger_mask => json_parsed["TestVectorResult"]["trigger_mask"],
+	:outcome => json_parsed["TestVectorResult"]["outcome"],
+	:trigger_timeout => json_parsed["TestVectorResult"]["trigger_timeout"],
+	:has_run => json_parsed["TestVectorResult"]["has_run"],
+	:created_at => DateTime.parse(json_parsed["TestVectorResult"]["created_at"]),
+        :updated_at => DateTime.parse(json_parsed["TestVectorResult"]["updated_at"])
+    )
     return @duv_fail
 end
 DataMapper.finalize
-#DataMapper.auto_migrate!
-#DataMapper.auto_upgrade!
+

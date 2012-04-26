@@ -5,26 +5,28 @@
 		<div class="entry">
 		<table>
 			<tr>
-				<th>Chip Number</th>
-				<th>Team Number</th>
-				<th>Team Passed</th>
-				<th>File Name</th>
-				<th>Frequency</th>
-				<th>Temperature</td>
+				<th>Team</th>
+				<th>Run Date</th>
+				<th>Academic Year</th>
+				<th>Results</th>
+				<th>Created</th>
+				<th>Updated</th>
+				<th>Virtual</th>
       			</tr>
       		<% @results.each_index do |idx| result=@results[idx] %> 
      			<tr	 class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
-				<td><%=result.chip_number.to_s() %></td>
-				<td><%=result.team_number.to_s() %></td>
-				<td><%=if(!result.test_passed)
-					"<a href=\"failed_tests/"+ result.id.to_s() + "\">" + result.test_passed.to_s() + "</a>"
+				<td><%=result.team.to_s() %></td>
+				<td><%=result.run_date.strftime("%m/%d/%Y at %I:%M%p") %></td>
+				<td><%=result.academic_year.to_s() %></td>
+				<td><%=if(result.outcome == 1)
+					"<a href=\"DesignResult/"+ result.id.to_s() + "\">" + "failed" + "</a>"
 					else
-			    		result.test_passed.to_s()
+			    		"passed"
 					end %>
 		  		</td>
-				<td><%=result.file_name %></td>
-				<td><%=result.frequency.to_s() %></td>
-				<td><%=result.temperature.to_s() %></td>
+				<td><%=result.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+				<td><%=result.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+				<td><%=result.virtual.to_s() %></td>
       			</tr>
       		<% end %>
     		</table>

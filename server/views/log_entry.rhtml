@@ -1,0 +1,30 @@
+<div id="content" class="row">
+	<div class="post">
+		<h2 class="title"><a href="#">Chip Tester Results </a></h2>
+		<p class="meta">Updating from database...</p>
+		<div class="entry">
+		<table>
+			<tr>
+				<th>Type of message</th>
+				<th>Message</th>
+				<th>File</th>
+      			</tr>
+      		<% @logs.each_index do |idx| log=@logs[idx] %> 
+     			<tr	 class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+				<td><%= if log.type == 0
+					"INFO"
+					elsif log.type == 1
+					"WARN"
+					elsif log.type == 2
+					"ERROR"
+					end %>
+				</td>
+				<td><%= log.message %></td>
+				<td><%= log.file %></td>
+      			</tr>
+      		<% end %>
+    		</table>
+		</div>
+	</div>
+	<div style="clear: both;">&nbsp;</div>
+</div>

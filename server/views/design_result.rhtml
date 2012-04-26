@@ -1,0 +1,34 @@
+<div id="content" class="row">
+	<div class="post">
+		<h2 class="title"><a href="#">Chip Tester Results </a></h2>
+		<p class="meta">Updating from database...</p>
+		<div class="entry">
+		<table>
+		<tr>
+			<th>Result</th>
+			<th>Run Date</th>
+			<th>Created</th>
+			<th>Updated</th>
+			<th>File Name</th>
+			<th>Clock Frequency</th>
+			<th>Design Name</th>
+		</tr>
+		<% @designs.each_index do |idx| design=@designs[idx] %> 
+		<tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+			<td><%= if(design.outcome == 1)
+					"<a href=\"TestResult/"+ design.id.to_s() + "\">" + "failed" + "</a>"
+					else
+			    		"passed"
+					end %></td>
+			<td><%=design.run_date.strftime("%m/%d/%Y at %I:%M%p") %></td>
+			<td><%=design.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+			<td><%=design.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+			<td><%=design.file_name %></td>
+			<td><%=design.clock_freq%></td>
+			<td><%=design.design_name %></td>
+		</tr>
+		<% end %>
+		</table>
+		</div>
+	</div>
+</div>
