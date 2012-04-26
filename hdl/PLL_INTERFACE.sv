@@ -1,5 +1,5 @@
-module PLL_INTERFACE#(
-  parameter	FILELOCATION_AND_NAME = "H:\.das\Desktop\VLSI\April Progress\hdl.mif" ,
+module PLL_INTERFACE #(
+  parameter	FILELOCATION_AND_NAME = "G:/Archive/New folder/quartus/PLL.mif" ,
   parameter FILENAME = "PLL.mif"
   )
 	(
@@ -58,7 +58,7 @@ module PLL_INTERFACE#(
 	assign MultiFactor = PLL_DATA[15:8];
 	assign DividFactor = PLL_DATA[7:0];
 	
-	assign stable_reconfig = locked && idle_state;
+	assign stable_reconfig = locked && idle_state && ~busy;
 	
 REPLL_CONTROL ctr2
 ( reset,
@@ -93,7 +93,7 @@ REPLL_CONTROL ctr2
 	scandataout,
 	scandone);	
 	
-  REPLL_pllrcfg_1a01  #(
+REPLL_pllrcfg_l021 #(
     .FILELOCATION_AND_NAME         (FILELOCATION_AND_NAME)
 	 ) pr0 ( 
 	busy,
