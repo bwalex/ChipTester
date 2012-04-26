@@ -1,6 +1,7 @@
 `timescale 1 ps / 1 ps
 module TestInterface;
-  	
+  parameter	FILELOCATION_AND_NAME = "G:/Archive/New folder/quartus/PLL.mif" ;
+  parameter FILENAME = "PLL.mif";
 	logic	  inclk0;
 	logic   clock;
 	logic   reset_n;
@@ -13,8 +14,12 @@ module TestInterface;
 
 	logic   busy;
 	logic   [8:0]  data_out;
+	logic	stable_reconfig;
 	
-	PLL_INTERFACE PI2 (.*);
+	PLL_INTERFACE #(
+	.FILELOCATION_AND_NAME       (FILELOCATION_AND_NAME),
+	.FILENAME					 (FILENAME)
+	)PI2 (.*);
 	
 	assign PLL_DATA [15:8] = MultiFactor;
 	assign PLL_DATA [ 7:0] = DividFactor;

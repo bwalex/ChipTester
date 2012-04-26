@@ -33,7 +33,7 @@
 //applicable agreement for further details.
 
 
-//altpll_reconfig CBX_AUTO_BLACKBOX="ALL" device_family="Cyclone IV E" init_from_rom="NO" scan_init_file="G:/VLSI/PLL2/plladditional.mif" busy clock counter_param counter_type data_in data_out pll_areset pll_areset_in pll_configupdate pll_scanclk pll_scanclkena pll_scandata pll_scandataout pll_scandone read_param reconfig reset write_param
+//altpll_reconfig CBX_AUTO_BLACKBOX="ALL" device_family="Cyclone IV E" init_from_rom="NO" scan_init_file="G:/Archive/New folder/quartus/ADDITIONALPLL.mif" busy clock counter_param counter_type data_in data_out pll_areset pll_areset_in pll_configupdate pll_scanclk pll_scanclkena pll_scandata pll_scandataout pll_scandone read_param reconfig reset write_param
 //VERSION_BEGIN 11.1SP2 cbx_altpll_reconfig 2012:01:25:21:13:53:SJ cbx_altsyncram 2012:01:25:21:13:53:SJ cbx_cycloneii 2012:01:25:21:13:53:SJ cbx_lpm_add_sub 2012:01:25:21:13:53:SJ cbx_lpm_compare 2012:01:25:21:13:53:SJ cbx_lpm_counter 2012:01:25:21:13:53:SJ cbx_lpm_decode 2012:01:25:21:13:53:SJ cbx_lpm_mux 2012:01:25:21:13:53:SJ cbx_mgl 2012:01:25:21:15:41:SJ cbx_stratix 2012:01:25:21:13:53:SJ cbx_stratixii 2012:01:25:21:13:53:SJ cbx_stratixiii 2012:01:25:21:13:53:SJ cbx_stratixv 2012:01:25:21:13:53:SJ cbx_util_mgl 2012:01:25:21:13:53:SJ  VERSION_END
 // synthesis VERILOG_INPUT_VERSION VERILOG_2001
 // altera message_off 10463
@@ -44,8 +44,8 @@
 `timescale 1 ps / 1 ps
 //synopsys translate_on
 (* ALTERA_ATTRIBUTE = {"ADV_NETLIST_OPT_ALLOWED=\"NEVER_ALLOW\";suppress_da_rule_internal=C106;{-to le_comb10} PLL_SCAN_RECONFIG_COUNTER_REMAP_LCELL=2;{-to le_comb8} PLL_SCAN_RECONFIG_COUNTER_REMAP_LCELL=0;{-to le_comb9} PLL_SCAN_RECONFIG_COUNTER_REMAP_LCELL=1"} *)
-module  REPLL_pllrcfg_1a01 #(
-  parameter FILELOCATION_AND_NAME = "H:\.das\Desktop\VLSI\April Progress\hdl.mif"
+module  REPLL_pllrcfg_l021 #(
+  parameter	FILELOCATION_AND_NAME = "G:/Archive/New folder/quartus/PLL.mif"
   )
 	( 
 	busy,
@@ -1320,7 +1320,7 @@ module  REPLL_pllrcfg_1a01 #(
 		width_decoder_out = ((((({5{1'b0}} | {width_decoder_select[2], {3{1'b0}}, width_decoder_select[2]}) | {{4{1'b0}}, width_decoder_select[3]}) | {{2{1'b0}}, {3{width_decoder_select[5]}}}) | {{3{1'b0}}, width_decoder_select[6], 1'b0}) | {{2{1'b0}}, width_decoder_select[7], {2{1'b0}}}),
 		width_decoder_select = {((sel_type_cplf & sel_param_low_r) | (sel_type_cplf & sel_param_odd_CP_unused)), (sel_type_cplf & sel_param_high_i_postscale), ((((((((((((((sel_type_n & sel_param_high_i_postscale) | (sel_type_n & sel_param_low_r)) | (sel_type_m & sel_param_high_i_postscale)) | (sel_type_m & sel_param_low_r)) | (sel_type_c0 & sel_param_high_i_postscale)) | (sel_type_c0 & sel_param_low_r)) | (sel_type_c1 & sel_param_high_i_postscale)) | (sel_type_c1 & sel_param_low_r)) | (sel_type_c2 & sel_param_high_i_postscale)) | (sel_type_c2 & sel_param_low_r)) | (sel_type_c3 & sel_param_high_i_postscale)) | (sel_type_c3 & sel_param_low_r)) | (sel_type_c4 & sel_param_high_i_postscale)) | (sel_type_c4 & sel_param_low_r)), w1592w, ((sel_type_cplf & sel_param_bypass_LF_unused) | (sel_type_cplf & sel_param_c)), ((sel_type_n & sel_param_nominal_count) | (sel_type_m & sel_param_nominal_count)), w1565w, (((((((((((((((sel_type_vco & sel_param_high_i_postscale) | (sel_type_n & sel_param_bypass_LF_unused)) | (sel_type_n & sel_param_odd_CP_unused)) | (sel_type_m & sel_param_bypass_LF_unused)) | (sel_type_m & sel_param_odd_CP_unused)) | (sel_type_c0 & sel_param_bypass_LF_unused)) | (sel_type_c0 & sel_param_odd_CP_unused)) | (sel_type_c1 & sel_param_bypass_LF_unused)) | (sel_type_c1 & sel_param_odd_CP_unused)) | (sel_type_c2 & sel_param_bypass_LF_unused)) | (sel_type_c2 & sel_param_odd_CP_unused)) | (sel_type_c3 & sel_param_bypass_LF_unused)) | (sel_type_c3 & sel_param_odd_CP_unused)) | (sel_type_c4 & sel_param_bypass_LF_unused)) | (sel_type_c4 & sel_param_odd_CP_unused))},
 		write_from_rom = 1'b0;
-endmodule //REPLL_pllrcfg_1a01
+endmodule //REPLL_pllrcfg_l021
 //VALID FILE
 
 
@@ -1388,7 +1388,7 @@ module REPLL (
 	wire  busy = sub_wire5;
 	wire  pll_areset = sub_wire6;
 
-	REPLL_pllrcfg_1a01	REPLL_pllrcfg_1a01_component (
+	REPLL_pllrcfg_l021	REPLL_pllrcfg_l021_component (
 				.counter_param (counter_param),
 				.data_in (data_in),
 				.counter_type (counter_type),
@@ -1408,7 +1408,7 @@ module REPLL (
 				.busy (sub_wire5),
 				.pll_areset (sub_wire6))/* synthesis synthesis_clearbox=2
 	 clearbox_macroname = altpll_reconfig
-	 clearbox_defparam = "init_from_rom=NO;intended_device_family=Cyclone IV E;scan_init_file=G:/VLSI/PLL2/plladditional.mif;" */;
+	 clearbox_defparam = "init_from_rom=NO;intended_device_family=Cyclone IV E;scan_init_file=G:/Archive/New folder/quartus/ADDITIONALPLL.mif;" */;
 
 endmodule
 
@@ -1416,13 +1416,13 @@ endmodule
 // CNX file retrieval info
 // ============================================================
 // Retrieval info: PRIVATE: CHAIN_TYPE NUMERIC "0"
-// Retrieval info: PRIVATE: INIT_FILE_NAME STRING "G:/VLSI/PLL2/plladditional.mif"
+// Retrieval info: PRIVATE: INIT_FILE_NAME STRING "G:/Archive/New folder/quartus/ADDITIONALPLL.mif"
 // Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone IV E"
 // Retrieval info: PRIVATE: SYNTH_WRAPPER_GEN_POSTFIX STRING "0"
 // Retrieval info: PRIVATE: USE_INIT_FILE STRING "1"
 // Retrieval info: CONSTANT: INIT_FROM_ROM STRING "NO"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone IV E"
-// Retrieval info: CONSTANT: SCAN_INIT_FILE STRING "G:/VLSI/PLL2/plladditional.mif"
+// Retrieval info: CONSTANT: SCAN_INIT_FILE STRING "G:/Archive/New folder/quartus/ADDITIONALPLL.mif"
 // Retrieval info: USED_PORT: busy 0 0 0 0 OUTPUT NODEFVAL "busy"
 // Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL "clock"
 // Retrieval info: USED_PORT: counter_param 0 0 3 0 INPUT NODEFVAL "counter_param[2..0]"
