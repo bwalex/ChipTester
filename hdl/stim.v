@@ -88,6 +88,8 @@ module stim #(
   parameter START_REPLL       = 6'b001010; /*new*/
   parameter PLL_RECONFIG      = 6'b001011; /*new*/
   parameter SWITCH_TOPLL      = 6'b001100; /*new*/
+  parameter PLL_WAIT          = 6'b001101;
+
 
 
   reg    [STATE_WIDTH-1:0] state;
@@ -286,6 +288,7 @@ module stim #(
     or output_bitmask
     or pll_locked
     or pll_ready
+    or pll_stable
     or sc_ready/* XXX */)
   begin
     next_state    = state;
@@ -376,9 +379,14 @@ module stim #(
 		       next_state = SWITCH_TOPLL;
 		  end
 		  
-		  SWITCH_TOPLL:
+		  SWITCH_TOPLL: begin
+        next_state  = PLL_WAIT;
+      end
+
+      PLL_WAIT: begin
         if (pll_stable)
-		      next_state = IDLE;
+		      next_state  = IDLE;
+      end
 		  
 
       END: begin
