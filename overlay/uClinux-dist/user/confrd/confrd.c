@@ -17,6 +17,7 @@
 
 #include "sram.h"
 #include "trunner_if.h"
+#include "pll_settings.h"
 
 
 #define LOGDEBUG		1
@@ -54,10 +55,6 @@
 
 #define REQ_TYPE(r)		((r & 0x07) << 5)
 #define DICMD(c)		(c & 0x1f)
-
-#define BASE_FREQ		100.0 /* MHz */
-#define PLL_DEFAULT_MUL		1
-#define PLL_DEFAULT_DIV		10
 
 #define iswhitespace(c)		((c == ' ') || (c == '\t'))
 
@@ -106,7 +103,8 @@ struct pll_reconfig {
 	uint8_t metadata;
 	uint8_t mul_factor;
 	uint8_t div_factor;
-	uint8_t padding[3];
+	uint8_t div_factor_post;
+	uint8_t padding[2];
 } __attribute__((__packed__));
 
 typedef struct pll_reconfig pll_reconfig;
@@ -144,8 +142,9 @@ typedef struct parserinfo {
 	size_t sram_free_bytes;
 	off_t  sram_off;
 
-	uint8_t pll_mul;
-	uint8_t pll_div;
+	uint8_t pll_m;
+	uint8_t pll_n;
+	uint8_t pll_c;
 	int seen_vectors;
 
 	int pin_count;
@@ -336,8 +335,9 @@ emit_pre_vectors(parserinfo_t pi)
 
 	memset(&pr, 0, sizeof(pr));
 	pr.metadata = REQ_TYPE(REQ_PLLRECONFIG);
-	pr.mul_factor = pi->pll_mul;
-	pr.div_factor = pi->pll_div;
+	pr.mul_factor = pi->pll_m;
+	pr.div_factor = pi->pll_n;
+	pr.div_factor_post = pi->pll_c;
 
 	return emit(pi, &pr, sizeof(pr));
 }
@@ -683,13 +683,14 @@ parse_line_frequency(char *s, void *priv)
 		return -1;
 	}
 
-	if (freq_mhz < 1 || freq_mhz > 200) {
-		syntax_error("frequency must be between 1 and 200 MHz");
+	if (freq_mhz < 1 || freq_mhz > 100) {
+		syntax_error("frequency must be between 1 and 100 MHz");
 		return -1;
 	}
 
-	pi->pll_mul = freq_mhz;
-	pi->pll_div = (int)BASE_FREQ;
+	pi->pll_m = pll_settings[freq_mhz].m;
+	pi->pll_n = pll_settings[freq_mhz].n;
+	pi->pll_c = pll_settings[freq_mhz].c;
 
 	return 0;
 }
@@ -799,9 +800,10 @@ print_mem(uint8_t *buf, int sz, int *end)
 
 		case REQ_PLLRECONFIG:
 			pr = (pll_reconfig *)buf;
-			printf("REQ_PLLRECONFIG:\tmul_factor=%d, div_factor=%d "
+			printf("REQ_PLLRECONFIG:\tm=%d, n=%d, c=%d "
 			   "=> frequency: %.1f MHz\n", pr->mul_factor, pr->div_factor,
-			   (BASE_FREQ * pr->mul_factor/pr->div_factor));
+			   pr->div_factor_post,
+			       (100.0 * pr->mul_factor/pr->div_factor/(pr->div_factor_post*2)));
 			break;
 
 		case REQ_END:
@@ -1028,8 +1030,9 @@ init_parserinfo(parserinfo_t pi)
 {
 
 	memset(pi, 0, sizeof(*pi));
-	pi->pll_mul = PLL_DEFAULT_MUL;
-	pi->pll_div = PLL_DEFAULT_DIV;
+	pi->pll_m = pll_settings[0].m;
+	pi->pll_n = pll_settings[0].n;
+	pi->pll_c = pll_settings[0].c;
 	pi->sram_free_bytes = SRAM_SIZE;
 }
 

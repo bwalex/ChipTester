@@ -15,7 +15,7 @@ module stim #(
             TEST_VECTOR_WORDS = 4,
             DSEL_WIDTH = 5, /* Target design select */
 				    CYCLE_RANGE = 5,
-            PLL_DATA_WIDTH = 16
+            PLL_DATA_WIDTH = 8
 )(
   input                       clock,
   input                       reset_n,
@@ -57,8 +57,9 @@ module stim #(
   input                       sc_ready,
   
   /*PLL RECONFIG interface*/
-  output                      pll_reset,
-  output     [PLL_DATA_WIDTH-1:0] pll_data,
+  output     [PLL_DATA_WIDTH-1:0] pll_m,
+  output     [PLL_DATA_WIDTH-1:0] pll_n,
+  output     [PLL_DATA_WIDTH-1:0] pll_c,
   output                      pll_trigger,
   input                       pll_locked,
   input                       pll_stable
@@ -87,7 +88,6 @@ module stim #(
   parameter END               = 6'b001001;
   parameter START_REPLL       = 6'b001010; /*new*/
   parameter PLL_RECONFIG      = 6'b001011; /*new*/
-  parameter SWITCH_TOPLL      = 6'b001100; /*new*/
   parameter PLL_WAIT          = 6'b001101;
 
 
@@ -116,9 +116,6 @@ module stim #(
   wire   [ BOFF_WIDTH-1:0] buffer_offset;
   wire   [  REQ_WIDTH-1:0] req_type;
   reg    [            5:0] tv_len;
-  
-  reg    [            1:0] pll_ready; /*pll reconfig fully done*/
-  reg    [            1:0] pll_triggertimer;
   
   wire   [            4:0] cycle_info;
   wire                     mode_select;
@@ -185,35 +182,9 @@ module stim #(
     if (~reset_n)
       buffer <= 'b0;
     else if (mem_readdataready)
-      buffer[(buffer_offset << 4 /* XXX: 4 is log2(word size in bits) */) +: DATA_WIDTH] <= mem_readdata;
+      buffer[(buffer_offset << 4 /* XXX: 4 is log2(mem word size in bits) */) +: DATA_WIDTH] <= mem_readdata;
 
- /*pll ready: when the locked is from 0 to 1
-    trigger 1:          pll_ready  00
-	locked 0:           pll_ready  01
-	locked 1 && pll_ready 01:           pll_ready  11*/
-  always @(posedge clock, negedge reset_n)
-  if (~reset_n)  
-	 pll_ready <= 2'b00;
-  else if ( pll_trigger )
-	 pll_ready <= 2'b00;
-  else if ( ~pll_locked )
-	 pll_ready <= 2'b01;
-  else if ( pll_locked &&
-	         pll_ready == 2'b01)
-	 pll_ready <= 2'b11;
-  
-  
-  /* pll triger only needs to last for two clock cycles */
-  always @(posedge clock, negedge reset_n)
-  if (~reset_n)
-    pll_triggertimer <= 2'b00;
-  else if (state == IDLE)
-    pll_triggertimer <= 2'b00;
-  else if (pll_triggertimer == 2'b11)
-    pll_triggertimer <= 2'b11;
-  else if (state == PLL_RECONFIG )
-    pll_triggertimer <= pll_triggertimer + 1;
-  
+
 	 
   assign mem_address    = address;
   assign mem_byteenable = 2'b11;
@@ -232,6 +203,8 @@ module stim #(
 
   assign reset_waitcnt  =    (state == SWITCH_TARGET && next_state == SWITCH_VDD);
 
+  assign pll_trigger    =    (state == PLL_RECONFIG);
+
   assign zero_address   =    (state == END);
   assign done           =    (state == END) && cfifo_wrempty && sfifo_wrempty;
 
@@ -249,24 +222,24 @@ module stim #(
   assign cfifo_data[CHF_WIDTH-STF_WIDTH-1            -: ADDR_WIDTH] = address-2;
 
   assign dififo_data   = { {REQ_WIDTH{1'b0}}, buffer[REQ_WIDTH +: CMD_WIDTH], buffer[8 +: STF_WIDTH] };
-  
-  assign pll_reset   = (next_state == IDLE);
-  assign pll_trigger = pll_triggertimer == 2'b01 ||
-                        pll_triggertimer == 2'b10;
-  
+
+
+
   /* Convenient shortcuts for sections of the buffer */
   assign req_type       = buffer[0:REQ_WIDTH-1];
   assign input_vector   = buffer[8             +: STF_WIDTH];
   assign result_vector  = buffer[8+STF_WIDTH   +: SCD_WIDTH];
   assign output_bitmask = buffer[8             +: STF_WIDTH];
   assign new_target_sel = buffer[16-DSEL_WIDTH +: DSEL_WIDTH];
-  //assign pll_data       = buffer[8             +: PLL_DATA_WIDTH]; /* store PLL data */
-  assign pll_data = {8'd1, 8'd100};
 
   assign mode_select    = buffer[57];
   assign cycle_info     = buffer[56+2          +: CYCLE_RANGE]; /* store cycle info */
   assign trigger_mask   = buffer[8             +: STF_WIDTH];  /* store trigger mask*/
   
+  assign pll_m          = buffer[8                +: PLL_DATA_WIDTH];
+  assign pll_n          = buffer[8+PLL_DATA_WIDTH +: PLL_DATA_WIDTH];
+  assign pll_c          = buffer[8+PLL_DATA_WIDTH+PLL_DATA_WIDTH +: PLL_DATA_WIDTH];
+
 
 
   always @(
@@ -287,7 +260,6 @@ module stim #(
     or waitcnt
     or output_bitmask
     or pll_locked
-    or pll_ready
     or pll_stable
     or sc_ready/* XXX */)
   begin
@@ -373,15 +345,12 @@ module stim #(
              pll_locked          )
 		       next_state = PLL_RECONFIG;
 		  end
-		  
+
+
 		  PLL_RECONFIG: begin
-		     if (pll_ready == 2'b11)
-		       next_state = SWITCH_TOPLL;
+        next_state = PLL_WAIT;
 		  end
-		  
-		  SWITCH_TOPLL: begin
-        next_state  = PLL_WAIT;
-      end
+
 
       PLL_WAIT: begin
         if (pll_stable)
