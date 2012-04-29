@@ -15,6 +15,7 @@ module tester #(
             DSEL_WIDTH = 5, /* Target design select */
 				    CYCLE_RANGE = 5,
             PLL_MIF_FILE = "hdl.mif",
+            PLL_DATA_WIDTH = 8,
 
             DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH
 )(
@@ -53,11 +54,12 @@ module tester #(
   wire    [ DIF_WIDTH-1:0] dififo_dataq;
   
   wire                     pll_clock;
-  wire                     pll_reset;
   wire                     pll_trigger;
   wire                     pll_locked;
   wire                     pll_stable;
-  wire   [           15:0] pll_data;
+  wire [PLL_DATA_WIDTH-1:0] pll_m;
+  wire [PLL_DATA_WIDTH-1:0] pll_n;
+  wire [PLL_DATA_WIDTH-1:0] pll_c;
   
 
   test_controller#(
@@ -69,7 +71,8 @@ module tester #(
     .REQ_WIDTH          (REQ_WIDTH),
     .CMD_WIDTH          (CMD_WIDTH),
     .WAIT_WIDTH         (WAIT_WIDTH),
-	 .CYCLE_RANGE        (CYCLE_RANGE)
+	  .CYCLE_RANGE        (CYCLE_RANGE),
+    .PLL_DATA_WIDTH     (PLL_DATA_WIDTH)
   ) test_controller(
     .clock              (clock),
     .reset_n            (reset_n),
@@ -101,8 +104,9 @@ module tester #(
 
     .target_sel         (target_sel),
 	 
-	  .pll_reset          (pll_reset),
-    .pll_data           (pll_data),
+    .pll_m              (pll_m),
+    .pll_n              (pll_n),
+    .pll_c              (pll_c),
     .pll_trigger        (pll_trigger),
     .pll_locked         (pll_locked),
     .pll_stable         (pll_stable)
@@ -113,7 +117,7 @@ module tester #(
     .RTF_WIDTH          (RTF_WIDTH),
     .REQ_WIDTH          (REQ_WIDTH),
     .CMD_WIDTH          (CMD_WIDTH),
-	 .CYCLE_RANGE        (CYCLE_RANGE)
+	 .CYCLE_RANGE         (CYCLE_RANGE)
   ) dut_if(
     .clock              (pll_clock),
     .reset_n            (reset_n),
@@ -136,12 +140,14 @@ module tester #(
   
   PLL_INTERFACE #(
     .FILELOCATION_AND_NAME (PLL_MIF_FILE),
-    .FILENAME (PLL_MIF_FILE)
+    .FILENAME              (PLL_MIF_FILE)
   ) pll_if(
     .clock              (clock),
 	  .reset_n            (reset_n),
 	  .trigger            (pll_trigger),            
-	  .PLL_DATA           (pll_data),
+    .pll_m              (pll_m),
+    .pll_n              (pll_n),
+    .pll_c              (pll_c),
 	
 	  .c0                 (pll_clock),
 	  .locked             (pll_locked),

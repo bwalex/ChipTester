@@ -19,6 +19,7 @@ module test_controller #(
             WAIT_WIDTH = 16,
             DSEL_WIDTH = 5, /* Target design select */
 				    CYCLE_RANGE = 5,
+            PLL_DATA_WIDTH = 8,
 
             DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH,
             CHF_WIDTH  = STF_WIDTH+ADDR_WIDTH /* (output vector), (address) */
@@ -53,8 +54,9 @@ module test_controller #(
 
   output  [DSEL_WIDTH-1:0] target_sel,
   
-  output                   pll_reset,
-  output  [          15:0] pll_data,
+  output  [PLL_DATA_WIDTH-1:0] pll_m,
+  output  [PLL_DATA_WIDTH-1:0] pll_n,
+  output  [PLL_DATA_WIDTH-1:0] pll_c,
   output                   pll_trigger,
   input                    pll_locked,
   input                    pll_stable
@@ -183,8 +185,9 @@ module test_controller #(
 
     .target_sel         (target_sel),
 	 
-    .pll_reset          (pll_reset),
-    .pll_data           (pll_data),
+    .pll_m              (pll_m),
+    .pll_n              (pll_n),
+    .pll_c              (pll_c),
     .pll_trigger        (pll_trigger),
     .pll_locked         (pll_locked),
     .pll_stable         (pll_stable)
