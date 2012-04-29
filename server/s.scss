@@ -1,0 +1,44 @@
+$redish: #99173C;
+$light_grey: #E8E8E8;
+$light_grey_2: #E0E0E0;
+
+table {
+    border: 1px solid $light_grey_2;//black;
+    border-collapse:collapse;
+    color:#000000;
+
+    th {
+text-align: left;
+background-color: #F0F0F0;
+border-bottom: 1px solid $light_grey_2;
+padding: 5px;
+    }
+
+    td {
+//border: 1px solid $light_grey_2;
+//border-left: 1px solid $light_grey_2;
+padding: 5px;
+//background-color: white; //#F0F0F0;
+    }
+
+    tr.even {
+background-color: #F0F0F0;
+    }
+
+    tr.odd {
+background-color: white;
+    }
+
+    tr:hover {
+td {
+//background-color: $light_grey;
+}
+    }
+
+}
+
+.test-listview {
+    table {
+width: 100%;
+    }
+}

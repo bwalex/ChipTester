@@ -1,0 +1,24 @@
+table {
+  border: 1px solid #e0e0e0;
+  border-collapse: collapse;
+  color: #000000;
+}
+table th {
+  text-align: left;
+  background-color: #F0F0F0;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 5px;
+}
+table td {
+  padding: 5px;
+}
+table tr.even {
+  background-color: #F0F0F0;
+}
+table tr.odd {
+  background-color: white;
+}
+
+.test-listview table {
+  width: 100%;
+}

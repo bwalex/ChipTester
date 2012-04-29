@@ -1,7 +1,6 @@
 <div id="content" class="row">
 	<div class="post">
-		<h2 class="title"><a href="#">Chip Tester Results </a></h2>
-		<p class="meta">Updating from database...</p>
+		<h2 class="title"><a href="#">Test vectors Results</a></h2>
 		<div class="entry">
 		<table>
 		<tr>
@@ -27,6 +26,7 @@
 			<td><%= test.input_vector%></td>
 			<td><%= test.expected_result %></td>
 			<td><%= test.actual_result%></td>
+			<td><%= test.cycle_count%></td>
 			<td><%= test.clock_freq %></td>
 			<td><%= test.clock_connections%></td>
 			<td><%= test.bitmask %></td>

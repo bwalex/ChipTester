@@ -1,9 +1,15 @@
 require 'data_mapper'
 
-#DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
-DataMapper.setup(:default, 'mysql://root@localhost/ChipTester')
+DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
+#DataMapper.setup(:default, 'mysql://root@localhost/ChipTester')
 #DataMapper.setup(:default, 'sqlite:test.db')
 DataMapper::Logger.new($stdout, :debug)
+
+class Admin
+ property :email, String, :key => true #Natural primary key
+ property :password, String, :required =>true
+ property :permission, Integer, :required =>true
+end
 
 class LogEntry
   include DataMapper::Resource
@@ -12,7 +18,6 @@ class LogEntry
   property :message, String
   property :file, String
 end
-
 
 class Result
   include DataMapper::Resource

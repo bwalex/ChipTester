@@ -2,9 +2,8 @@ require 'rubygems'
 require 'sinatra' 
 require './database.rb'
 require 'erb'
-require './erb_binding.rb'
 require 'json'
-
+require './email.rb'
 
 get '/css/style.css' do
    scss :style, :style => :expanded
@@ -17,11 +16,6 @@ end
 
 get '/admin' do
    erb :admin
-end
-
-get '/DesignResult' do
-    @designs = DesignResult.all
-    erb :design_result
 end
 
 get '/DesignResult/:result_id' do
@@ -61,7 +55,6 @@ post '/' do
 	    id_value = { "id" => test_stored.id }
       end
    end
-      #rhtml.result(results.get_binding)
       id_value.to_json()
 end
 
