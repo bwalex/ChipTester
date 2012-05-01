@@ -4,6 +4,7 @@ require './database.rb'
 require 'erb'
 require 'json'
 require './email.rb'
+require './init.rb'
 
 get '/css/style.css' do
    scss :style, :style => :expanded
@@ -65,3 +66,5 @@ post '/reset' do
      Result.all.destroy
      return '<p>The database has been cleaned</p>'
 end
+
+

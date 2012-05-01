@@ -1,0 +1,16 @@
+#Master email address and password
+MASTER.ADMIN: prw@soton.ac.uk
+MASTER.PASSWORD: chip1234
+MASTER.PERMISSION: 0 #Maximum permission in the databse
+
+SERVER.DATABASE.CONFIG: mysql://root:chip1234@localhost/ChipTester
+#### Sending email configuration
+RESULT.EMAIL.ENABLE: yes
+#Configuration of the account to send emails to
+RESULT.EMAIL.SEND.USERNAME: soton.chiptester@gmail.com
+RESULT.EMAIL.SEND.SMTPADDRESS: smtp.gmail.com #The smtp server where the email is sent.
+RESULT.EMAIL.SEND.PORT: 587
+RESULT.EMAIL.SEND.DOMAIN: localhost
+RESULT.EMAIL.SEND.PASSWORD: chip1234
+RESULT.EMAIL.SEND.AUTHENTICATION: plain
+RESULT.EMAIL.SEND.ENABLE.TTLS: true

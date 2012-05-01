@@ -1,11 +1,13 @@
 require 'data_mapper'
+require 'yaml'
 
-DataMapper.setup(:default, 'mysql://root:04123612775@localhost/ChipTester')
-#DataMapper.setup(:default, 'mysql://root@localhost/ChipTester')
-#DataMapper.setup(:default, 'sqlite:test.db')
+database_config = YAML::parse( File.open( "config.yml" ))
+DataMapper.setup(:default, database_config.select("SERVER.DATABASE.CONFIG")[0].value)
+#Refer to config.yml to change the config line
 DataMapper::Logger.new($stdout, :debug)
 
 class Admin
+ include DataMapper::Resource
  property :email, String, :key => true #Natural primary key
  property :password, String, :required =>true
  property :permission, Integer, :required =>true
@@ -122,4 +124,7 @@ def StoreTestVectorResult(json_parsed)
     return @duv_fail
 end
 DataMapper.finalize
+
+
+
 
