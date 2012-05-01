@@ -97,7 +97,7 @@ req(const char *url, int method, const char *ctype,
 		rd.total_sz = data_len;
 		rd.pos = 0;
 
-		snprintf(buf, 256, "Content-Length: %ju", data_len);
+		snprintf(buf, sizeof(buf), "Content-Length: %ju", data_len);
 		slist = curl_slist_append(slist, buf);
 
 		curl_easy_setopt(curl, CURLOPT_READFUNCTION, _readdata);
@@ -113,7 +113,7 @@ req(const char *url, int method, const char *ctype,
 	}
 
 	if (method != METHOD_GET && ctype != NULL) {
-		snprintf(buf, 256, "Content-Type: %s", ctype);
+		snprintf(buf, sizeof(buf), "Content-Type: %s", ctype);
 		slist = curl_slist_append(slist, buf);
 	}
 
