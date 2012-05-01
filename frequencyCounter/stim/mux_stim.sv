@@ -2,7 +2,7 @@
 // Digital frequency counter to implement on Cyclone IV FPGA
 // to measure output frequency of Southampton Superchip samples.
 // 
-// vf1.2
+// vf1.3
 //
 // multiplexer module testbench
 // 
@@ -12,9 +12,9 @@ module buffer_stim;
 timeunit 1ns; timeprecision 10ps;
 
   logic out_wave ;
-  logic [4:0]select_input ;
+  logic [7:0]select_input ;
   logic in_signal [23:0] ;
-  logic enable, nReset ;
+  logic nReset ;
 
 
 integer i ;
@@ -23,7 +23,7 @@ mux inst_1 (
   out_wave,
   select_input,
   in_signal,
-  enable, nReset
+  nReset
 );
 
     
@@ -64,12 +64,8 @@ mux inst_1 (
       #1000
       select_input = 5 ;
       #1000
-      enable = 1 ;
       #10000
-      enable = 0 ;
       select_input = 15 ;
-      #5000
-      enable = 1 ;
       #15000
       select_input = 20 ;
             

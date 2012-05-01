@@ -2,7 +2,7 @@
 // Digital frequency counter to implement on Cyclone IV FPGA
 // to measure output frequency of Southampton Superchip samples.
 // 
-// vf1.2
+// vf1.3
 //
 // frequency measurement module testbench
 // 
@@ -11,13 +11,20 @@ module freq_measurement_stim;
 
 timeunit 1ns; timeprecision 10ps;
 
-logic in_signal, enable, Clock, nReset ;
+logic [15:0]out_value ;
+logic done_flag ;
+logic [7:0]samples_required ;
+logic in_wave ;
+logic enable, Clock, nReset ;
 
 integer i ;
 
 freq_measurement inst_1 (
-  measure,
-  in_signal, enable, Clock, nReset
+  out_value ,
+  done_flag ,
+  samples_required ,
+  in_wave ,
+  enable, Clock, nReset ,
 );
 
 
@@ -31,26 +38,17 @@ freq_measurement inst_1 (
     
   always
     begin
-      #11000
-        in_signal = 1 ;
       #10000
-        in_signal = 0 ;
-      
+        in_wave = 1 ;
       #10000
-        in_signal = 1 ;
-      #8000
-        in_signal = 0 ;
-      
-      #8000
-        in_signal = 1 ;
-      #11000
-        in_signal = 0 ;
+        in_wave = 0 ;
     end
 
   initial
     begin
       #500
       nReset = 1 ;
+      samples_required = 22 ;
       #500
       nReset = 0 ;
       #500
