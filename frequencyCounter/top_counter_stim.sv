@@ -2,7 +2,7 @@
 // Digital frequency counter to implement on Cyclone IV FPGA
 // to measure output frequency of Southampton Superchip samples.
 // 
-// vf1.2
+// vf1.3
 //
 // frequency counter testbench
 // 
@@ -11,26 +11,50 @@ module top_counter_stim;
 
 timeunit 1ns; timeprecision 10ps;
 
-logic in_signal[23:0] ;
-logic [15:0]mem_write ;
-logic wr_enable ;
-logic [5:0]address ;
-logic [15:0]mem_read ;
-logic rd_enable ;
-logic Clock, nReset ;
-//logic [15:0]out_buff [7:0] ;
+  parameter ADDR_WIDTH = 8,
+            DATA_WIDTH = 16,
+            NREGS = 5,
+            NDESIGNS = 24 ;
+  parameter SEL_INPUT = 'h00 ;
+  parameter SEL_SAMPLES = 'h01 ;
+
+  parameter REG_DATA = 'h02 ;
+
+  parameter START = 'h03 ;
+  parameter REG_IRQ = 'h04 ;
+
+  logic irq ;
+  
+  logic [ADDR_WIDTH-1:0] address ;
+
+  logic read ;
+  logic [DATA_WIDTH-1:0] readdata ;
+  logic readdatavalid ;
+
+  logic write ;
+  logic [DATA_WIDTH-1:0] writedata ;
+
+  logic in_signal [NDESIGNS-1:0] ;
+  logic Clock, nResetIn ;
+
+
 
 integer i ;
 
 top_counter inst_1 (
-  irq_out,
-  mem_write,
-  wr_enable,
+  irq,
+  
   address,
-  mem_read,
-  rd_enable,
+
+  read,
+  readdata,
+  oreaddatavalid,
+
+  write,
+  writedata,
+
   in_signal,
-  Clock, nReset
+  Clock, nResetIn
 );
 
 
@@ -64,58 +88,39 @@ top_counter inst_1 (
   initial
     begin
       #500
-      nReset = 1 ;
-      wr_enable = 0 ;
-      rd_enable = 0 ;
+      nResetIn = 1 ;
+      write = 1 ;
+      read = 0 ;
       #500
-      nReset = 0 ;
+      nResetIn = 0 ;
       #500
-      nReset = 0 ;
+      nResetIn = 0 ;
       #500
-      nReset = 1 ;
+      nResetIn = 1 ;
       #1000
-      rd_enable = 1 ;
-      address = 6'b100001 ;
-      mem_read = 'b10 ;
+      write = 1 ;
+      address = SEL_INPUT ;
+      writedata = 15 ;
       #1000
-      address = 6'b100010 ;
-      mem_read = 'b10000 ;
+      address = SEL_SAMPLES ;
+      writedata = 16 ;
       #1000
-      address = 6'b101111 ;
-      mem_read = 'b1000 ;
+      address = START ;
+      writedata = 8 ;
       #1000
-      rd_enable = 0 ;
+      write = 0 ;
+      #500000
       
-      
-            #500000
-      
-      if (irq_out) begin
+      if (irq) begin
         #1000
-      wr_enable = 1 ;
-      address = 6'b010001 ;
+      read = 1 ;
+      address = REG_DATA ;
       #1000
-      address = 6'b010010 ;
-      #1000
-      address = 6'b010011 ;
-      #1000
-      address = 6'b010100 ;
-      #1000
-      address = 6'b010101 ;
-      #1000
-      address = 6'b010110 ;
-      #1000
-      address = 6'b010111 ;
-      #1000
-      address = 6'b011000 ;
-      #1000
-      address = 6'b011001 ;
-      wr_enable = 0 ;
+      read = 0 ;
       end
       
+      
       #10000
-      
-
-      
       $stop;
       $finish;
    end   
