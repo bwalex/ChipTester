@@ -153,10 +153,10 @@
 				0x000000D0 0x0B0000D0 0x00000010
 				0x000000E0 0x0B0000E0 0x00000010 >;
 
-			lcd_0: unknown@0x10 {
-				compatible = "unknown,unknown-11.1";
+			lcd_0: de2lcd@0x10 {
+				compatible = "de2lcd,de2lcd-1.0";
 				reg = < 0x00000010 0x00000010 >;
-			}; //end unknown@0x10 (lcd_0)
+			}; //end de2lcd@0x10 (lcd_0)
 
 			sd_clk: gpio@0x100 {
 				compatible = "ALTR,pio-11.1", "ALTR,pio-1.0";
