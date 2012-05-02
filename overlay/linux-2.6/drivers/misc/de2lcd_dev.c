@@ -8,6 +8,7 @@
 #include <linux/signal.h>
 #include <linux/sched.h>
 #include <linux/timer.h>
+#include <linux/delay.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/of.h>
@@ -22,7 +23,7 @@
 #define DE2LCD_IOC_CLEAR	_IO(MAJOR_NUM, 0)
 #define DE2LCD_IOC_CURSOR_ON	_IO(MAJOR_NUM, 1)
 #define DE2LCD_IOC_CURSOR_OFF	_IO(MAJOR_NUM, 2)
-#define DE2LCD_IOC_SET_SHL	_IOW(MAJOR_NUM, int)
+#define DE2LCD_IOC_SET_SHL	_IOW(MAJOR_NUM, 3, int)
 
 
 #define INST_REG	0x00
@@ -60,7 +61,7 @@ static struct timer_list de2lcd_timer;
 static void
 de2lcd_write_instreg(struct de2lcd_softc *sc, uint8_t v)
 {
-	writeb(v, sc->tr_base + INST_REG);
+	writeb(v, sc->de_base + INST_REG);
 	mdelay(2);
 }
 
@@ -68,7 +69,7 @@ de2lcd_write_instreg(struct de2lcd_softc *sc, uint8_t v)
 static void
 de2lcd_write_datareg(struct de2lcd_softc *sc, uint8_t v)
 {
-	writeb(v, sc->tr_base + DATA_REG);
+	writeb(v, sc->de_base + DATA_REG);
 	mdelay(1);
 }
 
@@ -148,6 +149,7 @@ static void
 de2lcd_shl_task(long data)
 {
 	struct de2lcd_softc *sc = (struct de2lcd_softc *)data;
+	int e;
 
 	de2lcd_shl(sc);
 
@@ -163,16 +165,15 @@ de2lcd_schedule_shl(struct de2lcd_softc *sc, int ms)
 {
 	int e;
 
-
 	if (sc->de_shl_ms != 0)
-		del_timer(&sc);
+		del_timer(&de2lcd_timer);
 
 	sc->de_shl_ms = ms;
 
 	if (ms == 0)
 		return 0;
 
-	setup_timer(&de2lcd_timer, de2lcd_shl_task, (long)sc);
+	setup_timer(&de2lcd_timer, de2lcd_shl_task, (unsigned long)sc);
 	e = mod_timer(&de2lcd_timer, jiffies + msecs_to_jiffies(ms));
 	if (e) {
 		printk("Error in mod_timer");
@@ -233,7 +234,7 @@ static ssize_t
 de2lcd_write(struct file *file, const char __user *buf, size_t count,
 	     loff_t *fpos)
 {
-	struct de2lcd_softc sc;
+	struct de2lcd_softc *sc;
 	char linebuf[2*N_CHARS_EXT + 1];
 
 	sc = container_of(file->f_dentry->d_inode->i_cdev,
@@ -252,11 +253,11 @@ de2lcd_write(struct file *file, const char __user *buf, size_t count,
 	de2lcd_write_at(sc, (int)*fpos, linebuf, count);
 
 	*fpos += count;
-	if (fpos >= N_CHARS_EXT && fpos < CURSOR_BOTLEFT)
+	if (*fpos >= N_CHARS_EXT && *fpos < CURSOR_BOTLEFT)
 		*fpos += (CURSOR_BOTLEFT - N_CHARS_EXT);
 
-	if (fpos >= CURSOR_BOTLEFT + N_CHARS_EXT)
-		*fpos = (fpos - 2*N_CHARS_EXT);
+	if (*fpos >= CURSOR_BOTLEFT + N_CHARS_EXT)
+		*fpos = (*fpos - 2*N_CHARS_EXT);
 
 	return count;
 }
@@ -280,7 +281,6 @@ de2lcd_probe(struct platform_device *pdev)
 	int id;
 	int rc;
 
-	irq = -1;
 	de_base = NULL;
 
 	id = (pdev->id >= 0) ? pdev->id : 0;
@@ -392,11 +392,11 @@ de2lcd_init(void)
 	rc = alloc_chrdev_region(&de2lcd_dev, 0, MAX_CDEVS, DRIVER_NAME);
 	if (rc) {
 		printk(KERN_ERR "de2lcd: alloc_chrdev_region failed!\n");
-		class_destroy(trunner_class);
+		class_destroy(de2lcd_class);
 		return rc;
 	}
 
-	del2cd_major = MAJOR(de2lcd_dev);
+	de2lcd_major = MAJOR(de2lcd_dev);
 
 	rc = platform_driver_register(&de2lcd_platform_driver);
 
