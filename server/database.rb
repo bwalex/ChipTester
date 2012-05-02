@@ -13,6 +13,18 @@ class Admin
  property :permission, Integer, :required =>true
 end
 
+class FileUpload
+  include DataMapper::Resource
+  property :id, Serial
+  property :email, String,
+  property :team,  Integer
+  property :file_name, String 
+  property :file_hash, String
+  property :sent, Boolean
+  property :erased, Boolean
+  property :uploaded_at, DateTime
+end
+
 class LogEntry
   include DataMapper::Resource
   property :id, Serial
@@ -122,6 +134,19 @@ def StoreTestVectorResult(json_parsed)
         :updated_at => DateTime.parse(json_parsed["TestVectorResult"]["updated_at"])
     )
     return @duv_fail
+end
+
+def StoreFileUpload(params)
+  @uploaded_file = FileUpload.create(
+  :email => params["email"],
+  :team => params["team"],
+  :file_name => params["file_name"],
+  :file_hash => params["file_hash"],
+  :sent => params["sent"],
+  :erased => params["erased"],
+  :uploaded_at => DateTime.now
+)  
+  @uploaded_file.save
 end
 DataMapper.finalize
 

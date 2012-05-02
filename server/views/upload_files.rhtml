@@ -1,0 +1,26 @@
+<div id="content" class="row">
+	<div class="post">
+		<h2 class="title"><a href="#">Chip Tester Results </a></h2>
+		<div class="entry">
+		<div id="message">
+		  <% if @flash_error[:error] %>
+		    <p class="error"><%= @flash_error[:error] %></p>
+		  <% end %> 
+		<form enctype="multipart/form-data" method="post" action = "/submited_files">
+		  <p>Email*<br>
+		    <input type="text" name="email" size="30">
+		  </p>
+		  <p>Team Number<br>
+		    <input type="number" name="team_number">
+		  </p>
+		  <p>Upload to ChipTester<br>
+		      <input type="file" name="uploaded_file" size="40">
+		  </p>
+		  <div>
+		      <input type="submit" value="Send">
+		  </div>
+		</form>
+		</div>
+	</div>
+	<div style="clear: both;">&nbsp;</div>
+</div>

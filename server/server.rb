@@ -5,6 +5,11 @@ require 'erb'
 require 'json'
 require './email.rb'
 require './init.rb'
+require 'sinatra/flash'
+require 'sass'
+
+#Enabling Sessions
+enable :sessions
 
 get '/css/style.css' do
    scss :style, :style => :expanded
@@ -15,6 +20,38 @@ get '/' do
    erb :overview
 end
 
+get '/upload_files' do
+  @flash_error = flash
+  erb :upload_files
+end
+
+post '/submited_files' do
+  errors = false
+  error_msg = ''
+  if params['uploaded_file'].nil?
+    error_msg = error_msg + "A file must be specified. \n"
+    errors = true
+  end
+  if params['email'].empty?
+    error_msg = error_msg + "An email must be specified. \n"
+    errors = true
+  end
+   if params['team_number'].empty?
+    error_msg = error_msg + "A team number must be specified. \n"
+    errors = true
+  end
+  if errors
+    flash[:error] = error_msg
+    redirect "/upload_files"
+  else
+      upload_files = {'file_name'=> params['uploaded_file'][:filename], 'email' => params['email'], 'team' => params['team_number'], 'file_hash' => 'x', 'sent' => false, 'erased' => 'false'}
+      StoreFileUpload(upload_files)
+      File.open('uploads/' + params['uploaded_file'][:filename], "w") do |f|
+      f.write(params['uploaded_file'][:tempfile].read)
+  end
+  "The file was successfully uploaded!"
+  end
+end
 get '/admin' do
    erb :admin
 end
