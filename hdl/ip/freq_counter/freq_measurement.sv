@@ -76,7 +76,7 @@ module freq_measurement #(
   always_ff @(posedge Clock, negedge nReset)
     if (!nReset)
       edge_count  <= 0;
-    else if (rising_edge && enabled)
+    else if (rising_edge && enable)
       edge_count  <= edge_count + 1;
 
 
@@ -85,7 +85,7 @@ module freq_measurement #(
       cycle_count <= 0;
     else if (count_overflow)
       cycle_count <= 0;
-    else if (enabled)
+    else if (enable)
       cycle_count <= cycle_count + 1;
 
 endmodule

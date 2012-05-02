@@ -7,13 +7,14 @@
 // control module - Controls the sub-modules, providing internal signals
 // and stores output data in registers, to be read out.
 
-module control #(
+module fc_control #(
   parameter ADDR_WIDTH = 8,
             DATA_WIDTH = 32,
             NREGS = 6
 )(
   input                         clock,
   input                         nreset,
+
   input        [ADDR_WIDTH-1:0] address,
 
   input                         read,
@@ -27,6 +28,7 @@ module control #(
 
   output       [DATA_WIDTH-1:0] cycle_count,
   output       [DATA_WIDTH-1:0] input_select,
+  output logic                  busy,
   output logic                  enable,
  
   input                         done,
@@ -37,6 +39,7 @@ module control #(
   timeprecision 10ps;
 
   logic        [DATA_WIDTH-1:0] regfile[NREGS];
+  logic                         done_d1;
 
   parameter REG_INPUT_SEL  = 'h00;
   parameter REG_EDGECOUNT  = 'h02;
