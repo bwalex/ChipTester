@@ -24,15 +24,17 @@
 #define DE2LCD_IOC_CURSOR_ON	_IO(MAJOR_NUM, 1)
 #define DE2LCD_IOC_CURSOR_OFF	_IO(MAJOR_NUM, 2)
 #define DE2LCD_IOC_SET_SHL	_IOW(MAJOR_NUM, 3, int)
+#define DE2LCD_IOC_TEST		_IO(MAJOR_NUM, 4)
 
 
 #define INST_REG	0x00
-#define DATA_REG	0x04
+#define DATA_REG	0x08
 
 #define CURSOR_TOPLEFT	0x00
 #define CURSOR_BOTLEFT	0x40
 
 #define INST_CLEAR	0x01
+#define INST_HOME	0x02
 #define INST_CURSOR_ON	0x0f
 #define INST_CURSOR_OFF	0x0c
 #define INST_SET_CURSOR	0x80
@@ -70,7 +72,7 @@ static void
 de2lcd_write_datareg(struct de2lcd_softc *sc, uint8_t v)
 {
 	writeb(v, sc->de_base + DATA_REG);
-	mdelay(1);
+	udelay(100);
 }
 
 
@@ -115,6 +117,8 @@ de2lcd_write_at(struct de2lcd_softc *sc, int loc, char *buf, size_t count)
 {
 	uint8_t b;
 
+	de2lcd_write_instreg(sc, INST_HOME);
+
 	b = (uint8_t)loc | INST_SET_CURSOR;
 	de2lcd_write_instreg(sc, b);
 
@@ -122,6 +126,15 @@ de2lcd_write_at(struct de2lcd_softc *sc, int loc, char *buf, size_t count)
 		b = *buf++;
 		de2lcd_write_datareg(sc, b);
 	}
+
+	return 0;
+}
+
+
+static int
+de2lcd_test(struct de2lcd_softc *sc)
+{
+	de2lcd_write_at(sc, 0, "Hello World!", strlen("Hello World!"));
 
 	return 0;
 }
@@ -146,7 +159,7 @@ de2lcd_release(struct inode *inode, struct file *file)
 
 
 static void
-de2lcd_shl_task(long data)
+de2lcd_shl_task(unsigned long data)
 {
 	struct de2lcd_softc *sc = (struct de2lcd_softc *)data;
 	int e;
@@ -165,8 +178,10 @@ de2lcd_schedule_shl(struct de2lcd_softc *sc, int ms)
 {
 	int e;
 
-	if (sc->de_shl_ms != 0)
+	if (sc->de_shl_ms != 0) {
 		del_timer(&de2lcd_timer);
+		de2lcd_write_instreg(sc, INST_HOME);
+	}
 
 	sc->de_shl_ms = ms;
 
@@ -208,6 +223,11 @@ de2lcd_ioctl(struct file *file,
 
 	case DE2LCD_IOC_CURSOR_OFF:
 		rc = de2lcd_cursor_off(sc);
+		break;
+
+
+	case DE2LCD_IOC_TEST:
+		rc = de2lcd_test(sc);
 		break;
 
 
@@ -259,7 +279,7 @@ de2lcd_write(struct file *file, const char __user *buf, size_t count,
 	if (*fpos >= CURSOR_BOTLEFT + N_CHARS_EXT)
 		*fpos = (*fpos - 2*N_CHARS_EXT);
 
-	return count;
+	return (ssize_t)count;
 }
 
 
