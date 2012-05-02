@@ -413,6 +413,9 @@ module de2115sys(
     .test_runner_conduit_enable             (tr_enable),
     .test_runner_conduit_busy               (sram_arb_msel),
 
+    .freq_counter_external_in_signal        (tr_miso),
+//    .freq_counter_external_busy             (<connected-to-freq_counter_external_busy>),
+
     .func_sel_external_connection_export    (LEDR)
   );
 

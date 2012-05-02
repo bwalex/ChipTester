@@ -71,7 +71,6 @@ static int
 fcounter_enable(struct fcounter_softc *sc)
 {
 	uint32_t e = 1;
-	int rc;
 
 	if (sc->fc_busy)
 		return -EBUSY;
@@ -118,7 +117,6 @@ fcounter_read(struct file *file, char __user *buf, size_t count,
 {
 	struct fcounter_softc *sc;
 	uint32_t d;
-	ssize_t rval = 0;
 
 	sc = container_of(file->f_dentry->d_inode->i_cdev,
 			  struct fcounter_softc, fc_cdev);

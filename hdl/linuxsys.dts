@@ -278,6 +278,13 @@
 			interrupts = < 7 >;
 		}; //end trunner@0xd000000 (test_runner_0)
 
+		freq_counter_0: fcounter@0xd200000 {
+			compatible = "fcounter,fcounter-1.0";
+			reg = < 0x0D200000 0x00000400 >;
+			interrupt-parent = < &cpu >;
+			interrupts = < 12 >;
+		}; //end trunner@0xd200000 (freq_counter_0)
+
 		sram_bridge: sram_bridge@0xc000000 {
 			compatible = "sram-bridge";
 			reg = < 0x0C000000 0x00200000 >;

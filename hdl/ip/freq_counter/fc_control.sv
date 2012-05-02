@@ -64,7 +64,8 @@ module fc_control #(
         regfile[i] <= 'b0;
 
       // Assign default set values
-      regfile[REG_MAGIC]     <= 'h0A;
+      regfile[REG_MAGIC]      <= 'h0A;
+      regfile[REG_CYCLECOUNT] <= (1 << 23);
     end
     else if (done && ~done_d1) begin /* Positive edge-triggered IRQ */
       regfile[REG_EDGECOUNT] <= edge_count;
