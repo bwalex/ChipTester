@@ -134,6 +134,8 @@ set_location_assignment PIN_G21 -to LEDG
 set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDG
 set_location_assignment PIN_E21 -to LEDG0
 set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDG0
+set_location_assignment PIN_H21 -to LEDG4
+set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDG4
 
 
 #============================================================
@@ -438,6 +440,9 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ENET0_LINK100
 # CLOCK
 #============================================================
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clock_50
+
+set_location_assignment PIN_AE23 -to SMA_CLKOUT
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SMA_CLKOUT
 
 
 #============================================================

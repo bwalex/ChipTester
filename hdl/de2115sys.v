@@ -2,6 +2,8 @@ module de2115sys(
   input         clock_50,
   input         reset_n, /* XXX: unused */
 
+  output        SMA_CLKOUT,
+
   // SDRAM
   output [12:0] DRAM_ADDR,
   output [ 1:0] DRAM_BA,
@@ -35,6 +37,7 @@ module de2115sys(
   output [ 3:0] LEDR,
   output        LEDG,
   output        LEDG0,
+  output        LEDG4,
   
   //////////// I2C for EEPROM //////////
   output        EEP_I2C_SCLK,
@@ -152,6 +155,10 @@ module de2115sys(
   wire   [ 4:0] tr_target_sel;
 
   wire          sigtap_clk;
+
+
+  assign SMA_CLKOUT = clock_10;
+
 
   assign UART_CTS = ~UART_CTS_n;
 
@@ -414,7 +421,7 @@ module de2115sys(
     .test_runner_conduit_busy               (sram_arb_msel),
 
     .freq_counter_external_in_signal        (tr_miso),
-//    .freq_counter_external_busy             (<connected-to-freq_counter_external_busy>),
+    .freq_counter_external_busy             (LEDG4),
 
     .func_sel_external_connection_export    (LEDR)
   );
