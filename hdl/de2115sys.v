@@ -104,6 +104,8 @@ module de2115sys(
   wire          clock_10;
   wire          global_reset_n;
 
+  wire          dyn_clock;
+
   wire          enet_tx_clk_mac;
   wire          enet_tx_clk_phy;
   wire          enet_rx_clk_270deg;
@@ -150,6 +152,7 @@ module de2115sys(
   wire          tr_done;
   wire          tr_enable;
 
+  wire   [23:0] temp_test;
   wire   [23:0] tr_miso;
   wire   [23:0] tr_mosi;
   wire   [ 4:0] tr_target_sel;
@@ -157,8 +160,10 @@ module de2115sys(
   wire          sigtap_clk;
 
 
-  assign SMA_CLKOUT = clock_10;
+  assign temp_test  = {tr_miso[23:3], dyn_clock, clock_10, tr_miso[0]};
 
+
+  assign SMA_CLKOUT = dyn_clock;
 
   assign UART_CTS = ~UART_CTS_n;
 
@@ -278,6 +283,8 @@ module de2115sys(
     .clock               (clock_100),
     .reset_n             (global_reset_n),
     .fifo_clock          (clock_10),
+
+    .dyn_clock           (dyn_clock),
 
     .enable              (tr_enable),
     .done                (tr_done),
@@ -420,7 +427,7 @@ module de2115sys(
     .test_runner_conduit_enable             (tr_enable),
     .test_runner_conduit_busy               (sram_arb_msel),
 
-    .freq_counter_external_in_signal        (tr_miso),
+    .freq_counter_external_in_signal        (temp_test),
     .freq_counter_external_busy             (LEDG4),
 
     .func_sel_external_connection_export    (LEDR)

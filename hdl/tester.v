@@ -13,7 +13,7 @@ module tester #(
 
             WAIT_WIDTH = 16,
             DSEL_WIDTH = 5, /* Target design select */
-				    CYCLE_RANGE = 5,
+            CYCLE_RANGE = 5,
             PLL_MIF_FILE = "plladditional.mif",
             PLL_DATA_WIDTH = 8,
 
@@ -22,6 +22,8 @@ module tester #(
   input                    clock,
   input                    reset_n,
   input                    fifo_clock,
+
+  output                   dyn_clock,
 
   input                    enable,
   output                   done,
@@ -60,7 +62,8 @@ module tester #(
   wire [PLL_DATA_WIDTH-1:0] pll_m;
   wire [PLL_DATA_WIDTH-1:0] pll_n;
   wire [PLL_DATA_WIDTH-1:0] pll_c;
-  
+
+  assign dyn_clock = pll_clock;
 
   test_controller#(
     .ADDR_WIDTH         (ADDR_WIDTH),
