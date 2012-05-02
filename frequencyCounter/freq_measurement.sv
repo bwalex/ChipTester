@@ -10,47 +10,82 @@
 module freq_measurement #(
   parameter DATA_WIDTH = 16
 )(
-  output logic [DATA_WIDTH-1:0]out_value,
-  output logic done_flag,
-  input wire [DATA_WIDTH-1:0]samples_required,
-  input wire in_wave,
-  input wire enable, Clock, nReset
+  input                         Clock,
+  input                         nReset,
+
+  output logic [DATA_WIDTH-1:0] edge_count,
+  output                        done_flag,
+  input        [DATA_WIDTH-1:0] n_cycles,
+  input                         in_wave,
+  input                         enable_in
 );
 
-timeunit 1ns; timeprecision 10ps;
+  timeunit       1ns;
+  timeprecision 10ps;
 
-logic delay, active ;
-logic [DATA_WIDTH-1:0]samples_taken ;
-logic [DATA_WIDTH-1:0]count ;
+  wire                          rising_edge;
+  wire                          count_overflow;
+  logic        [DATA_WIDTH-1:0] cycle_count;
+  logic                         in_wave_sync0;
+  logic                         in_wave_sync1;
+  logic                         in_wave_d1;
+  logic                         in_wave_d2;
+  logic                         enable_d1;
+  logic                         enable;
 
-    
-always_ff @(posedge Clock, negedge nReset)
-  if (!nReset)      // asynchronous reset
-  begin
-    active <= 0 ;
-    out_value <= 0 ;
-    samples_taken <= 0 ;
-    done_flag <= 0 ;
-  end else if ((enable) && (!done_flag)) begin
-    if ((in_wave) && (!delay)) begin
-      if (!active) active <= 1 ;
-      if (active) samples_taken <= samples_taken + 1 ;
-      if (samples_taken == samples_required - 1) begin
-        active <= 0 ;
-        done_flag <= 1 ;
-        out_value <= count ;
-      end
+
+  /* Synchronizer stage - we are effectively crossing a clock domain */
+  always_ff @(posedge Clock, negedge nReset)
+    if (!nReset) begin
+      in_wave_sync0 <= 1'b0;
+      in_wave_sync1 <= 1'b0;
+      in_wave_d1    <= 1'b0;
+      in_wave_d2    <= 1'b0;
     end
-  end
-  
-  
-always_ff @(posedge Clock, negedge nReset)
-  if (!nReset) count <= 0 ;
-  else if ((enable) && (active)) count <= count + 1 ;
-  
-  
-always_ff @(posedge Clock, negedge nReset)
-  if (!nReset) delay <= 0 ;
-  else if (enable) delay <= in_wave ;
- 
+    else begin
+      in_wave_sync0 <= in_wave;
+      in_wave_sync1 <= in_wave_sync0;
+      in_wave_d1    <= in_wave_sync1;
+      in_wave_d2    <= in_wave_d1;
+    end
+
+
+  assign rising_edge    = (in_wave_d1 & ~in_wave_d2);
+
+
+  assign count_overflow = (cycle_count == n_cycles);
+  assign done_flag      = count_overflow;
+
+
+  always_ff @(posedge Clock, negedge nReset)
+    if (!nReset)
+      enable_d1   <= 1'b0;
+    else
+      enable_d1   <= enable_in;
+
+
+  always_ff @(posedge Clock, negedge nReset)
+    if (!nReset)
+      enable      <= 1'b0;
+    else if (count_overflow)
+      enable      <= 1'b0;
+    else if (enable_in & ~enable_d1)
+      enable      <= 1'b1;
+
+
+  always_ff @(posedge Clock, negedge nReset)
+    if (!nReset)
+      edge_count  <= 0;
+    else if (rising_edge && enabled)
+      edge_count  <= edge_count + 1;
+
+
+  always_ff @(posedge Clock, negedge nReset)
+    if (!nReset)
+      cycle_count <= 0;
+    else if (count_overflow)
+      cycle_count <= 0;
+    else if (enabled)
+      cycle_count <= cycle_count + 1;
+
 endmodule

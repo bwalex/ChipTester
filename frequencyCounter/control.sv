@@ -9,91 +9,107 @@
 
 module control #(
   parameter ADDR_WIDTH = 8,
-            DATA_WIDTH = 16,
-            NREGS = 5
+            DATA_WIDTH = 32,
+            NREGS = 6
 )(
-  output logic irq,
+  input                         clock,
+  input                         nreset,
+  input        [ADDR_WIDTH-1:0] address,
 
-  input      [ADDR_WIDTH-1:0] address,
+  input                         read,
+  output reg   [DATA_WIDTH-1:0] readdata,
+  output reg                    readdatavalid,
 
-  input                       read,
-  output reg [DATA_WIDTH-1:0] readdata,
-  output reg                  readdatavalid,
+  input                         write,
+  input        [DATA_WIDTH-1:0] writedata,
 
-  input                       write,
-  input      [DATA_WIDTH-1:0] writedata,
+  output                        irq,
 
-  output logic [DATA_WIDTH-1:0]samples_required,
-  output logic [DATA_WIDTH-1:0]select_input,
-  output logic enable, nResetOut,
-  
-  input logic done_flag,
-  input logic [DATA_WIDTH-1:0]out_value,
-  input logic Clock, nReset
+  output       [DATA_WIDTH-1:0] cycle_count,
+  output       [DATA_WIDTH-1:0] input_select,
+  output logic                  enable,
+ 
+  input                         done,
+  input        [DATA_WIDTH-1:0] edge_count
 );
 
-timeunit 1ns; timeprecision 10ps;
+  timeunit       1ns;
+  timeprecision 10ps;
 
-parameter SEL_INPUT = 'h00 ;
-parameter SEL_SAMPLES = 'h01 ;
-parameter REG_DATA = 'h02 ;
-parameter START = 'h03 ;
-parameter REG_IRQ = 'h04 ;
-parameter IRQ_TR = 0;
+  logic        [DATA_WIDTH-1:0] regfile[NREGS];
 
-logic [15:0]i ;
-logic [DATA_WIDTH-1:0] regfile [NREGS];
+  parameter REG_INPUT_SEL  = 'h00;
+  parameter REG_EDGECOUNT  = 'h02;
+  parameter REG_CYCLECOUNT = 'h03;
+  parameter REG_IRQ        = 'h04;
+  parameter REG_MAGIC      = 'h05;
 
-assign samples_required = (regfile[SEL_SAMPLES]);
-assign select_input = (regfile[SEL_INPUT]);
-assign regfile[REG_DATA] = done_flag ? out_value : regfile[REG_DATA] ;
-assign irq = (regfile[REG_IRQ] != 'h0);
+  // fake register
+  parameter REG_ENABLE     = 'h0A;
 
 
-always_ff @(posedge Clock, negedge nReset)
-  if (!nReset) begin
-    for (i = 0; i < NREGS; i = i+1)
+  assign cycle_count  =  regfile[REG_CYCLECOUNT];
+  assign input_select =  regfile[REG_INPUT_SEL];
+  assign irq          = (regfile[REG_IRQ] != 'h0);
+
+
+  integer i;
+
+  always @(posedge clock, negedge nreset)
+    if (~nreset) begin
+      for (i = 0; i < NREGS; i = i+1)
         regfile[i] <= 'b0;
+
+      // Assign default set values
+      regfile[REG_MAGIC]     <= 'h0A;
     end
-  else if (done_flag)                    /* Positive edge-triggered IRQ */
-      regfile[REG_IRQ][IRQ_TR] <= 'b1;
-  else if (write && (address < NREGS))
-      regfile[address] <= writedata;
-  else if (read && (address == REG_DATA)) /* Clear IRQ reg when data is read */
-    begin
-      regfile[REG_IRQ] <= 'b0;
-      regfile[REG_DATA] <= 'b0;
+    else if (done && ~done_d1) begin /* Positive edge-triggered IRQ */
+      regfile[REG_EDGECOUNT] <= edge_count;
+      regfile[REG_IRQ][0]    <= 1'b1;
     end
+    else if (write && (address < NREGS))
+      regfile[address]       <= writedata;
+    else if (read && (address == REG_IRQ)) /* Clear IRQ reg when read */
+      regfile[REG_IRQ]       <= 'b0;
 
 
-always @(posedge Clock, negedge nReset)
-  if (!nReset)
-    enable <= 'b0;
-  else if (write && (address == START))
-    enable <= 'b1; 
-  else if (done_flag)
-    enable <= 1'b0;
+  always @(posedge clock, negedge nreset)
+    if (~nreset)
+      enable <= 1'b0;
+    else if (write && (address == REG_ENABLE))
+      enable <= writedata[0]; 
+    else if (enable)
+      enable <= 1'b0;
 
 
-always @(posedge Clock, negedge nReset)
-  if (!nReset)
-    readdata <= 'b0;
-  else if (read)
-    if (address == REG_DATA) readdata <= regfile[address];
+  always @(posedge clock, negedge nreset)
+    if (~nreset)
+      readdata <= 'b0;
+    else if (read)
+      if (address < NREGS)
+        readdata <= regfile[address];
 
 
-always_ff @(posedge Clock, negedge nReset)
-  if (!nReset) nResetOut <= 0 ;
-  else begin
-    if (regfile[REG_IRQ] != 'h0) nResetOut <= 0 ;
-    else nResetOut <= 1 ;
-  end
+  always @(posedge clock, negedge nreset)
+    if (~nreset)
+      readdatavalid <= 1'b0;
+    else
+      readdatavalid <= read;
 
 
-always @(posedge Clock, negedge nReset)
-  if (!nReset)
-    readdatavalid <= 1'b0;
-  else
-    readdatavalid <= read;
+  always @(posedge clock, negedge nreset)
+    if (~nreset)
+      done_d1 <= 1'b0;
+    else
+      done_d1 <= done;
+
+
+  always @(posedge clock, negedge nreset)
+    if (~nreset)
+      busy <= 1'b0;
+    else if (enable)
+      busy <= 1'b1;
+    else if (done)
+      busy <= 1'b0;
 
 endmodule
