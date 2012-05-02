@@ -14,7 +14,7 @@ module tester #(
             WAIT_WIDTH = 16,
             DSEL_WIDTH = 5, /* Target design select */
 				    CYCLE_RANGE = 5,
-            PLL_MIF_FILE = "hdl.mif",
+            PLL_MIF_FILE = "plladditional.mif",
             PLL_DATA_WIDTH = 8,
 
             DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH

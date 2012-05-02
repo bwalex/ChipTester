@@ -99,7 +99,7 @@ module sram_arb_sync #(
       writedata_r <= writedata;
 
   // For simulation this needs to be posedge, for now. for synthesis, negedge
-  always @(/*neg*/posedge clock, negedge reset_n)
+  always @(/*pos*/negedge clock, negedge reset_n)
     if (~reset_n)
       readdata_r <= 'b0;
     else

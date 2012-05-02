@@ -94,6 +94,7 @@ module REPLL_CONTROL(
     end 
     else if (write_param_ctr_int) begin
       write_param_ctr_d0  <= 1'b1;
+      config_data_in[  8] <= 1'b0;
       config_data_in[7:0] <= config_data_in_int;
       counter_type_ctr    <= counter_type_ctr_int;
       counter_param_ctr   <= counter_param_ctr_int;
@@ -101,13 +102,6 @@ module REPLL_CONTROL(
     else begin
       write_param_ctr_d0  <= 1'b0;
     end
-
-
-  always @(posedge clock_ctr, posedge sys_reset)
-    if (sys_reset)
-      state <= ResetPLL;
-    else
-      state <= next_state;
 
 
   always @(posedge clock_ctr, posedge sys_reset)

@@ -94,7 +94,7 @@ module PLL_INTERFACE#(
   scandataout,
   scandone);
 
-  REPLL_pllrcfg_1a01  #(
+  REPLL_pllrcfg_l021  #(
     .FILELOCATION_AND_NAME         (FILELOCATION_AND_NAME)
    ) pr0 (
   busy,
