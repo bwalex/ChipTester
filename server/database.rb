@@ -16,7 +16,7 @@ end
 class FileUpload
   include DataMapper::Resource
   property :id, Serial
-  property :email, String,
+  property :email, String
   property :team,  Integer
   property :file_name, String 
   property :file_hash, String

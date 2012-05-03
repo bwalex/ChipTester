@@ -15,14 +15,41 @@ get '/css/style.css' do
    scss :style, :style => :expanded
 end
 
+
+
+#Upload files view
+get '/upload_files' do
+  @flash_error = flash
+  erb :upload_files
+end
+
+#Admin view
+get '/admin' do
+   erb :admin
+end
+
+#Overview 
 get '/' do
    @results = Result.all
    erb :overview
 end
 
-get '/upload_files' do
-  @flash_error = flash
-  erb :upload_files
+#Design Result view
+get '/DesignResult/:result_id' do
+    @designs = DesignResult.all(:result_id => params[:result_id])
+    erb :design_result
+end
+
+#Design Result Test View
+get '/DesignResult/TestResult/:design_result_id' do
+    @tests = TestVectorResult.all(:design_result_id => params[:design_result_id])
+    erb :test_result
+end
+
+#Log Entries view
+get '/LogEntries' do
+  @logs = LogEntry.all
+  erb :log_entry
 end
 
 post '/submited_files' do
@@ -52,23 +79,15 @@ post '/submited_files' do
   "The file was successfully uploaded!"
   end
 end
-get '/admin' do
-   erb :admin
-end
 
-get '/DesignResult/:result_id' do
-    @designs = DesignResult.all(:result_id => params[:result_id])
-    erb :design_result
-end
-
-get '/DesignResult/TestResult/:design_result_id' do
-    @tests = TestVectorResult.all(:design_result_id => params[:design_result_id])
-    erb :test_result
-end
-
-get '/LogEntries' do
-  @logs = LogEntry.all
-  erb :log_entry
+get '/download_configuration' do 
+  @files_uploaded = (FileUpload.all(:erased => false) & FileUpload.all(:sent => false)).all(:order => [ :uploaded_at.desc ])
+  if !@files_uploaded.empty?
+    file = File.join('uploads/', @files_uploaded[0].file_name)
+    send_file(file, :disposition => 'attachment', :filename => File.basename(file))
+  else
+    "There is nothing to download. SENT JSON HERE"
+  end
 end
 
 post '/' do
