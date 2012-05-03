@@ -7,6 +7,7 @@ require './email.rb'
 require './init.rb'
 require 'sinatra/flash'
 require 'sass'
+require 'mail'
 
 #Enabling Sessions
 enable :sessions
@@ -55,16 +56,16 @@ end
 post '/submited_files' do
   errors = false
   error_msg = ''
-  if params['uploaded_file'].nil?
-    error_msg = error_msg + "A file must be specified. \n"
-    errors = true
-  end
   if params['email'].empty?
-    error_msg = error_msg + "An email must be specified. \n"
+    error_msg = error_msg + "A valid <i>E-Mail</i> must be specified. <br />"
     errors = true
   end
-   if params['team_number'].empty?
-    error_msg = error_msg + "A team number must be specified. \n"
+  if params['team_number'].empty?
+    error_msg = error_msg + "A valid <i>Team Number</i> must be specified. <br />"
+    errors = true
+  end
+  if params['uploaded_file'].nil?
+    error_msg = error_msg + "An <i>Input File</i> must be specified. <br />"
     errors = true
   end
   if errors
