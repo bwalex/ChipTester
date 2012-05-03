@@ -59,14 +59,18 @@ post '/submited_files' do
   if params['email'].empty?
     error_msg = error_msg + "A valid <i>E-Mail</i> must be specified. <br />"
     errors = true
+  else if params['email'] !~ /^.+@.+\..+$/
+    error_msg = error_msg + "A valid <i>E-Mail</i> must be specified. You entered <i>" + params['email'] + "</i>. <br />"
+    errors = true
+    end
   end
   if params['team_number'].empty?
     error_msg = error_msg + "A valid <i>Team Number</i> must be specified. <br />"
     errors = true
-  end
-  if params['uploaded_file'].nil?
-    error_msg = error_msg + "An <i>Input File</i> must be specified. <br />"
+  else if params['team_number'] =~ /^+\D+$/
+    error_msg = error_msg + "A valid <i>Team Number</i> must be specified. You entered <i>" + params['team_number'] + "</i>. <br />"
     errors = true
+    end
   end
   if errors
     flash[:error] = error_msg
