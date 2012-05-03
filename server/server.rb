@@ -8,6 +8,7 @@ require './init.rb'
 require 'sinatra/flash'
 require 'sass'
 require 'digest/md5'
+require 'mail'
 
 #Enabling Sessions
 enable :sessions
@@ -15,8 +16,6 @@ enable :sessions
 get '/css/style.css' do
    scss :style, :style => :expanded
 end
-
-
 
 #Upload files view
 get '/upload_files' do
@@ -67,7 +66,7 @@ get '/download_configuration' do
       end
     end
   elsif !@files_resend.empty?
-    #We hae sent this already but if it didn't work I will keep sending it until we get any confirmation
+    #We have sent this already but if it didn't work I will keep sending it until we get any confirmation
     file = File.join('uploads/', @files_resend[0].file_name)
     send_file(file, :disposition => 'attachment', :filename => File.basename(file))
   else
@@ -79,17 +78,21 @@ end
 post '/submited_files' do
   errors = false
   error_msg = ''
-  if params['uploaded_file'].nil?
-    error_msg = error_msg + "A file must be specified. \n"
-    errors = true
-  end
   if params['email'].empty?
-    error_msg = error_msg + "An email must be specified. \n"
+    error_msg = error_msg + "A valid <i>E-Mail</i> must be specified. <br />"
     errors = true
+  else if params['email'] !~ /^.+@.+\..+$/
+    error_msg = error_msg + "A valid <i>E-Mail</i> must be specified. You entered <i>" + params['email'] + "</i>. <br />"
+    errors = true
+    end
   end
-   if params['team_number'].empty?
-    error_msg = error_msg + "A team number must be specified. \n"
+  if params['team_number'].empty?
+    error_msg = error_msg + "A valid <i>Team Number</i> must be specified. <br />"
     errors = true
+  else if params['team_number'] =~ /^.+@.+\..+$/
+    error_msg = error_msg + "A valid <i>Team Number</i> must be specified. You entered <i>" + params['team_number'] + "</i>. <br />"
+    errors = true
+    end
   end
   if errors
     flash[:error] = error_msg
@@ -102,9 +105,10 @@ post '/submited_files' do
 	f.write(params['uploaded_file'][:tempfile].read)
       end
       File.rename('uploads/' + params['uploaded_file'][:filename],'uploads/' + md5_name)
-      flash[:notice] = "The file was successfully uploaded!"
+      flash[:notice] = "The file was successfully uploaded! <br />"
+      redirect "/upload_files"
      else
-       flash[:error] = "This file has been already uploaded"
+       flash[:error] = "This file has been already uploaded <br />"
        redirect "/upload_files"
      end
   end

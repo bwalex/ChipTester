@@ -1,24 +1,42 @@
 <div id="content" class="row">
 	<div class="post">
 		<h2 class="title"><a href="#">Chip Tester Results </a></h2>
+		<p class="meta">NOTE: All fields are required!</p>
 		<div class="entry">
-		<div id="message">
+<!--		<div id="message"><center>
 		  <% if @flash_error[:error] %>
-		    <p class="error"><%= @flash_error[:error] %></p>
+		    <p class="error" style="color:red"><%= @flash_error[:error] %></p>
 		  <% end %> 
-		<form enctype="multipart/form-data" method="post" action = "/submited_files">
-		  <p>Email*<br>
-		    <input type="text" name="email" size="30">
-		  </p>
-		  <p>Team Number<br>
-		    <input type="number" name="team_number">
-		  </p>
-		  <p>Upload to ChipTester<br>
-		      <input type="file" name="uploaded_file" size="40">
-		  </p>
-		  <div>
-		      <input type="submit" value="Send">
-		  </div>
+		</div>-->
+		<form enctype="multipart/form-data" method="post" action = "/submited_files"
+		      style="padding-left:10%">
+		  <table border="0">
+		  <tr>
+		    <td style="width:25%">E-Mail:</td>
+		    <td style="width:70%"> <input type="text" name="email" style="width:100%" maxlength="35"></td>
+		  </tr>
+		  <tr>
+		    <td style="width:25%">Team Number:</td>
+		    <td style="width:70%"> <input type="number" name="team_number" style="width:100%" maxlength="2"></td>
+		  </tr>
+		  <tr>
+		    <td style="width:25%">File to Upload:</td>
+		    <td style="width:70%"> <input type="file" name="uploaded_file" style="width:100%"></td>
+		  </tr>
+		  <tr><td>&nbsp;</td></tr>
+		  <tr>
+		  	<td colspan=2 style="text-align:center"><input type="submit" value="Send" style="width:50%"></td>
+		  </tr>
+		  <tr>
+		  	<td colspan=2 style="text-align:center">
+		  	<% if @flash_error[:error] %>
+			  <p class="error" style="color:red"><%= @flash_error[:error] %></p>
+			<% elsif @flash_error[:notice]%>
+			  <p class ="notice" style="color:green"><%=@flash_error[:notice] %></p>
+		  	<% end %> 
+		  	</td>
+		  </tr>
+		  </table>
 		</form>
 		</div>
 	</div>
