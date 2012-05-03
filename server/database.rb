@@ -5,7 +5,7 @@ database_config = YAML::parse( File.open( "config.yml" ))
 DataMapper.setup(:default, database_config.select("SERVER.DATABASE.CONFIG")[0].value)
 #Refer to config.yml to change the config line
 DataMapper::Logger.new($stdout, :debug)
-
+DataMapper::Model.raise_on_save_failure = true
 class Admin
  include DataMapper::Resource
  property :email, String, :key => true #Natural primary key
@@ -19,7 +19,7 @@ class FileUpload
   property :email, String
   property :team,  Integer
   property :file_name, String 
-  property :file_hash, String
+  property :is_valid, Boolean
   property :sent, Boolean
   property :erased, Boolean
   property :uploaded_at, DateTime
@@ -136,14 +136,14 @@ def StoreTestVectorResult(json_parsed)
     return @duv_fail
 end
 
-def StoreFileUpload(params)
+def StoreFileUpload(email, team, file_name, valid_value, sent, erased)
   @uploaded_file = FileUpload.create(
-  :email => params["email"],
-  :team => params["team"],
-  :file_name => params["file_name"],
-  :file_hash => params["file_hash"],
-  :sent => params["sent"],
-  :erased => params["erased"],
+  :email => email,
+  :team => team,
+  :file_name => file_name,
+  :is_valid => valid_value,
+  :sent => sent,
+  :erased => erased,
   :uploaded_at => DateTime.now
 )  
   @uploaded_file.save
