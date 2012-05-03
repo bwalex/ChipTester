@@ -301,8 +301,8 @@ module dut_execute #(
   assign st_mode        = rd_data[0];
   assign cycle_count    = rd_data[CYCLE_RANGE -: CYCLE_RANGE];
   assign st_data        = rd_data[STF_WIDTH+CYCLE_RANGE -: STF_WIDTH];
-  
-  
+
+
   assign counter_match  = (cycle_count_int == cycle_count);
   assign trigger_match  = ((miso_data & trigger_mask) == miso_data); /* AND'ing trigger mask */
 
@@ -328,7 +328,9 @@ module dut_execute #(
 
     case (state)
       IDLE: begin
-        if (st_mode == 1'b0 && cycle_count != 0)
+        if (bubble)
+          next_state = IDLE;
+        else if (st_mode == 1'b0 && cycle_count != 0)
           next_state = WAIT_COUNT;
         else if (st_mode == 1'b1 && cycle_count > 0 && ~trigger_match)
           next_state = WAIT_TRIGGER;
@@ -351,7 +353,11 @@ module dut_execute #(
     if (~reset_n)
       bubble_r <= 1'b1;
     else if (~stall)
-      bubble_r <= bubble | stall_o;
+      if (state != IDLE && next_state == IDLE) /* We don't bubble on !IDLE => IDLE
+                                                  transition, since that's valid data */
+        bubble_r <= 1'b0;
+      else
+        bubble_r <= bubble | stall_o;
 
 
   always @(posedge clock, negedge reset_n)
