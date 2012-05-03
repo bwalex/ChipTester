@@ -127,6 +127,7 @@ module top();
     #16 reset_n = 1;
         enable  = 1;
     -> start_test;
+    #10 enable  = 0;
   end
 
 endmodule
