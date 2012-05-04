@@ -2,7 +2,8 @@ require 'data_mapper'
 require 'yaml'
 
 database_config = YAML::parse( File.open( "config.yml" ))
-DataMapper.setup(:default, database_config.select("SERVER.DATABASE.CONFIG")[0].value)
+config = database_config['database']['type'].value + '://' + database_config['database']['user'].value + ':' + database_config['database']['password'].value + '@' + database_config['database']['address'].value +  '/' + database_config['database']['database_name'].value
+DataMapper.setup(:default, config)
 #Refer to config.yml to change the config line
 DataMapper::Logger.new($stdout, :debug)
 DataMapper::Model.raise_on_save_failure = true
@@ -80,6 +81,7 @@ class TestVectorResult
   property :created_at, DateTime
   property :updated_at, DateTime
 end
+
 def Store_LogEntry(json_parsed)
     @duv_LogEntry = LogEntry.create(
       :type => json_parsed["LogEntry"]["type"],

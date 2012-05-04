@@ -53,7 +53,7 @@ get '/LogEntries' do
 end
 
 get '/download_configuration' do 
-  @files_uploaded = (FileUpload.all(:erased => false) & FileUpload.all(:sent => false) & FileUpload.all(:valid => false)).all(:order => [ :uploaded_at.desc ])
+  @files_uploaded = (FileUpload.all(:erased => false) & FileUpload.all(:sent => false) & FileUpload.all(:is_valid => false)).all(:order => [ :uploaded_at.desc ])
   @files_resend = (FileUpload.all(:erased => false) & FileUpload.all(:sent => true)).all(:order => [ :uploaded_at.desc ])
   if !@files_uploaded.empty?
     @files_uploaded.each_index do |idx| file_uploaded = @files_uploaded[idx]
@@ -62,7 +62,7 @@ get '/download_configuration' do
 	  @files_uploaded[0].update(:sent => true) #Update it before erasing it
 	  send_file(file, :disposition => 'attachment', :filename => File.basename(file))
       else
-	  @files_uploaded[idx].update(:valid => false) #Update it before erasing it
+	  @files_uploaded[idx].update(:is_valid => false) #Update it before erasing it
       end
     end
   elsif !@files_resend.empty?
@@ -70,7 +70,7 @@ get '/download_configuration' do
     file = File.join('uploads/', @files_resend[0].file_name)
     send_file(file, :disposition => 'attachment', :filename => File.basename(file))
   else
-    "There is nothing to download. SENT JSON HERE"
+    {"new_config" => false}.to_json()
   end
   
 end
@@ -98,6 +98,7 @@ post '/submited_files' do
     flash[:error] = error_msg
     redirect "/upload_files"
   else
+    #It does not allow repeated files
      md5_name = Digest::MD5.hexdigest(params['uploaded_file'][:tempfile].read)
      if FileUpload.all(:file_name => md5_name).empty?
       StoreFileUpload(params['email'], params['team_number'], md5_name, true, false, false)
