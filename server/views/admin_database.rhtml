@@ -1,0 +1,141 @@
+<!-- This might be a good idea to put in a .js file, but let's have it here for the time being -->
+<script language="JavaScript">
+function toggle(source,name) {
+  checkboxes = document.getElementsByName(name);
+  for each(var checkbox in checkboxes)
+    checkbox.checked = source.checked;
+}
+</script>
+
+<div id="content" class="row">
+  <div class="post">
+	      <tr>
+		  <td colspan=2 style="text-align:center">
+		  	<% if @flash_error[:error] %>
+			  <p class="error" style="color:red"><%= @flash_error[:error] %></p>
+			<% elsif @flash_error[:notice]%>
+			  <p class ="notice" style="color:green"><%=@flash_error[:notice] %></p>
+		  	<% end %> 
+		  </td>
+	      </tr>
+		<form method="post" action="/manage_results">
+		  <table>
+			  <tr>
+				  <th><input type="checkbox" onClick="toggle(this,'erase_result[]')"/></th>
+				  <th>Team</th>
+				  <th>Run Date</th>
+				  <th>Academic Year</th>
+				  <th>Results</th>
+				  <th>Created</th>
+				  <th>Updated</th>
+				  <th>Virtual</th>
+			  </tr>
+		  <% @results.each_index do |idx| result=@results[idx] %> 
+			  <tr	 class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+				  <td>  
+				      <input type="checkbox" name="erase_result[]" value=<%=result.id.to_s()%>> 
+				  </td>
+				  <td><%=result.team.to_s() %></td>
+				  <td><%=result.run_date.strftime("%m/%d/%Y at %I:%M%p") %></td>
+				  <td><%=result.academic_year.to_s() %></td>
+				  <td><%=if(result.outcome == 1)
+					  "failed"
+					  else
+					  "passed"
+					  end %>
+				  </td>
+				  <td><%=result.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+				  <td><%=result.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+				  <td><%=result.virtual.to_s() %></td>
+			  </tr>
+		  <% end %>
+		  </table>
+		  <input value="Erase selected" type="submit" style="width:120px"/>
+		</form>
+		<form method="post" action="/manage_designs">
+		  <table>
+		<tr>
+			<th><input type="checkbox" onClick="toggle(this,'erase_design[]')"/></th>
+			<th>Result</th>
+			<th>Run Date</th>
+			<th>Created</th>
+			<th>Updated</th>
+			<th>File Name</th>
+			<th>Clock Frequency</th>
+			<th>Design Name</th>
+		</tr>
+		<% @designs.each_index do |idx| design=@designs[idx] %> 
+		<tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+			  <td>  
+			      <input type="checkbox" name="erase_design[]" value=<%=design.id.to_s()%>> 
+			  </td>
+			  <td>
+				<%= if(design.outcome == 1)
+				  "failed"
+				else
+				  "passed"
+				end %>
+			  </td>
+			  <td><%=design.run_date.strftime("%m/%d/%Y at %I:%M%p") %></td>
+			  <td><%=design.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+			  <td><%=design.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+			  <td><%=design.file_name %></td>
+			  <td><%=design.clock_freq%></td>
+			  <td><%=design.design_name %></td>
+			</tr>
+		    <% end %>
+		  </table>
+		  <input value="Erase selected" type="submit" style="width:120px"/>
+		</form>
+</form>
+		<form method="post" action="/manage_test_result">
+		  <table>
+		    <tr>
+			    <th><input type="checkbox" onClick="toggle(this,'erase_test_result[]')"/></th>
+			    <th>Type</th>
+			    <th>Input Vector</th>
+			    <th>Expected Result</th>
+			    <th>Actual Result</th>
+			    <th>Cycle Count</th>
+			    <th>Clock Frequency</th>
+			    <th>Clock Connections</th>
+			    <th>Bit Mask</th>
+			    <th>Don't Care Mask</th>
+			    <th>Trigger Mask</th>
+			    <th>Result</th>
+			    <th>Trigger timeout</th>
+			    <th>Has run</th>
+			    <th>Created</th>
+			    <th>Updated</th>
+		    </tr>
+		    <% @tests.each_index do |idx| test=@tests[idx] %> 
+		    <tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+			    <td>  
+				<input type="checkbox" name="erase_test_result[]" value=<%=test.id.to_s()%>> 
+			    </td>
+			    <td><%= test.type.to_s()%></td>
+			    <td><%= test.input_vector%></td>
+			    <td><%= test.expected_result %></td>
+			    <td><%= test.actual_result%></td>
+			    <td><%= test.cycle_count%></td>
+			    <td><%= test.clock_freq %></td>
+			    <td><%= test.clock_connections%></td>
+			    <td><%= test.bitmask %></td>
+			    <td><%= test.dontcare_mask %></td>
+			    <td><%= test.trigger_mask %></td>
+			    <td><%= if(test.outcome == 1)
+					    "failed"
+					    else
+					    "passed"
+					    end %></td>
+			    <td><%= test.trigger_timeout.to_s() %></td>
+			    <td><%= test.has_run.to_s() %></td>
+			    <td><%= test.created_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
+			    <td><%= test.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+		    </tr>
+		    <% end %>
+		    </table>
+		  <input value="Erase selected" type="submit" style="width:120px"/>
+		</form>
+	    </div>
+</div>

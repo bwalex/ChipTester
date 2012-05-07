@@ -24,3 +24,6 @@ email:
     password: chip1234
     authentication: plain
     enable_ttls: true
+
+web:
+    server_address: http://localhost:4567/

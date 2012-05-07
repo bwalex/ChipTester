@@ -151,7 +151,3 @@ def StoreFileUpload(email, team, file_name, valid_value, sent, erased)
   @uploaded_file.save
 end
 DataMapper.finalize
-
-
-
-

@@ -1,0 +1,22 @@
+<div id="content" class="row">
+	<div class="post">
+	    <form method="POST" action="/login_submitted">
+		Username: <input type="text" name="username" size="15" /><br />
+		Password: <input type="password" name="password" size="15" /><br />
+		<div align="center">
+		    <p><input type="submit" value="submit" /></p>
+		</div>
+	    </form>
+	  <tr>
+	<td colspan=2 style="text-align:center">
+	      <% if @flash_error[:error] %>
+		    <p class="error" style="color:red"><%= @flash_error[:error] %></p>
+	      <% elsif @flash_error[:notice]%>
+		    <p class ="notice" style="color:green"><%=@flash_error[:notice] %></p>
+	      <% end %> 
+	</td>
+</tr>
+	</div>
+</div>
+
+

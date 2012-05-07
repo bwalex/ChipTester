@@ -10,6 +10,7 @@ require 'sass'
 require 'digest/md5'
 require 'mail'
 
+config = YAML::parse( File.open( "config.yml" ))
 #Enabling Sessions
 enable :sessions
 
@@ -28,6 +29,13 @@ get '/admin' do
    erb :admin
 end
 
+get '/admin_database' do
+  @flash_error = flash
+  @tests = TestVectorResult.all
+  @designs = DesignResult.all
+  @results = Result.all
+  erb :admin_database
+end
 #Overview 
 get '/' do
    @results = Result.all
@@ -44,6 +52,11 @@ end
 get '/DesignResult/TestResult/:design_result_id' do
     @tests = TestVectorResult.all(:design_result_id => params[:design_result_id])
     erb :test_result
+end
+#Login View
+get '/admin_login' do
+  @flash_error = flash
+  erb :login
 end
 
 #Log Entries view
@@ -146,6 +159,40 @@ post '/' do
       id_value.to_json()
 end
 
+post '/send_email_results' do
+    send_email_to_team(1)
+    redirect '/admin'
+end
+
+post '/login_submitted' do
+    errors = false
+    erros_msg = ''
+    if params['username'].empty?
+      error_msg = error_msg + "A <i>Username</i> must be specified. <br />"
+      erros = true
+    end
+    if params['password'].empty?
+      error_msg = error_msg  + "A <i>Password</i> must be specified. <br />"
+      errors = true
+    end
+    if errors
+       flash[:error] = error_msg
+       redirect "/admin_login"
+    end
+    #ADD PASSWORD ENCRYPTION HERE
+    begin
+         if Admin.all(:email => params['username'])[0].password == params['password']
+	   redirect "/admin"
+	 else
+	   error_msg = error_msg + "Invalid <i>Username</i> or <i>Password</i><br />"
+	   errors = true
+	 end
+    rescue 
+	  flash[:error] = "Invalid <i>Username</i> or <i>Password</i><br />"
+	  redirect "/admin_login"
+    end
+end
+
 post '/reset' do
     #Destroying all the records
      LogEntry.all.destroy
@@ -156,4 +203,58 @@ post '/reset' do
      return '<p>The database has been cleaned</p>'
 end
 
+post '/manage_results' do
+  str = ''
+  puts params['erase_result']
+	begin
+	  params['erase_result'].each {|erase_id|
+	  #Erasing first the results design asociated to this result
+	    results_designs = Result.get(erase_id).design_results
+	    results_designs.each {|results_design|
+	    results_designs.test_vector_results.destroy
+	  }        
+	  Result.get(erase_id).design_results.destroy
+	  Result.get(erase_id).destroy     
+	}
+	flash[:notice] = "The data has been erased successfully"
+      rescue
+	flash[:error] = "The data could not be erased"
+      end
+    redirect "/admin_database"
+end
 
+post '/manage_designs' do
+      begin
+      params['erase_design'].each {|erase_id|
+      #@ Results.all(:id => erase_id).
+      DesignResult.get(erase_id).test_vector_results.destroy
+      DesignResult.get(erase_id).destroy                            
+    }
+	flash[:notice] = "The data has been erased successfully"
+      rescue 
+	flash[:error] = "The data could not be erased"
+      end
+    redirect "/admin_database"
+end
+
+post '/manage_test_result' do
+      
+     begin
+	  params['erase_test_result'].each {|erase_id|
+	  puts erase_id
+	  TestVectorResult.get(erase_id).destroy
+	  }
+	flash[:notice] = "The data has been erased successfully"
+      rescue => e
+	flash[:error] = "The data could not be erased"
+	puts e.message
+      end
+    redirect "/admin_database"
+end
+
+def send_email_to_team(team_id)  
+  @results = Result.all(:team => team_id)
+  @designs = @results.design_results
+  str = erb :email_body
+  send_email('torres.romel@gmail.com', str, 'Results')
+end
