@@ -24,8 +24,12 @@
 		</form>
 	</div>
     </div>
-	
-
+	<div class="post">
+	<p>You are logged as <%= @username%> do you wish to logout</p>
+		<form method="post" action="/logout_submited">
+			<input name="logout" type="submit" value="Logout" style="width:100px"/>
+		</form>	
+	</div>
 	  
   </div>
 </div>
