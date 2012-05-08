@@ -7,11 +7,14 @@ WARNFLAGS= -Wsystem-headers -Wall -W -Wno-unused-parameter \
 CFLAGS= -g3 -O0 $(WARNFLAGS)
 CC?= gcc
 
-all:
-	$(CC) $(CFLAGS) confrd.c trunner_if.c sram.c -o confrd
+OBJS= confrd.o trunner_if.o sram.o req.o log.o parser_common.o parser_vec.o parser_cfg.o
+
+
+all: $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o confrd
 
 clean:
-	rm -f confrd
+	rm -f confrd $(OBJS)
 
 realclean: clean
 	rm -f *~ *.bak
