@@ -1,8 +1,8 @@
 <div id="content" class="row">
   <div class="test-json">
     <div class="post">
-	<h2 class="title"><a href="#">Post JSON File Here </a></h2>
-	<p class="meta">Update the database...</p>
+	<h2 class="title"><a href="#">Database Admin Page</a></h2>
+	<p class="meta">Update the database... - Post JSON - TEMPORARY </p>
 	<div class="entry">
 		<form method="post" action="/">
 			<input type="text" name="json_posted" style="width:200px"/>
@@ -11,23 +11,22 @@
 	</div>
     </div>
     <div class="post">
-	<p class="meta">Reset the database...</p>
-	<div class="entry">
+	<div class="entry" style="text-align:center">
 		<form method="post" action="/reset">
-			<input type="submit" name="reset_value" VALUE="Reset Database" style="width:305px"/>
+			<input type="submit" name="reset_value" VALUE="Reset Database" style="width:40%"/>
 		</form>
 		<form method="post" action="/send_email_results">
-			<input type="submit" name="send_email" VALUE="Send Results by email" style="width:305px"/>
+			<input type="submit" name="send_email" VALUE="Send Results by e-mail" style="width:40%"/>
 		</form>
 		<form method="get" action="/admin_database">
-			<input type="submit" name="manage_database" VALUE="Manage database" style="width:305px"/>
+			<input type="submit" name="manage_database" VALUE="Manage Database" style="width:40%"/>
 		</form>
 	</div>
     </div>
-	<div class="post">
-	<p>You are logged as <%= @username%> do you wish to logout</p>
+	<div class="post" style="text-align:center">
+	<p>You are logged in as <i><%= @username%></i>, do you wish to logout?</p>
 		<form method="post" action="/logout_submited">
-			<input name="logout" type="submit" value="Logout" style="width:100px"/>
+			<input name="logout" type="submit" value="Logout" style="width:40%"/>
 		</form>	
 	</div>
 	  
