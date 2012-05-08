@@ -8,8 +8,7 @@
 		    <p class="error" style="color:red"><%= @flash_error[:error] %></p>
 		  <% end %> 
 		</div>-->
-		<form enctype="multipart/form-data" method="post" action = "/submited_files"
-		      style="padding-left:10%">
+		<form method="post" action = "/submited_files" enctype="multipart/form-data">
 		  <table border="0">
 		  <tr>
 		    <td style="width:25%">E-Mail:</td>
@@ -21,7 +20,7 @@
 		  </tr>
 		  <tr>
 		    <td style="width:25%">File to Upload:</td>
-		    <td style="width:70%"> <input type="file" name="uploaded_file" style="width:100%"></td>
+		    <td style="width:70%"> <input type="file" name="uploaded_file"></td>
 		  </tr>
 		  <tr><td>&nbsp;</td></tr>
 		  <tr>

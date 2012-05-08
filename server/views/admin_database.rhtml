@@ -87,7 +87,7 @@ function toggle(source,name) {
 		  </table>
 		  <input value="Erase selected" type="submit" style="width:120px"/>
 		</form>
-</form>
+	  </form>
 		<form method="post" action="/manage_test_result">
 		  <table>
 		    <tr>
@@ -132,6 +132,35 @@ function toggle(source,name) {
 			    <td><%= test.has_run.to_s() %></td>
 			    <td><%= test.created_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
 			    <td><%= test.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+		    </tr>
+		    <% end %>
+		    </table>
+		  <input value="Erase selected" type="submit" style="width:120px"/>
+		</form>
+		<form method="post" action="/manage_file_upload">
+		  <table>
+		    <tr>
+			    <th><input type="checkbox" onClick="toggle(this,'erase_file_upload[]')"/></th>
+			    <th>Email</th>
+			    <th>Team</th>
+			    <th>File Name</th>
+			    <th>Is valid</th>
+			    <th>Sent</th>
+			    <th>Erased</th>
+			    <th>Uploaded at</th>
+		    </tr>
+		    <% @FilesUploaded.each_index do |idx| fileupload=@FilesUploaded[idx] %> 
+		    <tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+			    <td>  
+				<input type="checkbox" name="erase_file_upload[]" value=<%=fileupload.id.to_s()%>> 
+			    </td>
+			    <td><%= fileupload.email%></td>
+			    <td><%= fileupload.team.to_s()%></td>
+			    <td><%= fileupload.file_name%></td>
+			    <td><%= fileupload.is_valid%></td>
+			    <td><%= fileupload.sent%></td>
+			    <td><%= fileupload.erased %></td>
+			    <td><%= fileupload.uploaded_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
 		    </tr>
 		    <% end %>
 		    </table>

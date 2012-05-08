@@ -26,10 +26,16 @@ end
 
 #Admin view
 get '/admin' do
-   erb :admin
+   if Admin.all(:email => session['user'])[0].nil?
+     redirect '/admin_login' 
+   else
+     @username = session['user']
+     erb :admin
+   end
 end
 
 get '/admin_database' do
+  @FilesUploaded = FileUpload.all
   @flash_error = flash
   @tests = TestVectorResult.all
   @designs = DesignResult.all
@@ -56,7 +62,11 @@ end
 #Login View
 get '/admin_login' do
   @flash_error = flash
-  erb :login
+    if !Admin.get(:email => session['user']).nil?
+	redirect '/admin'
+    else
+      erb :login
+    end
 end
 
 #Log Entries view
@@ -66,7 +76,7 @@ get '/LogEntries' do
 end
 
 get '/download_configuration' do 
-  @files_uploaded = (FileUpload.all(:erased => false) & FileUpload.all(:sent => false) & FileUpload.all(:is_valid => false)).all(:order => [ :uploaded_at.desc ])
+  @files_uploaded = (FileUpload.all(:erased => false) & FileUpload.all(:sent => false) & FileUpload.all(:is_valid => true)).all(:order => [ :uploaded_at.desc ])
   @files_resend = (FileUpload.all(:erased => false) & FileUpload.all(:sent => true)).all(:order => [ :uploaded_at.desc ])
   if !@files_uploaded.empty?
     @files_uploaded.each_index do |idx| file_uploaded = @files_uploaded[idx]
@@ -107,18 +117,24 @@ post '/submited_files' do
     errors = true
     end
   end
+  
+  unless params['uploaded_file'] &&
+         (tempfile = params['uploaded_file'][:tempfile]) &&
+         (name = params['uploaded_file'][:filename])
+      error_msg = error_msg + "No file selected  <br />"
+      errors = true
+  end
   if errors
     flash[:error] = error_msg
     redirect "/upload_files"
   else
     #It does not allow repeated files
-     md5_name = Digest::MD5.hexdigest(params['uploaded_file'][:tempfile].read)
+     md5_name = Digest::MD5.hexdigest(params['uploaded_file'][:tempfile].read) + File.extname(params['uploaded_file'][:filename])
      if FileUpload.all(:file_name => md5_name).empty?
       StoreFileUpload(params['email'], params['team_number'], md5_name, true, false, false)
-      File.open('uploads/' + params['uploaded_file'][:filename], "w") do |f|
-	f.write(params['uploaded_file'][:tempfile].read)
-      end
-      File.rename('uploads/' + params['uploaded_file'][:filename],'uploads/' + md5_name)
+      directory = "public/files"
+      filename = File.join('uploads/', name)
+      FileUtils.cp tempfile.path, 'uploads/' + md5_name
       flash[:notice] = "The file was successfully uploaded! <br />"
       redirect "/upload_files"
      else
@@ -159,6 +175,10 @@ post '/' do
       id_value.to_json()
 end
 
+post '/logout_submited' do
+    session[:user] = nil
+    redirect '/'
+end
 post '/send_email_results' do
     send_email_to_team(1)
     redirect '/admin'
@@ -167,11 +187,11 @@ end
 post '/login_submitted' do
     errors = false
     erros_msg = ''
-    if params['username'].empty?
+    if params['username'].nil? 
       error_msg = error_msg + "A <i>Username</i> must be specified. <br />"
       erros = true
     end
-    if params['password'].empty?
+    if params['password'].nil?
       error_msg = error_msg  + "A <i>Password</i> must be specified. <br />"
       errors = true
     end
@@ -182,6 +202,7 @@ post '/login_submitted' do
     #ADD PASSWORD ENCRYPTION HERE
     begin
          if Admin.all(:email => params['username'])[0].password == params['password']
+	   session['user'] = params['username']
 	   redirect "/admin"
 	 else
 	   error_msg = error_msg + "Invalid <i>Username</i> or <i>Password</i><br />"
@@ -200,7 +221,8 @@ post '/reset' do
      TestVectorResult.all.destroy
      DesignResult.all.destroy
      Result.all.destroy
-     return '<p>The database has been cleaned</p>'
+     flash[:notice] = "The database has been cleaned <br />"
+     redirect '/admin_database'
 end
 
 post '/manage_results' do
@@ -245,13 +267,24 @@ post '/manage_test_result' do
 	  TestVectorResult.get(erase_id).destroy
 	  }
 	flash[:notice] = "The data has been erased successfully"
-      rescue => e
+      rescue
 	flash[:error] = "The data could not be erased"
-	puts e.message
       end
     redirect "/admin_database"
 end
 
+post '/manage_file_upload' do
+  begin
+    	  params['erase_file_upload'].each {|erase_id|
+	  FileUpload.get(erase_id).destroy
+	  }
+	flash[:notice] = "The data has been erased successfully"
+      rescue
+	flash[:error] = "The data could not be erased"
+      end
+    redirect "/admin_database"
+end
+    
 def send_email_to_team(team_id)  
   @results = Result.all(:team => team_id)
   @designs = @results.design_results
