@@ -9,7 +9,7 @@ function toggle(source,name) {
 
 <div id="content" class="row">
   <div class="post">
-	      <tr>
+	    <tr>
 		  <td colspan=2 style="text-align:center">
 		  	<% if @flash_error[:error] %>
 			  <p class="error" style="color:red"><%= @flash_error[:error] %></p>
@@ -17,9 +17,13 @@ function toggle(source,name) {
 			  <p class ="notice" style="color:green"><%=@flash_error[:notice] %></p>
 		  	<% end %> 
 		  </td>
-	      </tr>
+	    </tr>
+	      
+	    <div>&nbsp;</div>
+		<div>&nbsp;</div>
+	      
 		<form method="post" action="/manage_results">
-		  <table>
+		  <table class="fullwidth">
 			  <tr>
 				  <th><input type="checkbox" onClick="toggle(this,'erase_result[]')"/></th>
 				  <th>Team</th>
@@ -52,8 +56,12 @@ function toggle(source,name) {
 		  </table>
 		  <input value="Erase selected" type="submit" style="width:120px"/>
 		</form>
+		
+		<div>&nbsp;</div>
+		<div>&nbsp;</div>
+		
 		<form method="post" action="/manage_designs">
-		  <table>
+		  <table class="fullwidth">
 		<tr>
 			<th><input type="checkbox" onClick="toggle(this,'erase_design[]')"/></th>
 			<th>Result</th>
@@ -87,9 +95,12 @@ function toggle(source,name) {
 		  </table>
 		  <input value="Erase selected" type="submit" style="width:120px"/>
 		</form>
-	  </form>
+	  
+	  	<div>&nbsp;</div>
+		<div>&nbsp;</div>
+	  
 		<form method="post" action="/manage_test_result">
-		  <table>
+		  <table class="fullwidth">
 		    <tr>
 			    <th><input type="checkbox" onClick="toggle(this,'erase_test_result[]')"/></th>
 			    <th>Type</th>
@@ -137,8 +148,12 @@ function toggle(source,name) {
 		    </table>
 		  <input value="Erase selected" type="submit" style="width:120px"/>
 		</form>
+		
+		<div>&nbsp;</div>
+		<div>&nbsp;</div>
+		
 		<form method="post" action="/manage_file_upload">
-		  <table>
+		  <table class="fullwidth">
 		    <tr>
 			    <th><input type="checkbox" onClick="toggle(this,'erase_file_upload[]')"/></th>
 			    <th>Email</th>
