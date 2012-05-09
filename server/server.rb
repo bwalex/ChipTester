@@ -62,10 +62,10 @@ end
 #Login View
 get '/admin_login' do
   @flash_error = flash
-    if !Admin.get(:email => session['user']).nil?
-	redirect '/admin'
-    else
+    if Admin.all(:email => session['user'])[0].nil?
       erb :login
+    else
+      redirect '/admin'
     end
 end
 
@@ -77,25 +77,33 @@ end
 
 get '/download_configuration' do 
   @files_uploaded = (FileUpload.all(:erased => false) & FileUpload.all(:sent => false) & FileUpload.all(:is_valid => true)).all(:order => [ :uploaded_at.desc ])
-  @files_resend = (FileUpload.all(:erased => false) & FileUpload.all(:sent => true)).all(:order => [ :uploaded_at.desc ])
+  @files_resend = (FileUpload.all(:erased => false) & FileUpload.all(:sent => true) & FileUpload.all(:is_valid => true)).all(:order => [ :uploaded_at.desc ])
+  file = nil
   if !@files_uploaded.empty?
     @files_uploaded.each_index do |idx| file_uploaded = @files_uploaded[idx]
       if idx == 0 
-	  file = File.join('uploads/', @files_uploaded[0].file_name)
-	  @files_uploaded[0].update(:sent => true) #Update it before erasing it
-	  send_file(file, :disposition => 'attachment', :filename => File.basename(file))
+	  file = File.join('uploads/', file_uploaded.file_name)
+	  file_uploaded.update(:sent => true) #Update it before erasing it
       else
-	  @files_uploaded[idx].update(:is_valid => false) #Update it before erasing it
+	  @files_uploaded.update(:is_valid => false) #Update it before erasing it
       end
     end
   elsif !@files_resend.empty?
     #We have sent this already but if it didn't work I will keep sending it until we get any confirmation
-    file = File.join('uploads/', @files_resend[0].file_name)
-    send_file(file, :disposition => 'attachment', :filename => File.basename(file))
+    @files_resend.each_index do |idx| file_resend = @files_resend[idx]
+	if idx == 0
+	  file = File.join('uploads/', file_resend.file_name)
+	else
+	  file_resend.update(:is_valid => false)
+	  #It is no longer valid
+	end
+      end
+   end
+  if file == nil
+   status 404
   else
-    {"new_config" => false}.to_json()
-  end
-  
+    send_file(file, :disposition => 'attachment', :filename => File.basename(file))
+  end 
 end
 
 post '/submited_files' do
