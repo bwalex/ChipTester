@@ -222,7 +222,7 @@ module stim #(
 
   assign cfifo_data[CHF_WIDTH-1                                -: RTF_WIDTH]  = dont_care_bits;
   assign cfifo_data[CHF_WIDTH-RTF_WIDTH-1                      -: STF_WIDTH ] = result_vector;
-  assign cfifo_data[CHF_WIDTH-RTF_WIDTH-STF_WIDTH-1            -: ADDR_WIDTH] = address-2;
+  assign cfifo_data[CHF_WIDTH-RTF_WIDTH-STF_WIDTH-1            -: ADDR_WIDTH] = address-4;
 
   assign dififo_data   = { {REQ_WIDTH{1'b0}}, buffer[REQ_WIDTH +: CMD_WIDTH], buffer[8 +: STF_WIDTH] };
 
