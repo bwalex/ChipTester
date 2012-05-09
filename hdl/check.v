@@ -5,7 +5,7 @@ module check #(
             BUF_WIDTH  = 64,
             BOFF_WIDTH = 10,
             RTF_WIDTH  = 24,
-            CHF_WIDTH  = RTF_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
+            CHF_WIDTH  = RTF_WIDTH+RTF_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
             SCC_WIDTH  = 5,
             SCD_WIDTH  = 24,
             RESULT_VECTOR_WORDS = 2,
@@ -77,7 +77,7 @@ module check #(
   wire                      check_fail;
   wire                      load_fail;
   reg    [             5:0] res_len;
-
+  wire   [   RTF_WIDTH-1:0]dont_care_bits;
 
   always @(posedge clock, negedge reset_n)
     if (~reset_n)
@@ -143,8 +143,10 @@ module check #(
   assign load_bitmask     = (sc_cmd == SC_CMD_BITMASK);
   assign bitmask          = sc_data;
 
-  assign c_result_vector  = cfifo_data[CHF_WIDTH-1                      -: RTF_WIDTH ] & result_bitmask;
-  assign c_address        = cfifo_data[CHF_WIDTH-RTF_WIDTH-1            -: ADDR_WIDTH];
+  assign dont_care_bits   = cfifo_data[CHF_WIDTH-1                                -: RTF_WIDTH];
+  assign c_result_vector  = cfifo_data[CHF_WIDTH-RTF_WIDTH-1                      -: RTF_WIDTH ] & result_bitmask & ~dont_care_bits;
+  assign c_address        = cfifo_data[CHF_WIDTH-RTF_WIDTH-RTF_WIDTH-1            -: ADDR_WIDTH];
+
 
   assign meta_info        = { 1'b1, r_timeout, r_cycle_count, check_fail_r }; //8'b0 | META_RUN | check_fail_r;
 
@@ -152,7 +154,7 @@ module check #(
   assign r_cycle_count    = rfifo_data[CYCLE_RANGE -: CYCLE_RANGE];
   assign r_timeout        = rfifo_data[0];
 
-  assign result_vector    = r_result_vector & result_bitmask;
+  assign result_vector    = r_result_vector & result_bitmask & ~dont_care_bits;
 
   assign mem_writedata    = (words_stored == 0) ?
                                   result_vector[RTF_WIDTH-1            -: DATA_WIDTH  ] :

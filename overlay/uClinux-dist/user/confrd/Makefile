@@ -1,5 +1,5 @@
 EXEC = confrd
-OBJS = confrd.o sram.o trunner_if.o
+OBJS = confrd.o sram.o trunner_if.o parser_common.o log.o req.o parser_cfg.o parser_vec.o
 
 CFLAGS += -DPARANOID_TTYS -DTERMCAP -DUSE_TERMIO -DKLUDGELINEMODE -D_GNU_SOURCE
 LDFLAGS += -ljansson -lcurl

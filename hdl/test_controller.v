@@ -18,11 +18,11 @@ module test_controller #(
 
             WAIT_WIDTH = 16,
             DSEL_WIDTH = 5, /* Target design select */
-				    CYCLE_RANGE = 5,
+				CYCLE_RANGE = 5,
             PLL_DATA_WIDTH = 8,
 
             DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH,
-            CHF_WIDTH  = STF_WIDTH+ADDR_WIDTH /* (output vector), (address) */
+            CHF_WIDTH  = RTF_WIDTH+STF_WIDTH+ADDR_WIDTH /* (output vector), (address) */
 )(
   input                    clock,
   input                    reset_n,
@@ -143,6 +143,7 @@ module test_controller #(
     .ADDR_WIDTH         (ADDR_WIDTH),
     .DATA_WIDTH         (DATA_WIDTH),
     .STF_WIDTH          (STF_WIDTH),
+	 .RTF_WIDTH				(RTF_WIDTH),
     .CHF_WIDTH          (CHF_WIDTH),
     .DIF_WIDTH          (DIF_WIDTH),
     .CMD_WIDTH          (CMD_WIDTH),
