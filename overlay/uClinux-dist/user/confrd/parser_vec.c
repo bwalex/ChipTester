@@ -54,7 +54,7 @@ parse_line_measure(char *s, void *priv)
 	char *e;
 	uint32_t timeout = (1 << 24);
 	int error;
-	int pin_no;
+	uint32_t pin_no;
 	int ntokens;
 
 	/* Flush current content */
@@ -93,7 +93,14 @@ parse_line_measure(char *s, void *priv)
 			}
 		}
 
+#if 0
 		/* XXX */
+		error = fcounter_set_cycles(timeout);
+		error = fcounter_select(pin_no);
+		error = fcounter_enable();
+		error = fcounter_wait_done();
+		fcounter_read_count();
+#endif
 	} else if ((strcmp(tokens[0], "adc")) == 0) {
 	} else {
 		syntax_error("Unknown measurement command");
