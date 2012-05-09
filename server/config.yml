@@ -8,7 +8,7 @@ admin:
 database:
     type: mysql
     user: root
-    password: chip1234 
+    password:  
     database_name: ChipTester
     address: localhost
 

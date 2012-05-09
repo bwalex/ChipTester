@@ -238,9 +238,9 @@ post '/manage_results' do
 	  Result.get(erase_id).design_results.destroy
 	  Result.get(erase_id).destroy     
 	}
-	flash[:notice] = "The data has been erased successfully"
+	flash[:notice] = "The data has been erased successfully!"
       rescue
-	flash[:error] = "The data could not be erased"
+	flash[:error] = "Error: The data could not be erased."
       end
     redirect "/admin_database"
 end
@@ -252,9 +252,9 @@ post '/manage_designs' do
       DesignResult.get(erase_id).test_vector_results.destroy
       DesignResult.get(erase_id).destroy                            
     }
-	flash[:notice] = "The data has been erased successfully"
+	flash[:notice] = "The data has been erased successfully!"
       rescue 
-	flash[:error] = "The data could not be erased"
+	flash[:error] = "Error: The data could not be erased."
       end
     redirect "/admin_database"
 end

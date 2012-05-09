@@ -237,10 +237,17 @@ img.aligncenter {
 
 /* Content */
 
+table.fullwidth {
+    width:100%; 
+  }
+  
+table.center {
+    margin-left:auto;
+    margin-right:auto;
+  }
+
 #content {
-	float: right;
-	width: 800px;
-	padding: 0px 0px 0px 0px;
+	text-align:center;
 }
 
 .post {
@@ -260,7 +267,7 @@ img.aligncenter {
 
 .post .meta {
 	padding-bottom: 10px;
-	text-align: left;
+	text-align: center;
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 11px;
 	font-style: italic;
@@ -270,7 +277,7 @@ img.aligncenter {
 }
 
 .post .entry {
-	text-align: justify;
+	text-align: center;
 	margin-bottom: 25px;
 	padding: 10px 0px 0px 0px;
 }
@@ -288,10 +295,23 @@ img.aligncenter {
 
 /* Sidebar */
 
-#sidebar {
+#sidebar_l {
 	float: left;
-	width: 220px;
-	padding: 0px 0px 0px 0px;
+	width: 20%;
+	padding-left: 10%;
+	padding-top:40px;
+}
+#sidebar_r {
+	float: right;
+	width: 20%;
+	padding-right: 10%;
+	padding-top:40px;
+}
+#sidebar_c {
+	text-align:center ;
+	padding-left: 10%;
+	padding-top:40px;
+	color: #576475;
 }
 
 #sidebar ul {
@@ -303,7 +323,7 @@ img.aligncenter {
 #sidebar li {
 	margin: 0;
 	padding: 0;
-}
+
 
 #sidebar li ul {
 	margin: 0px 15px;
