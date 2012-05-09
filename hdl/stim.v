@@ -2,19 +2,20 @@ module stim #(
   parameter ADDR_WIDTH = 20,
             DATA_WIDTH = 16,
             BE_WIDTH   = DATA_WIDTH/8,
-            BUF_WIDTH  = 64, /* size of largest record */
+            BUF_WIDTH  = 64+24, /* size of largest record */
             BOFF_WIDTH = 8, /* at least log2 of BUF_WIDTH */
             STF_WIDTH  = 24,
+				RTF_WIDTH  = 24,
             CMD_WIDTH  = 5,
             REQ_WIDTH  = 3,
             DIF_WIDTH  = REQ_WIDTH+CMD_WIDTH+STF_WIDTH,
-            CHF_WIDTH  = STF_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
+            CHF_WIDTH  = RTF_WIDTH+STF_WIDTH+ADDR_WIDTH, /* (output vector), (address), (or value) */
             SCC_WIDTH  = 5,
             SCD_WIDTH  = 24,
             WAIT_WIDTH = 16,
-            TEST_VECTOR_WORDS = 4,
+            TEST_VECTOR_WORDS = 6,
             DSEL_WIDTH = 5, /* Target design select */
-				    CYCLE_RANGE = 5,
+				CYCLE_RANGE = 5,
             PLL_DATA_WIDTH = 8
 )(
   input                       clock,
@@ -121,6 +122,7 @@ module stim #(
   wire                     mode_select;
   
   wire   [  STF_WIDTH-1:0] trigger_mask;
+  wire   [  RTF_WIDTH-1:0] dont_care_bits;
 
   
   always @(posedge clock, negedge reset_n)
@@ -218,8 +220,9 @@ module stim #(
 
   assign sfifo_data    = {input_vector, cycle_info, mode_select};   /* expanded Sfifo */
 
-  assign cfifo_data[CHF_WIDTH-1                      -: STF_WIDTH ] = result_vector;
-  assign cfifo_data[CHF_WIDTH-STF_WIDTH-1            -: ADDR_WIDTH] = address-2;
+  assign cfifo_data[CHF_WIDTH-1                                -: RTF_WIDTH]  = dont_care_bits;
+  assign cfifo_data[CHF_WIDTH-RTF_WIDTH-1                      -: STF_WIDTH ] = result_vector;
+  assign cfifo_data[CHF_WIDTH-RTF_WIDTH-STF_WIDTH-1            -: ADDR_WIDTH] = address-2;
 
   assign dififo_data   = { {REQ_WIDTH{1'b0}}, buffer[REQ_WIDTH +: CMD_WIDTH], buffer[8 +: STF_WIDTH] };
 
@@ -240,7 +243,7 @@ module stim #(
   assign pll_n          = buffer[8+PLL_DATA_WIDTH +: PLL_DATA_WIDTH];
   assign pll_c          = buffer[8+PLL_DATA_WIDTH+PLL_DATA_WIDTH +: PLL_DATA_WIDTH];
 
-
+  assign dont_care_bits = buffer[STF_WIDTH+RTF_WIDTH+16 +: RTF_WIDTH];
 
   always @(
        state
