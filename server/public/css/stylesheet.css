@@ -282,6 +282,27 @@ table.center {
 	padding: 10px 0px 0px 0px;
 }
 
+.post .thirtypc{
+	width:30%;
+}
+.post .fourtypc{
+	width:40%;
+}
+.post .seventypc{
+	width:70%;
+}
+.post .hundredpc{
+	width:100%;
+}
+
+.error {
+	color:red ;
+}
+
+.notice {
+	color:green ;
+}
+
 .links {
 	display: block;
 	width: 96px;

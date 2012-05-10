@@ -3,35 +3,30 @@
 		<h2 class="title"><a href="#">Chip Tester Results </a></h2>
 		<p class="meta">NOTE: All fields are required!</p>
 		<div class="entry">
-<!--		<div id="message"><center>
-		  <% if @flash_error[:error] %>
-		    <p class="error" style="color:red"><%= @flash_error[:error] %></p>
-		  <% end %> 
-		</div>-->
 		<form method="post" action = "/submited_files" enctype="multipart/form-data">
 		  <table class="center">
 		  <tr>
-		    <td style="width:25%">E-Mail:</td>
-		    <td style="width:70%"> <input type="text" name="email" style="width:100%" maxlength="35"></td>
+		    <td class="thirtypc">E-Mail:</td>
+		    <td class="seventypc"> <input type="text" name="email" class="hundredpc" maxlength="35"></td>
 		  </tr>
 		  <tr>
-		    <td style="width:25%">Team Number:</td>
-		    <td style="width:70%"> <input type="number" name="team_number" style="width:100%" maxlength="2"></td>
+		    <td class="thirtypc">Team Number:</td>
+		    <td class="seventypc"> <input type="number" name="team_number" class="hundredpc" maxlength="2"></td>
 		  </tr>
 		  <tr>
-		    <td style="width:25%">File to Upload:</td>
-		    <td style="width:70%"> <input type="file" name="uploaded_file"></td>
+		    <td class="thirtypc">File to Upload:</td>
+		    <td class="seventypc"> <input type="file" name="uploaded_file"></td>
 		  </tr>
 		  <tr><td>&nbsp;</td></tr>
 		  <tr>
-		  	<td colspan=2 style="text-align:center"><input type="submit" value="Send" style="width:50%"></td>
+		  	<td colspan=2><input type="submit" value="Send" class="fourtypc"></td>
 		  </tr>
 		  <tr>
-		  	<td colspan=2 style="text-align:center">
+		  	<td colspan=2>
 		  	<% if @flash_error[:error] %>
-			  <p class="error" style="color:red"><%= @flash_error[:error] %></p>
+			  <p class="error"><%= @flash_error[:error] %></p>
 			<% elsif @flash_error[:notice]%>
-			  <p class ="notice" style="color:green"><%=@flash_error[:notice] %></p>
+			  <p class ="notice"><%=@flash_error[:notice] %></p>
 		  	<% end %> 
 		  	</td>
 		  </tr>

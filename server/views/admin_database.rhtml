@@ -10,11 +10,11 @@ function toggle(source,name) {
 <div id="content" class="row">
   <div class="post">
 	    <tr>
-		  <td colspan=2 style="text-align:center">
+		  <td colspan=2>
 		  	<% if @flash_error[:error] %>
-			  <p class="error" style="color:red"><%= @flash_error[:error] %></p>
+			  <p class="error"><%= @flash_error[:error] %></p>
 			<% elsif @flash_error[:notice]%>
-			  <p class ="notice" style="color:green"><%=@flash_error[:notice] %></p>
+			  <p class ="notice"><%=@flash_error[:notice] %></p>
 		  	<% end %> 
 		  </td>
 	    </tr>
@@ -54,7 +54,7 @@ function toggle(source,name) {
 			  </tr>
 		  <% end %>
 		  </table>
-		  <input value="Erase selected" type="submit" style="width:120px"/>
+		  <input class="fourtypc" value="Erase selected" type="submit"/>
 		</form>
 		
 		<div>&nbsp;</div>
@@ -93,7 +93,7 @@ function toggle(source,name) {
 			</tr>
 		    <% end %>
 		  </table>
-		  <input value="Erase selected" type="submit" style="width:120px"/>
+		  <input class="fourtypc" value="Erase selected" type="submit"/>
 		</form>
 	  
 	  	<div>&nbsp;</div>
@@ -146,7 +146,7 @@ function toggle(source,name) {
 		    </tr>
 		    <% end %>
 		    </table>
-		  <input value="Erase selected" type="submit" style="width:120px"/>
+		  <input class="fourtypc" value="Erase selected" type="submit"/>
 		</form>
 		
 		<div>&nbsp;</div>
@@ -179,7 +179,7 @@ function toggle(source,name) {
 		    </tr>
 		    <% end %>
 		    </table>
-		  <input value="Erase selected" type="submit" style="width:120px"/>
+		  <input class="fourtypc" value="Erase selected" type="submit"/>
 		</form>
 	    </div>
 </div>
