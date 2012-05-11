@@ -248,6 +248,9 @@ parse_line_vectors(char *s, void *priv)
 	tv->metadata = REQ_TYPE(REQ_TEST_VECTOR);
 	tv->metadata2 |= MD2_SET_CYCLES(cycles);
 	tv->metadata2 |= MD2_SET_MODE(mode);
+	memcpy(&pi->output[pi->output_idx], tv->output_vector,
+	       sizeof(tv->output_vector));
+	pi->output_idx += sizeof(tv->output_vector);
 
 	return emit(pi, tv, sizeof(*tv));
 }
@@ -378,6 +381,7 @@ parse_line_clock(char *s, void *priv)
 		sd->payload[bidx] |= (1 << shiftl);
 	}
 
+	memcpy(pi->clock_mask, sd->payload, sizeof(pi->clock_mask));
 	return emit(pi, sd, sizeof(*sd));
 }
 
@@ -436,6 +440,7 @@ parse_line_trgmask(char *s, void *priv)
 		sd->payload[bidx] |= (1 << shiftl);
 	}
 
+	memcpy(pi->trigger_mask, sd->payload, sizeof(pi->clock_mask));
 	return emit(pi, sd, sizeof(*sd));
 }
 
@@ -483,6 +488,7 @@ parse_line_frequency(char *s, void *priv)
 		return -1;
 	}
 
+	pi->pll_freq = freq_mhz;
 	pi->pll_m = pll_settings[freq_mhz].m;
 	pi->pll_n = pll_settings[freq_mhz].n;
 	pi->pll_c = pll_settings[freq_mhz].c;

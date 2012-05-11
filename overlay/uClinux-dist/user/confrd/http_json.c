@@ -5,11 +5,7 @@
 #include <jansson.h>
 #include <curl/curl.h>
 
-#define METHOD_GET	0x00
-#define METHOD_POST	0x01
-#define METHOD_PUT	0x02
-#define METHOD_PATCH	0x03
-#define METHOD_DELETE	0x04
+#include "http_json.h"
 
 
 struct write_data {
@@ -156,6 +152,43 @@ out:
 
 
 int
+req_json(const char *url, int method, json_t *j_in, json_t **j_out)
+{
+	json_error_t j_err;
+	char *data = '\0';
+	char recv_buf[1024 * 1024]; /* 1 MB */
+	int error;
+	size_t bytes_recvd;
+
+	if (j_in) {
+		data = json_dumps(j_in, JSON_COMPACT);
+		if (data == NULL)
+			return -1;
+	}
+
+	error = req(url, method, "application/json", data,
+		    strlen(data), recv_buf, sizeof(recv_buf),
+		    &bytes_recvd);
+
+	free(data);
+
+	if (error)
+		return error;
+
+	if (j_out != NULL) {
+		*j_out = json_loadb(recv_buf, bytes_recvd, 0, &j_err);
+		if (*j_out == NULL) {
+			/* XXX: make use of j_err */
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+
+#if 0
+int
 main(void)
 {
 	char url[1024];
@@ -228,3 +261,4 @@ main(void)
 
 	return 0;
 }
+#endif

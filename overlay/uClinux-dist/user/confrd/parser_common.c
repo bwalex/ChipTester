@@ -49,6 +49,64 @@ bprint(uint8_t *n, size_t len)
 }
 
 
+/* XXX: tons of common code here that can be factored out */
+char *
+h_input(uint8_t *n, uint8_t *c, size_t len)
+{
+	static char buf[64];
+	uint8_t mask;
+	size_t i;
+	char *s = buf;
+
+	for (i = 0; i < len; i++) {
+		mask = 1 << (8*sizeof(*n) - 1);
+		do {
+			*s++ = (c[i] & mask) ? 'C' :
+				((n[i] & mask) ? '1' : '0');
+			mask >>= 1;
+		} while (mask != 0);
+	}
+
+	if (s)
+		*s = '\0';
+
+	return buf;
+}
+
+
+char *
+h_output(uint8_t *b, size_t sz)
+{
+	static char buf[64];
+
+	sbprint(buf, b, sz);
+	return buf;
+}
+
+char *
+h_expected(uint8_t *n, uint8_t *x, uint8_t *x2, size_t len)
+{
+	static char buf[64];
+	uint8_t mask;
+	size_t i;
+	char *s = buf;
+
+	for (i = 0; i < len; i++) {
+		mask = 1 << (8*sizeof(*n) - 1);
+		do {
+			*s++ = ((x[i] | x2[i]) & mask) ? 'X' :
+				((n[i] & mask) ? '1' : '0');
+			mask >>= 1;
+		} while (mask != 0);
+	}
+
+	if (s)
+		*s = '\0';
+
+	return buf;
+}
+
+
 int
 tokenizer(char *s, char **tokens, int max_tokens)
 {
@@ -159,7 +217,7 @@ again:
 
 
 void
-init_parserinfo(parserinfo_t pi)
+init_parserinfo(parserinfo_t pi, globaldata_t gd)
 {
 
 	memset(pi, 0, sizeof(*pi));
@@ -167,5 +225,6 @@ init_parserinfo(parserinfo_t pi)
 	pi->pll_n = pll_settings[0].n;
 	pi->pll_c = pll_settings[0].c;
 	pi->sram_free_bytes = SRAM_SIZE;
+	pi->gd = gd;
 }
 
