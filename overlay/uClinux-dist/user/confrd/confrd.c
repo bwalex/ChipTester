@@ -25,6 +25,7 @@ int wflag = 0;
 int sflag = 0;
 int vflag = 0;
 char *sram_file = NULL;
+char *base_url = NULL;
 
 
 char *cur_filename;
@@ -77,11 +78,11 @@ build_url(parserinfo_t pi, const char *req_path_fmt, ...)
 	va_list ap;
 	static char buffer[2048];
 	char fmt[512];
-	const char *base_url;
+	const char *baseurl;
 
-	base_url = pi->gd->base_url;
+	baseurl = pi->gd->base_url;
 
-	snprintf(fmt, sizeof(fmt), "%s/%s", base_url,
+	snprintf(fmt, sizeof(fmt), "%s/%s", baseurl,
 		 req_path_fmt);
 
 	va_start(ap, fmt);
@@ -378,6 +379,8 @@ parse_team_dir(char *dirname)
 		logger(LOGERR, "team.cfg is missing a valid base_url");
 		++error;
 	}
+
+	base_url = gd.base_url;
 
 	if (error)
 		return error;
