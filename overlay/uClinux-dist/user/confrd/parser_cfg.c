@@ -121,7 +121,6 @@ parse_cfg_file(char *filename, globaldata_t gd, parserinfo_t pi)
 		goto out;
 	}
 
-	rc = init_remote(pi);
 out:
 	fclose(fp);
 	return rc;

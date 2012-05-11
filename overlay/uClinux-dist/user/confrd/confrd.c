@@ -281,7 +281,7 @@ emit(parserinfo_t pi, void *b, size_t bufsz)
 
 
 int
-run_trunner(parserinfo_t pi)
+run_trunner(parserinfo_t pi, int process)
 {
 	int error;
 
@@ -291,7 +291,8 @@ run_trunner(parserinfo_t pi)
 	if ((error = trunner_wait_done()) != 0)
 		return error;
 
-	process_sram_results(pi);
+	if (process)
+		process_sram_results(pi);
 	return 0;
 }
 
@@ -306,7 +307,7 @@ suspend_emit(void *p)
 	if (error != 0 && error != EAGAIN)
 		return error;
 
-	error = go(pi);
+	error = go(pi, 1);
 	if (error != 0)
 		return error;
 
@@ -320,7 +321,7 @@ suspend_emit(void *p)
 
 
 int
-go(parserinfo_t pi)
+go(parserinfo_t pi, int process)
 {
 	int error;
 
@@ -337,7 +338,7 @@ go(parserinfo_t pi)
 		if (error)
 			return error;
 
-		return run_trunner(pi);
+		return run_trunner(pi, process);
 	}
 
 	return 0;
@@ -373,7 +374,7 @@ parse_team_dir(char *dirname)
 		++error;
 	}
 
-	if (gd.base_url == NULL) {
+	if (gd.base_url == NULL && wflag) {
 		logger(LOGERR, "team.cfg is missing a valid base_url");
 		++error;
 	}
@@ -392,7 +393,13 @@ parse_team_dir(char *dirname)
 			return -1;
 	}
 
-	rc = go(&pi);
+	if (wflag) {
+		error = init_remote(&pi);
+		if (error)
+			return error;
+	}
+
+	rc = go(&pi, 0);
 	if (rc != 0)
 		return -1;
 
@@ -417,11 +424,10 @@ parse_team_dir(char *dirname)
 			logger(LOGERR, "Error parsing %s", fname);
 			continue;
 		}
-		if (wflag) {
-			rc = run_trunner(&pi);
-			if (rc)
-				return -1;
-		}
+
+		rc = go(&pi, 1);
+		if (rc)
+			return -1;
 	}
 
 	if (gd.email)

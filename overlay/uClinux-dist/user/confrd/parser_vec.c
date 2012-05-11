@@ -570,10 +570,6 @@ parse_vec_file(char *filename, suspend_fn sus_fn, parserinfo_t pi)
 	if (rc)
 		goto out;
 
-	rc = go(pi);
-	if (rc)
-		goto out;
-
 out:
 	fclose(fp);
 	return rc;

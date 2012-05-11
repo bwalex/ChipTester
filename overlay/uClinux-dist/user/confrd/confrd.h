@@ -181,9 +181,9 @@ typedef struct dotcommand {
 
 int suspend_emit(void *p);
 int emit(parserinfo_t pi, void *b, size_t bufsz);
-int run_trunner(parserinfo_t pi);
+int run_trunner(parserinfo_t pi, int process);
 void *stage_alloc_chunk(parserinfo_t pi, size_t sz);
-int go(parserinfo_t pi);
+int go(parserinfo_t pi, int process);
 char *build_url(parserinfo_t pi, const char *req_path_fmt, ...);
 int init_remote(parserinfo_t pi);
 
