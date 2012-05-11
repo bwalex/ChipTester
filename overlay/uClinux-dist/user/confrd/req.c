@@ -78,6 +78,8 @@ print_mem(uint8_t *buf, int sz, int *end)
 			bprint(tv->input_vector, sizeof(tv->input_vector));
 			printf(", ov=");
 			bprint(tv->output_vector, sizeof(tv->output_vector));
+			printf(", xmask=");
+			bprint(tv->x_mask, sizeof(tv->x_mask));
 			printf(", metadata2=%c %c (cycles: %d, mode: %s)\n",
 			    (tv->metadata2 & MD2_RUN)  ? 'R' : ' ',
 			    (tv->metadata2 & MD2_FAIL) ? 'F' : ' ',

@@ -41,12 +41,17 @@ typedef enum pin_type {
 } pin_type_t;
 
 
-typedef struct test_vector {
+struct test_vector {
 	uint8_t metadata;
 	uint8_t input_vector[3];
 	uint8_t output_vector[3];
 	uint8_t metadata2;
-} test_vector;
+	uint8_t x_mask[3];
+	uint8_t padding;
+} __attribute__((__packed__));
+
+typedef struct test_vector test_vector;
+typedef struct test_vector *test_vector_t;
 
 
 struct change_target {
@@ -57,6 +62,7 @@ struct change_target {
 } __attribute__((__packed__));
 
 typedef struct change_target change_target;
+typedef struct change_target *change_target_t;
 
 
 struct change_bitmask {
@@ -66,6 +72,7 @@ struct change_bitmask {
 } __attribute__((__packed__));
 
 typedef struct change_bitmask change_bitmask;
+typedef struct change_bitmask *change_bitmask_t;
 
 
 struct send_dicmd {
@@ -75,6 +82,7 @@ struct send_dicmd {
 } __attribute__((__packed__));
 
 typedef struct send_dicmd send_dicmd;
+typedef struct send_dicmd *send_dicmd_t;
 
 
 struct pll_reconfig {
@@ -86,6 +94,7 @@ struct pll_reconfig {
 } __attribute__((__packed__));
 
 typedef struct pll_reconfig pll_reconfig;
+typedef struct pll_reconfig *pll_reconfig_t;
 
 
 struct mem_end {
@@ -96,6 +105,7 @@ struct mem_end {
 } __attribute__((__packed__));
 
 typedef struct mem_end mem_end;
+typedef struct mem_end *mem_end_t;
 
 
 typedef struct pininfo {
@@ -152,6 +162,7 @@ typedef struct dotcommand {
 int suspend_emit(void *p);
 int emit(parserinfo_t pi, void *b, size_t bufsz);
 int run_trunner(parserinfo_t pi);
+void *stage_alloc_chunk(parserinfo_t pi, size_t sz);
 
 size_t req_sz(int req);
 size_t print_mem(uint8_t *buf, int sz, int *end);

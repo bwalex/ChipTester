@@ -142,10 +142,13 @@ parse_file(char *fname, FILE *fp, keyword_t keywords, suspend_fn suspend, void *
 		if (*s == '\0')
 			continue;
 
+again:
 		/* Let section-specific line parser do its job */
 		error = keywords[keyword_idx].lp(s, priv);
-		if ((error == EAGAIN || error == -EAGAIN) && suspend != NULL)
-			error = suspend(priv);
+		if ((error == EAGAIN || error == -EAGAIN) && suspend != NULL) {
+			if ((error = suspend(priv)) == 0)
+				goto again;
+		}
 
 		if (error)
 			return error;

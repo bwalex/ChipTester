@@ -29,6 +29,25 @@ char *cur_filename;
 int cur_lineno;
 
 
+static uint8_t sram_stage[SRAM_SIZE];
+
+
+void *
+stage_alloc_chunk(parserinfo_t pi, size_t sz)
+{
+	uint8_t *buf;
+
+	if (pi->sram_free_bytes < sz + req_sz(REQ_END))
+		return NULL;
+
+	buf = &sram_stage[pi->sram_off];
+	memset(buf, 0, sz);
+
+	pi->sram_free_bytes -= sz;
+	pi->sram_off += sz;
+
+	return buf;
+}
 
 
 static

@@ -117,7 +117,7 @@ parse_line_vectors(char *s, void *priv)
 {
 	parserinfo_t pi = priv;
 	dotcommand_t dc;
-	test_vector tv;
+	test_vector_t tv;
 	size_t len;
 	char *e;
 	int n = 0;
@@ -154,7 +154,9 @@ parse_line_vectors(char *s, void *priv)
 		}
 	}
 
-	memset(&tv, 0, sizeof(tv));
+	tv = stage_alloc_chunk(pi, sizeof(*tv));
+	if (tv == NULL)
+		return EAGAIN;
 
 	while (*s != '\0') {
 		if (*s == 'w' || *s == 'W') {
@@ -202,14 +204,30 @@ parse_line_vectors(char *s, void *priv)
 			 * earlier when parsing the pindef.
 			 */
 			if (pi->pins[n].type == INPUT_PIN)
-				tv.input_vector[pi->pins[n].bidx] |=
+				tv->input_vector[pi->pins[n].bidx] |=
 					(*s - '0') << pi->pins[n].shiftl;
 			else
-				tv.output_vector[pi->pins[n].bidx] |=
+				tv->output_vector[pi->pins[n].bidx] |=
 					(*s - '0') << pi->pins[n].shiftl;
 
 			++n;
 
+			++s;
+		} else if (*s == 'X' || *s == 'x') {
+			if (n >= pi->pin_count) {
+				syntax_error("Vector contains too many pins");
+				return -1;
+			}
+
+			if (pi->pins[n].type == INPUT_PIN) {
+				syntax_error("Don't care (X) can only be set "
+					     "on outputs");
+				return -1;
+			}
+
+			tv->x_mask[pi->pins[n].bidx] |= (1 << pi->pins[n].shiftl);
+
+			++n;
 			++s;
 		} else {
 			syntax_error("Vector contains invalid "
@@ -227,11 +245,11 @@ parse_line_vectors(char *s, void *priv)
 		return -1;
 	}
 
-	tv.metadata = REQ_TYPE(REQ_TEST_VECTOR);
-	tv.metadata2 |= MD2_SET_CYCLES(cycles);
-	tv.metadata2 |= MD2_SET_MODE(mode);
+	tv->metadata = REQ_TYPE(REQ_TEST_VECTOR);
+	tv->metadata2 |= MD2_SET_CYCLES(cycles);
+	tv->metadata2 |= MD2_SET_MODE(mode);
 
-	return emit(pi, &tv, sizeof(tv));
+	return emit(pi, tv, sizeof(*tv));
 }
 
 
@@ -240,16 +258,18 @@ int
 parse_line_pindef(char *s, void *priv)
 {
 	parserinfo_t pi = priv;
-	change_bitmask cb;
+	change_bitmask_t cb;
 	pin_type_t type;
 	char *pins[MAX_PINS];
 	char *e;
 	int pin_no, bidx, shiftl;
 	int ntoks, i;
 
-	memset(&cb, 0, sizeof(cb));
+	cb = stage_alloc_chunk(pi, sizeof(*cb));
+	if (cb == NULL)
+		return EAGAIN;
 
-	cb.metadata = REQ_TYPE(REQ_SETUP_BITMASK);
+	cb->metadata = REQ_TYPE(REQ_SETUP_BITMASK);
 
 	pi->pin_count = 0;
 	memset(pi->bitmask, 0, sizeof(pi->bitmask));
@@ -294,8 +314,8 @@ parse_line_pindef(char *s, void *priv)
 		++pi->pin_count;
 	}
 
-	memcpy(cb.bit_mask, pi->bitmask, sizeof(cb.bit_mask));
-	return emit(pi, &cb, sizeof(cb));
+	memcpy(cb->bit_mask, pi->bitmask, sizeof(cb->bit_mask));
+	return emit(pi, cb, sizeof(*cb));
 }
 
 
@@ -309,16 +329,18 @@ int
 parse_line_clock(char *s, void *priv)
 {
 	parserinfo_t pi = priv;
-	send_dicmd sd;
+	send_dicmd_t sd;
 	pin_type_t type;
 	char *pins[MAX_PINS];
 	char *e;
 	int pin_no, bidx, shiftl;
 	int ntoks, i;
 
-	memset(&sd, 0, sizeof(sd));
+	sd = stage_alloc_chunk(pi, sizeof(*sd));
+	if (sd == NULL)
+		return EAGAIN;
 
-	sd.metadata = REQ_TYPE(REQ_SEND_DICMD) | DICMD(DICMD_SETUP_MUXES);
+	sd->metadata = REQ_TYPE(REQ_SEND_DICMD) | DICMD(DICMD_SETUP_MUXES);
 
 	/* Tokenize pindef, tokens being separated by whitespace or comma */
 	if ((ntoks = tokenizer(s, pins, MAX_INPUT_OUTPUT_SIZE)) == -1) {
@@ -353,10 +375,10 @@ parse_line_clock(char *s, void *priv)
 		bidx = 2 /* XXX, magical constant */ - pin_no / 8;
 		shiftl = pin_no % 8;
 
-		sd.payload[bidx] |= (1 << shiftl);
+		sd->payload[bidx] |= (1 << shiftl);
 	}
 
-	return emit(pi, &sd, sizeof(sd));
+	return emit(pi, sd, sizeof(*sd));
 }
 
 
@@ -365,16 +387,18 @@ int
 parse_line_trgmask(char *s, void *priv)
 {
 	parserinfo_t pi = priv;
-	send_dicmd sd;
+	send_dicmd_t sd;
 	pin_type_t type;
 	char *pins[MAX_PINS];
 	char *e;
 	int pin_no, bidx, shiftl;
 	int ntoks, i;
 
-	memset(&sd, 0, sizeof(sd));
+	sd = stage_alloc_chunk(pi, sizeof(*sd));
+	if (sd == NULL)
+		return EAGAIN;
 
-	sd.metadata = REQ_TYPE(REQ_SEND_DICMD) | DICMD(DICMD_TRGMASK);
+	sd->metadata = REQ_TYPE(REQ_SEND_DICMD) | DICMD(DICMD_TRGMASK);
 
 	/* Tokenize pindef, tokens being separated by whitespace or comma */
 	if ((ntoks = tokenizer(s, pins, MAX_INPUT_OUTPUT_SIZE)) == -1) {
@@ -409,10 +433,10 @@ parse_line_trgmask(char *s, void *priv)
 		bidx = 2 /* XXX, magical constant */ - pin_no / 8;
 		shiftl = pin_no % 8;
 
-		sd.payload[bidx] |= (1 << shiftl);
+		sd->payload[bidx] |= (1 << shiftl);
 	}
 
-	return emit(pi, &sd, sizeof(sd));
+	return emit(pi, sd, sizeof(*sd));
 }
 
 
@@ -483,29 +507,34 @@ emit_end(parserinfo_t pi)
 int
 emit_pre_vectors(parserinfo_t pi)
 {
-	pll_reconfig pr;
+	pll_reconfig_t pr;
 
-	memset(&pr, 0, sizeof(pr));
-	pr.metadata = REQ_TYPE(REQ_PLLRECONFIG);
-	pr.mul_factor = pi->pll_m;
-	pr.div_factor = pi->pll_n;
-	pr.div_factor_post = pi->pll_c;
+	pr = stage_alloc_chunk(pi, sizeof(*pr));
+	if (pr == NULL)
+		return EAGAIN;
 
-	return emit(pi, &pr, sizeof(pr));
+	pr->metadata = REQ_TYPE(REQ_PLLRECONFIG);
+	pr->mul_factor = pi->pll_m;
+	pr->div_factor = pi->pll_n;
+	pr->div_factor_post = pi->pll_c;
+
+	return emit(pi, pr, sizeof(*pr));
 }
 
 
 int
 emit_change_target(parserinfo_t pi, globaldata_t gd)
 {
-	change_target ct;
+	change_target_t ct;
 
-	memset(&ct, 0, sizeof(ct));
+	ct = stage_alloc_chunk(pi, sizeof(*ct));
+	if (ct == NULL)
+		return EAGAIN;
 
-	ct.metadata = REQ_TYPE(REQ_SWITCH_TARGET);
-	ct.design_number = gd->team_no & DESIGN_NUMBER_MASK;
+	ct->metadata = REQ_TYPE(REQ_SWITCH_TARGET);
+	ct->design_number = gd->team_no & DESIGN_NUMBER_MASK;
 
-	return emit(pi, &ct, sizeof(ct));
+	return emit(pi, ct, sizeof(*ct));
 }
 
 
