@@ -163,6 +163,7 @@ int suspend_emit(void *p);
 int emit(parserinfo_t pi, void *b, size_t bufsz);
 int run_trunner(parserinfo_t pi);
 void *stage_alloc_chunk(parserinfo_t pi, size_t sz);
+int go(parserinfo_t pi);
 
 size_t req_sz(int req);
 size_t print_mem(uint8_t *buf, int sz, int *end);
@@ -178,7 +179,6 @@ int parse_file(char *fname, FILE *fp, keyword_t keywords, suspend_fn suspend, vo
 void init_parserinfo(parserinfo_t pi);
 
 int parse_cfg_file(char *filename, globaldata_t gd, parserinfo_t pi);
-
 
 int emit_end(parserinfo_t pi);
 int emit_pre_vectors(parserinfo_t pi);

@@ -494,13 +494,15 @@ parse_line_frequency(char *s, void *priv)
 int
 emit_end(parserinfo_t pi)
 {
-	mem_end me;
+	mem_end_t me;
 
-	memset(&me, 0, sizeof(me));
+	me = stage_alloc_chunk(pi, sizeof(*me));
+	if (me == NULL)
+		return EAGAIN;
 
-	me.metadata = REQ_TYPE(REQ_END);
+	me->metadata = REQ_TYPE(REQ_END);
 
-	return emit(pi, &me, sizeof(me));
+	return emit(pi, me, sizeof(*me));
 }
 
 
@@ -559,6 +561,10 @@ parse_vec_file(char *filename, suspend_fn sus_fn, parserinfo_t pi)
 		goto out;
 
 	rc = emit_end(pi);
+	if (rc)
+		goto out;
+
+	rc = go(pi);
 	if (rc)
 		goto out;
 

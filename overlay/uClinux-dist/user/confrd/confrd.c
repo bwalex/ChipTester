@@ -15,7 +15,6 @@
 #include "confrd.h"
 #include "sram.h"
 #include "trunner_if.h"
-#include "pll_settings.h"
 
 
 
@@ -52,10 +51,10 @@ stage_alloc_chunk(parserinfo_t pi, size_t sz)
 
 static
 void
-save_sram_file(uint8_t *buf, int sz)
+save_sram_file(uint8_t *buf, size_t sz)
 {
 	FILE *fp;
-	int i;
+	size_t i;
 
 	if ((fp = fopen(sram_file, "a")) == NULL) {
 		perror("save_sram_file: fopen");
@@ -94,29 +93,10 @@ print_sram_results(void)
 int
 emit(parserinfo_t pi, void *b, size_t bufsz)
 {
-	uint8_t *buf = b;
 	int rc = 0;
 
 	if (bufsz == 0)
 		return rc;
-
-	if (pflag)
-		print_mem(buf, bufsz, NULL);
-
-	if (sflag)
-		save_sram_file(buf, bufsz);
-
-	if (wflag) {
-		rc = sram_write(pi->sram_off, buf, bufsz);
-		if (rc == 0) {
-			pi->sram_off += bufsz;
-			pi->sram_free_bytes -= bufsz;
-
-			if (pi->sram_free_bytes <
-			    (req_sz(REQ_TEST_VECTOR) + req_sz(REQ_END)))
-				rc = EAGAIN;
-		}
-	}
 
 	return rc;
 }
@@ -149,14 +129,39 @@ suspend_emit(void *p)
 	if (error != 0 && error != EAGAIN)
 		return error;
 
-	if ((error = run_trunner(pi)) != 0)
+	error = go(pi);
+	if (error != 0)
 		return error;
-
 
 	/* Emit necessary restart code (XXX: presumably nothing) */
 	/* Reset SRAM index and size */
 	pi->sram_off = 0;
 	pi->sram_free_bytes = SRAM_SIZE;
+
+	return 0;
+}
+
+
+int
+go(parserinfo_t pi)
+{
+	int error;
+
+	if (pflag) {
+		print_mem(sram_stage, (size_t)pi->sram_off, NULL);
+	}
+
+	if (sflag) {
+		save_sram_file(sram_stage, (size_t)pi->sram_off);
+	}
+
+	if (wflag) {
+		error = sram_write(0, sram_stage, (size_t)pi->sram_off);
+		if (error)
+			return error;
+
+		return run_trunner(pi);
+	}
 
 	return 0;
 }
@@ -198,12 +203,9 @@ parse_team_dir(char *dirname)
 			return -1;
 	}
 
-	if (wflag) {
-		rc = run_trunner(&pi);
-		if (rc)
-			return -1;
-	}
-
+	rc = go(&pi);
+	if (rc != 0)
+		return -1;
 
 	dir = opendir(dirname);
 	if (dir == NULL) {
