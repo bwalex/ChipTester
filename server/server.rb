@@ -10,7 +10,7 @@ require 'sass'
 require 'digest/md5'
 require 'mail'
 
-config = YAML::parse( File.open( "config.yml" ))
+config = YAML::load( File.open( "config.yml" ))
 #Enabling Sessions
 enable :sessions
 

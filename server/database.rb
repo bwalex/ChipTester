@@ -1,9 +1,10 @@
 require 'data_mapper'
 require 'yaml'
 
-database_config = YAML::parse( File.open( "config.yml" ))
-config = database_config['database']['type'].value + '://' + database_config['database']['user'].value + ':' + database_config['database']['password'].value + '@' + database_config['database']['address'].value +  '/' + database_config['database']['database_name'].value
+database_config = YAML::load( File.open( "config.yml" ))
+config = database_config['database']['type'] + '://' + database_config['database']['user'] + ':' + database_config['database']['password'] + '@' + database_config['database']['address'] +  '/' + database_config['database']['database_name']
 DataMapper.setup(:default, config)
+#DataMapper.setup(:default, 'sqlite:test.db')
 #Refer to config.yml to change the config line
 DataMapper::Logger.new($stdout, :debug)
 DataMapper::Model.raise_on_save_failure = true
