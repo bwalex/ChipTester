@@ -104,7 +104,6 @@ init_remote(parserinfo_t pi)
 
 	j_in = json_pack("{s:i, s:i, s:s, s:b}",
 			 "team", gd->team_no,
-			 "run_date", (int)time(NULL),
 			 "academic_year", gd->academic_year,
 			 "virtual", vflag);
 	if (j_in == NULL) {
@@ -186,7 +185,6 @@ process_sram_results(parserinfo_t pi)
 	if (pi->design_result_id < 1) {
 		/* Push out DesignResult */
 		j_in = json_pack("{s:i, s:s, s:i, s:s, s:s}",
-				 "run_date", (int)time(NULL),
 				 "file_name", pi->file_name,
 				 "clock_freq", pi->pll_freq,
 				 "triggers",  h_output(pi->trigger_mask, sizeof(pi->trigger_mask)),
@@ -252,7 +250,7 @@ process_sram_results(parserinfo_t pi)
 			case REQ_TEST_VECTOR:
 				tv = (test_vector_t)pbuf;
 				/* Push out TestVectorResult */
-				j_in = json_pack("{s:i,s:s,s:s,s:i,s:s,s:s,s:b,s:b}",
+				j_in = json_pack("{s:i,s:s,s:s,s:i,s:s,s:s,s:b,s:b,s:b}",
 						 "type", MD2_MODE(tv->metadata2),
 						 "input_vector", h_input(tv->input_vector,
 								   pi->clock_mask,
@@ -263,6 +261,7 @@ process_sram_results(parserinfo_t pi)
 						 "actual_result", h_output(tv->output_vector,
 								    sizeof(tv->output_vector)),
 						 "cycle_count", MD2_CYCLES(tv->metadata2) + 1,
+						 "trigger_timeout", tv->metadata2 & MD2_TIMEOUT,
 						 "fail", tv->metadata2 & MD2_FAIL,
 						 "has_run", tv->metadata2 & MD2_RUN);
 				if (j_in == NULL) {

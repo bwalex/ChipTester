@@ -209,35 +209,56 @@ post '/submited_files' do
 end
 
 
-post '/' do
-   unless params['json_posted'].nil?
-      id_value = {}
-      json_parsed = JSON.parse(params['json_posted'])
-      
-      if json_parsed.has_key? "LogEntry"
-	  log_stored = Store_LogEntry(json_parsed)
-	  id_value = {"id" => log_stored.id}
-      end
-      if json_parsed.has_key? "Result"
-	    result_stored = StoreResult(json_parsed)
-	    id_value = { "id" => result_stored.id }
-      end
-      if json_parsed.has_key? "DesignResult"
-	    design_stored = StoreDesignResult(json_parsed)
-	    id_value = { "id" => design_stored.id }
-      end
-      if json_parsed.has_key? "TestVectorResult"
-	    test_stored = StoreTestVectorResult(json_parsed)
-	    id_value = { "id" => test_stored.id }
-      end
-      if json_parsed.has_key? "DownloadSuccess"
-	@file_upload = FileUpload.all(:file_name=> json_parsed['DownloadSuccess']['file_name'])
-	@file_upload.update(:sent=> true, :erased => true)
-	File.delete('uploads/' + json_parsed['DownloadSuccess']['file_name'])
-      end
-   end
-      id_value.to_json()
+post '/api/result' do
+  content_type :json
+  @result = Result.new
+  JSON.parse(request.body.read).each { |k, v| @result.send(k + "=", v) }
+  @result.save
+
+  @result.to_json
 end
+
+
+post '/api/result/:result_id/design' do
+  content_type :json
+  data =  JSON.parse(request.body.read)
+  @result = Result.get!(params[:result_id])
+  @design = @result.design_results.create(data)
+  @result.save
+
+  @design.to_json
+
+end
+
+post '/api/result/:result_id/design/:design_id/measurement/frequency' do
+  content_type :json
+  data =  JSON.parse(request.body.read)
+  @result = Result.get!(params[:result_id])
+  @design = DesignResult.get!(params[:design_id])
+  @fm = @design.frequency_measurements.create(data)
+
+  @fm.to_json
+end
+
+post '/api/result/:result_id/design/:design_id/vector' do
+  content_type :json
+  data =  JSON.parse(request.body.read)
+  @result = Result.get!(params[:result_id])
+  @design = DesignResult.get!(params[:design_id])
+  @vector = @design.test_vector_results.create(data)
+
+  @vector.to_json
+end
+
+
+post '/api/log' do
+  content_type :json
+  data = JSON.parse(request.body.read)
+  @log = LogEntry.create(data)
+
+  @log.to_json
+end
+
 
 post '/logout_submited' do
     session[:user] = nil

@@ -27,6 +27,7 @@
 
 #define MD2_FAIL		0x01
 #define MD2_RUN			0x80
+#define MD2_TIMEOUT             0x40
 #define MD2_SET_CYCLES(c)       ((((c)-1) & 0x1f) << 1)
 #define MD2_SET_MODE(m)         ((m & 0x01) << 6)
 #define MD2_CYCLES(md2)         (((md2 >> 1) & 0x1f) + 1)
