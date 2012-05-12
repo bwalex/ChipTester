@@ -2,24 +2,24 @@ require 'rubygems'
 require 'mail'
 require 'yaml'
 
-email_config = YAML::parse( File.open( "config.yml" ) )
+email_config = YAML::load( File.open( "config.yml" ) )
 Mail.defaults do
-  delivery_method :smtp, {:address => email_config['email']['smtpaddress'].value,
-			  :port => email_config['email']['port'].value,
-			  :user_name =>email_config['email']['username'].value,
-			  :domain => email_config['email']['domain'].value,
-			  :password => email_config['email']['password'].value,
-			  :authentication => email_config['email']['authentication'].value,
-			  :enable_starttls_auto => email_config['email']['enable_ttls'].value
+  delivery_method :smtp, {:address => email_config['email']['smtpaddress'],
+			  :port => email_config['email']['port'],
+			  :user_name =>email_config['email']['username'],
+			  :domain => email_config['email']['domain'],
+			  :password => email_config['email']['password'],
+			  :authentication => email_config['email']['authentication'],
+			  :enable_starttls_auto => email_config['email']['enable_ttls']
 
 }
 end
 
 def send_email(to_address, e_body, e_subject)
   email_config = YAML::parse( File.open( "config.yml" ) )
-  if email_config['email']['email_enable'].value
+  if email_config['email']['email_enable']
 	mail = Mail.new do
-	from email_config['email']['username'].value
+	from email_config['email']['username']
 	content_type 'text/html; charset=UTF-8'
 	to to_address
 	subject e_subject
