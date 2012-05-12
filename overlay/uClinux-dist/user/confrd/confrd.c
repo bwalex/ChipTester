@@ -102,7 +102,7 @@ init_remote(parserinfo_t pi)
 	json_t *j_out;
 	int error;
 
-	j_in = json_pack("{s:i, s:i, s:s, s:b}",
+	j_in = json_pack("{s:i, s:s, s:b}",
 			 "team", gd->team_no,
 			 "academic_year", gd->academic_year,
 			 "virtual", vflag);
