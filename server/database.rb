@@ -21,9 +21,15 @@ class FileUpload
   property :team,  Integer
   property :file_name, String 
   property :is_valid, Boolean
+
+  # Useless properties
   property :sent, Boolean
   property :erased, Boolean
   property :uploaded_at, DateTime
+  # End Useless properties
+
+  property :created_at, DateTime
+  property :updated_at, DateTime
 end
 
 class LogEntry

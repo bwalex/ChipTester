@@ -259,6 +259,20 @@ post '/api/log' do
   @log.to_json
 end
 
+get '/api/vdesign' do
+  @fu = FileUpload.first
+  if @fu.nil?
+    halt 404
+  else
+    file = File.join('uploads/', @fu.file_name)
+    send_file(file, :disposition => 'attachment', :filename => File.basename(file))
+  end
+end
+
+delete '/api/vdesign' do
+  @fu = FileUpload.first
+  @fu.destroy
+end
 
 post '/logout_submited' do
     session[:user] = nil
