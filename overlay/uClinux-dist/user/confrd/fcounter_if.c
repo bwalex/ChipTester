@@ -11,7 +11,6 @@
 #include "fcounter_if.h"
 
 
-#define FCOUNTER_SYS_FREQUENCY  100.0 // MHz
 #define MAJOR_NUM		0xFC
 #define FCOUNTER_IOC_ENABLE	_IO(MAJOR_NUM, 0)
 #define FCOUNTER_IOC_GET_COUNT	_IOR(MAJOR_NUM, 1, uint32_t)

@@ -141,6 +141,28 @@ init_remote(parserinfo_t pi)
 }
 
 
+int
+submit_measurement_freq(parserinfo_t pi, double freq)
+{
+	int error;
+	json_t *j_in;
+	char *url;
+
+	url = build_url(pi, "api/result/%d/design/%d/measurement/frequency",
+			pi->gd->result_id, pi->design_result_id);
+
+	j_in = json_pack("{s:f}", "frequency", freq);
+	if (j_in == NULL) {
+		logger(LOGERR, "Error packing JSON for frequency measurement");
+		return -1;
+	}
+
+	error = req_json(url, METHOD_POST, j_in, NULL);
+	json_decref(j_in);
+	return error;
+}
+
+
 static
 int
 process_sram_results(parserinfo_t pi)
@@ -161,41 +183,43 @@ process_sram_results(parserinfo_t pi)
 	size_t reqsz;
 
 
-	/* Push out DesignResult */
-	j_in = json_pack("{s:i, s:s, s:i, s:s, s:s}",
-			 "run_date", (int)time(NULL),
-			 "file_name", pi->file_name,
-			 "clock_freq", pi->pll_freq,
-			 "triggers",  h_output(pi->trigger_mask, sizeof(pi->trigger_mask)),
-			 "design_name", pi->design_name);
-	if (j_in == NULL) {
-		logger(LOGERR, "Error packing JSON for 'DesignResult'");
-		return -1;
-	}
-
-	error = req_json(build_url(pi, "api/result/%d/design", pi->gd->result_id),
-			 METHOD_POST, j_in, &j_out);
-
-	json_decref(j_in);
-
-	if (error) {
-		logger(LOGERR, "Error sending JSON for 'DesignResult', %d",
-		       error);
-		return error;
-	}
-
-	error = json_unpack(j_out, "{s:i}", "id", &pi->design_result_id);
-
-	json_decref(j_out);
-
-	if (error) {
-		logger(LOGERR, "Error parsing received JSON for 'DesignResult'");
-		return error;
-	}
-
 	if (pi->design_result_id < 1) {
-		logger(LOGERR, "Invalid design_result id");
-		return -1;
+		/* Push out DesignResult */
+		j_in = json_pack("{s:i, s:s, s:i, s:s, s:s}",
+				 "run_date", (int)time(NULL),
+				 "file_name", pi->file_name,
+				 "clock_freq", pi->pll_freq,
+				 "triggers",  h_output(pi->trigger_mask, sizeof(pi->trigger_mask)),
+				 "design_name", pi->design_name);
+		if (j_in == NULL) {
+			logger(LOGERR, "Error packing JSON for 'DesignResult'");
+			return -1;
+		}
+
+		error = req_json(build_url(pi, "api/result/%d/design", pi->gd->result_id),
+				 METHOD_POST, j_in, &j_out);
+
+		json_decref(j_in);
+
+		if (error) {
+			logger(LOGERR, "Error sending JSON for 'DesignResult', %d",
+			       error);
+			return error;
+		}
+
+		error = json_unpack(j_out, "{s:i}", "id", &pi->design_result_id);
+
+		json_decref(j_out);
+
+		if (error) {
+			logger(LOGERR, "Error parsing received JSON for 'DesignResult'");
+			return error;
+		}
+
+		if (pi->design_result_id < 1) {
+			logger(LOGERR, "Invalid design_result id");
+			return -1;
+		}
 	}
 
 	/* Pre-build url to avoid the cost on 'req' */

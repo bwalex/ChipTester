@@ -42,7 +42,10 @@ vlog(int loglevel, const char *fmt, va_list ap)
 	if (!wflag || base_url == NULL)
 		return;
 
-	/* XXX: add remote logging */
+	/*
+	 * Do our best to log remotely, but fail silently if it
+	 * doesn't work out.
+	 */
 	j_in = json_pack("{s:i,s:s}",
 			 "level", loglevel,
 			 "message", msgbuf);
