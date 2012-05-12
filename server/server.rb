@@ -106,6 +106,62 @@ get '/download_configuration' do
   end 
 end
 
+get '/add_admin' do
+  @flash_error = flash
+  if Admin.all(:email => session['user'])[0].permission == 0
+    erb :add_admin
+  elsif Admin.all(:email => session['user'])[0].nil?
+    erb :login
+  else
+    flash[:error] = "You do not have the valid permissions to add new administrators. <br />"
+    redirect '/admin'
+  end
+end
+
+post '/added_admin' do
+  errors = false
+  error_msg = ''
+  if params['email'].empty?
+    error_msg = error_msg + "A valid <i>E-Mail</i> must be specified. <br />"
+    errors = true
+  elsif params['email'] !~ /^.+@.+\..+$/
+    error_msg = error_msg + "A valid <i>E-Mail</i> must be specified. You entered <i>" + params['email'] + "</i>. <br />"
+    errors = true
+  end
+  if params['permission'].empty?
+    error_msg = error_msg + "A valid permission must be submited. Permission 0 allows the new admin to add more admins, Permission 1 does not><br />"
+    errors = true
+  elsif params['permission'] =~ /^.+@.+\..+$/
+    error_msg = error_msg + "A valid <i>Permission</i> must be specified. You entered <i>" + params['permission'] + "</i>. <br />"
+    errors = true
+  end
+  if params['password'].empty?
+    error_msg = error_msg + "Password cannot be empty<br />"
+    errors = true
+  end
+  if params['password_rep'].empty?
+    error_msg = error_msg + "Please Repeat the new admin password<br />"
+    errors = true
+  end
+  if !params['password'].empty? && params['password'] != params['password_rep']
+    error_msg = error_msg + "Passwords do not match<br />"
+    errors = true
+  end
+  if errors
+    flash[:error] = error_msg
+    redirect '/add_admin'
+  else
+  if Admin.create(:email => params['email'], :password => params['password'], :permission => params['permission'])
+    flash[:notice] = "New administrator created successfully<br />"
+    redirect '/add_admin'
+  else
+    flash[:error] = "New admin could not be created<br />"
+    redirect '/add_admin'
+  end
+  end
+end
+  
+
 post '/submited_files' do
   errors = false
   error_msg = ''
