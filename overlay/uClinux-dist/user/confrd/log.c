@@ -12,18 +12,25 @@
 #include <getopt.h>
 #include <time.h>
 
+#include <jansson.h>
 
+#include "http_json.h"
 #include "confrd.h"
 
 
 extern char *cur_filename;
 extern int cur_lineno;
+extern int wflag;
+
+extern char *base_url;
 
 
 void
 vlog(int loglevel, const char *fmt, va_list ap)
 {
+	char urlbuf[512];
 	char msgbuf[4096];
+	json_t *j_in;
 
 	vsnprintf(msgbuf, sizeof(msgbuf), fmt, ap);
 
@@ -32,7 +39,18 @@ vlog(int loglevel, const char *fmt, va_list ap)
 	else
 		printf("%s\n", msgbuf);
 
+	if (!wflag || base_url == NULL)
+		return;
+
 	/* XXX: add remote logging */
+	j_in = json_pack("{s:i,s:s}",
+			 "level", loglevel,
+			 "message", msgbuf);
+	if (j_in == NULL)
+		return;
+
+	snprintf(urlbuf, sizeof(urlbuf), "%s/log", base_url);
+	req_json(urlbuf, METHOD_POST, j_in, NULL);
 }
 
 

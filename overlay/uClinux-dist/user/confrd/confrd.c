@@ -12,31 +12,53 @@
 #include <getopt.h>
 #include <time.h>
 
+#include <jansson.h>
+
+#include "http_json.h"
 #include "confrd.h"
-#include "sram.h"
 #include "trunner_if.h"
-#include "pll_settings.h"
 
 
 
 int pflag = 0;
 int wflag = 0;
 int sflag = 0;
+int vflag = 0;
 char *sram_file = NULL;
+char *base_url = NULL;
 
 
 char *cur_filename;
 int cur_lineno;
 
 
+uint8_t sram_stage[SRAM_SIZE];
+
+
+void *
+stage_alloc_chunk(parserinfo_t pi, size_t sz)
+{
+	uint8_t *buf;
+
+	if (pi->sram_free_bytes < sz + req_sz(REQ_END))
+		return NULL;
+
+	buf = &sram_stage[pi->sram_off];
+	memset(buf, 0, sz);
+
+	pi->sram_free_bytes -= sz;
+	pi->sram_off += sz;
+
+	return buf;
+}
 
 
 static
 void
-save_sram_file(uint8_t *buf, int sz)
+save_sram_file(uint8_t *buf, size_t sz)
 {
 	FILE *fp;
-	int i;
+	size_t i;
 
 	if ((fp = fopen(sram_file, "a")) == NULL) {
 		perror("save_sram_file: fopen");
@@ -50,20 +72,195 @@ save_sram_file(uint8_t *buf, int sz)
 }
 
 
+char *
+build_url(parserinfo_t pi, const char *req_path_fmt, ...)
+{
+	va_list ap;
+	static char buffer[2048];
+	char fmt[512];
+	const char *baseurl;
+
+	baseurl = pi->gd->base_url;
+
+	snprintf(fmt, sizeof(fmt), "%s/%s", baseurl,
+		 req_path_fmt);
+
+	va_start(ap, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, ap);
+	va_end(ap);
+
+	return buffer;
+}
+
+
+int
+init_remote(parserinfo_t pi)
+{
+	/* Push out team number and other global info (Result) */
+	globaldata_t gd = pi->gd;
+	json_t *j_in;
+	json_t *j_out;
+	int error;
+
+	j_in = json_pack("{s:i, s:i, s:s, s:b}",
+			 "team", gd->team_no,
+			 "run_date", (int)time(NULL),
+			 "academic_year", gd->academic_year,
+			 "virtual", vflag);
+	if (j_in == NULL) {
+		logger(LOGERR, "Error packing JSON for 'Result'");
+		return -1;
+	}
+
+	error = req_json(build_url(pi, "api/result"), METHOD_POST,
+			 j_in, &j_out);
+
+	json_decref(j_in);
+
+	if (error) {
+		logger(LOGERR, "Error sending JSON for 'Result', %d",
+		       error);
+		return error;
+	}
+
+	error = json_unpack(j_out, "{s:i}", "id", &gd->result_id);
+
+	json_decref(j_out);
+
+	if (error) {
+		logger(LOGERR, "Error parsing received JSON for 'Result'");
+		return error;
+	}
+
+	if (gd->result_id < 1) {
+		logger(LOGERR, "Invalid result id");
+		return -1;
+	}
+
+	return 0;
+}
+
+
 static
 int
-print_sram_results(void)
+process_sram_results(parserinfo_t pi)
 {
+	test_vector_t tv;
+	json_t *j_in;
+	json_t *j_out;
+
+	char *url;
 	uint8_t buf[256];
+	uint8_t *pbuf;
 	size_t sz = 0;
 	int error = 0;
 	int done = 0;
 	off_t off = 0;
+	int req;
+	int i = 0;
+	size_t reqsz;
+
+
+	/* Push out DesignResult */
+	j_in = json_pack("{s:i, s:s, s:i, s:s, s:s}",
+			 "run_date", (int)time(NULL),
+			 "file_name", pi->file_name,
+			 "clock_freq", pi->pll_freq,
+			 "triggers",  h_output(pi->trigger_mask, sizeof(pi->trigger_mask)),
+			 "design_name", pi->design_name);
+	if (j_in == NULL) {
+		logger(LOGERR, "Error packing JSON for 'DesignResult'");
+		return -1;
+	}
+
+	error = req_json(build_url(pi, "api/result/%d/design", pi->gd->result_id),
+			 METHOD_POST, j_in, &j_out);
+
+	json_decref(j_in);
+
+	if (error) {
+		logger(LOGERR, "Error sending JSON for 'DesignResult', %d",
+		       error);
+		return error;
+	}
+
+	error = json_unpack(j_out, "{s:i}", "id", &pi->design_result_id);
+
+	json_decref(j_out);
+
+	if (error) {
+		logger(LOGERR, "Error parsing received JSON for 'DesignResult'");
+		return error;
+	}
+
+	if (pi->design_result_id < 1) {
+		logger(LOGERR, "Invalid design_result id");
+		return -1;
+	}
+
+	/* Pre-build url to avoid the cost on 'req' */
+	url = build_url(pi, "api/result/%d/design/%d/vector", pi->gd->result_id,
+			pi->design_result_id);
 
 	do {
 		error = sram_read(off, buf, sizeof(buf));
-		if (!error)
-			sz = print_mem(buf, sizeof(buf), &done);
+		if (error)
+			return error;
+
+		pbuf = buf;
+		sz = sizeof(buf);
+
+		while (sz > 0) {
+			req = pbuf[0] >> 5;
+			reqsz = req_sz(req);
+
+			/*
+			 * If we don't have enough bytes left, stop processing. We'll
+			 * end up returning the number of bytes that were leftover.
+			 */
+			if (sz < reqsz)
+				break;
+
+			if (pflag)
+				print_req(pbuf, reqsz, NULL);
+
+			switch (req) {
+			case REQ_TEST_VECTOR:
+				tv = (test_vector_t)pbuf;
+				/* Push out TestVectorResult */
+				j_in = json_pack("{s:i,s:s,s:s,s:i,s:s,s:s,s:b,s:b}",
+						 "type", MD2_MODE(tv->metadata2),
+						 "input_vector", h_input(tv->input_vector,
+								   pi->clock_mask,
+								   sizeof(tv->input_vector)),
+						 "expected_result", h_expected(&pi->output[i],
+								      tv->x_mask, pi->bitmask,
+								      sizeof(tv->output_vector)),
+						 "actual_result", h_output(tv->output_vector,
+								    sizeof(tv->output_vector)),
+						 "cycle_count", MD2_CYCLES(tv->metadata2) + 1,
+						 "fail", tv->metadata2 & MD2_FAIL,
+						 "has_run", tv->metadata2 & MD2_RUN);
+				if (j_in == NULL) {
+					logger(LOGERR, "Error packing JSON for Vector");
+					return -1;
+				}
+
+				error = req_json(url, METHOD_POST, j_in, NULL);
+				json_decref(j_in);
+				if (error) {
+					logger(LOGERR, "Error sending JSON for Vector, %d",
+						error);
+					return error;
+				}
+
+				break;
+			}
+
+			i += sizeof(tv->output_vector);
+			sz   -= reqsz;
+			pbuf += reqsz;
+		}
 
 		off += sizeof(buf) - sz;
 	} while(!error && !done);
@@ -75,36 +272,17 @@ print_sram_results(void)
 int
 emit(parserinfo_t pi, void *b, size_t bufsz)
 {
-	uint8_t *buf = b;
 	int rc = 0;
 
 	if (bufsz == 0)
 		return rc;
-
-	if (pflag)
-		print_mem(buf, bufsz, NULL);
-
-	if (sflag)
-		save_sram_file(buf, bufsz);
-
-	if (wflag) {
-		rc = sram_write(pi->sram_off, buf, bufsz);
-		if (rc == 0) {
-			pi->sram_off += bufsz;
-			pi->sram_free_bytes -= bufsz;
-
-			if (pi->sram_free_bytes <
-			    (req_sz(REQ_TEST_VECTOR) + req_sz(REQ_END)))
-				rc = EAGAIN;
-		}
-	}
 
 	return rc;
 }
 
 
 int
-run_trunner(parserinfo_t pi)
+run_trunner(parserinfo_t pi, int process)
 {
 	int error;
 
@@ -114,8 +292,8 @@ run_trunner(parserinfo_t pi)
 	if ((error = trunner_wait_done()) != 0)
 		return error;
 
-	print_sram_results();
-
+	if (process)
+		process_sram_results(pi);
 	return 0;
 }
 
@@ -130,14 +308,39 @@ suspend_emit(void *p)
 	if (error != 0 && error != EAGAIN)
 		return error;
 
-	if ((error = run_trunner(pi)) != 0)
+	error = go(pi, 1);
+	if (error != 0)
 		return error;
-
 
 	/* Emit necessary restart code (XXX: presumably nothing) */
 	/* Reset SRAM index and size */
 	pi->sram_off = 0;
 	pi->sram_free_bytes = SRAM_SIZE;
+
+	return 0;
+}
+
+
+int
+go(parserinfo_t pi, int process)
+{
+	int error;
+
+	if (pflag) {
+		print_mem(sram_stage, (size_t)pi->sram_off, NULL);
+	}
+
+	if (sflag) {
+		save_sram_file(sram_stage, (size_t)pi->sram_off);
+	}
+
+	if (wflag) {
+		error = sram_write(0, sram_stage, (size_t)pi->sram_off);
+		if (error)
+			return error;
+
+		return run_trunner(pi, process);
+	}
 
 	return 0;
 }
@@ -157,7 +360,7 @@ parse_team_dir(char *dirname)
 	memset(&gd, 0, sizeof(gd));
 	gd.team_no = -1;
 
-	init_parserinfo(&pi);
+	init_parserinfo(&pi, &gd);
 
 	snprintf(fname, PATH_MAX, "%s/%s", dirname, "team.cfg");
 	error = parse_cfg_file(fname, &gd, &pi);
@@ -167,6 +370,20 @@ parse_team_dir(char *dirname)
 		return -1;
 	}
 
+	if (gd.team_no < 0) {
+		logger(LOGERR, "team.cfg is missing a valid team number");
+		++error;
+	}
+
+	if (gd.base_url == NULL && wflag) {
+		logger(LOGERR, "team.cfg is missing a valid base_url");
+		++error;
+	}
+
+	base_url = gd.base_url;
+
+	if (error)
+		return error;
 
 	rc = emit_change_target(&pi, &gd);
 	if (rc)
@@ -180,11 +397,14 @@ parse_team_dir(char *dirname)
 	}
 
 	if (wflag) {
-		rc = run_trunner(&pi);
-		if (rc)
-			return -1;
+		error = init_remote(&pi);
+		if (error)
+			return error;
 	}
 
+	rc = go(&pi, 0);
+	if (rc != 0)
+		return -1;
 
 	dir = opendir(dirname);
 	if (dir == NULL) {
@@ -199,7 +419,7 @@ parse_team_dir(char *dirname)
 		if ((strcmp(entry->d_name, "team.cfg")) == 0)
 			continue;
 
-		init_parserinfo(&pi);
+		init_parserinfo(&pi, &gd);
 		snprintf(fname, PATH_MAX, "%s/%s", dirname, entry->d_name);
 		logger(LOGINFO, "Processing %s", fname);
 
@@ -207,12 +427,18 @@ parse_team_dir(char *dirname)
 			logger(LOGERR, "Error parsing %s", fname);
 			continue;
 		}
-		if (wflag) {
-			rc = run_trunner(&pi);
-			if (rc)
-				return -1;
-		}
+
+		rc = go(&pi, 1);
+		if (rc)
+			return -1;
 	}
+
+	if (gd.email)
+		free(gd.email);
+	if (gd.academic_year)
+		free(gd.academic_year);
+	if (gd.base_url)
+		free(gd.base_url);
 
 	closedir(dir);
 

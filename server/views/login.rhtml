@@ -4,22 +4,22 @@
 	    
 	    <table class="center">
 		  <tr>
-		    <td style="width:25%">Username:</td>
-		    <td style="width:70%"> <input type="text" name="username" style="width:100%" maxlength="35"></td>
+		    <td class="thirtypc">Username:</td>
+		    <td class="seventypc"> <input class="hundredpc" type="text" name="username" maxlength="35"></td>
 		  </tr>
 		  <tr>
-		    <td style="width:25%">Password:</td>
-		    <td style="width:70%"> <input type="password" name="password" style="width:100%"></td>
+		    <td class="thirtypc">Password:</td>
+		    <td class="seventypc"> <input class="hundredpc" type="password" name="password"></td>
 		  </tr>
 		  <tr>
-		  	<td colspan=2 style="text-align:center"><input type="submit" value="Submit" style="width:50%"></td>
+		  	<td colspan=2><input class="fourtypc" type="submit" value="Submit"></td>
 		  </tr>
 		  <tr>
-		  	<td colspan=2 style="text-align:center">
+		  	<td colspan=2>
 		  	<% if @flash_error[:error] %>
-			  <p class="error" style="color:red"><%= @flash_error[:error] %></p>
+			  <p class="error"><%= @flash_error[:error] %></p>
 			<% elsif @flash_error[:notice]%>
-			  <p class ="notice" style="color:green"><%=@flash_error[:notice] %></p>
+			  <p class ="notice"><%=@flash_error[:notice] %></p>
 		  	<% end %> 
 		  	</td>
 		  </tr>

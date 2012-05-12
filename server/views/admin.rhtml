@@ -5,28 +5,28 @@
 	<p class="meta">Update the database... - Post JSON - TEMPORARY </p>
 	<div class="entry">
 		<form method="post" action="/">
-			<input type="text" name="json_posted" style="width:200px"/>
-			<input name="Submit Json" type="submit" value="Submit Json" style="width:100px"/>
+			<input type="text" name="json_posted"/>
+			<input type="submit" name="Submit Json" value="Submit Json"/>
 		</form>
 	</div>
     </div>
     <div class="post">
-	<div class="entry" style="text-align:center">
+	<div class="entry">
 		<form method="post" action="/reset">
-			<input type="submit" name="reset_value" VALUE="Reset Database" style="width:40%"/>
+			<input class="fourtypc" type="submit" name="reset_value" VALUE="Reset Database"/>
 		</form>
 		<form method="post" action="/send_email_results">
-			<input type="submit" name="send_email" VALUE="Send Results by e-mail" style="width:40%"/>
+			<input class="fourtypc" type="submit" name="send_email" VALUE="Send Results by e-mail"/>
 		</form>
 		<form method="get" action="/admin_database">
-			<input type="submit" name="manage_database" VALUE="Manage Database" style="width:40%"/>
+			<input class="fourtypc" type="submit" name="manage_database" VALUE="Manage Database"/>
 		</form>
 	</div>
     </div>
-	<div class="post" style="text-align:center">
+	<div class="post">
 	<p>You are logged in as <i><%= @username%></i>, do you wish to logout?</p>
 		<form method="post" action="/logout_submited">
-			<input name="logout" type="submit" value="Logout" style="width:40%"/>
+			<input class="fourtypc" name="logout" type="submit" value="Logout"/>
 		</form>	
 	</div>
 	  

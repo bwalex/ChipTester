@@ -18,10 +18,17 @@
 
 
 static int parse_line_team(char *, void *);
+static int parse_line_email(char *, void *);
+static int parse_line_academic_year(char *, void *);
+static int parse_line_base_url(char *, void *);
+
 
 
 struct keyword meta_keywords[] = {
-	{ .keyword = "team"	  , .lp = parse_line_team       },
+	{ .keyword = "team"	     , .lp = parse_line_team       },
+	{ .keyword = "email"         , .lp = parse_line_email      },
+	{ .keyword = "academic_year" , .lp = parse_line_academic_year      },
+	{ .keyword = "base_url"      , .lp = parse_line_base_url   },
 	/* XXX: email, etc */
 	{ .keyword = NULL	  , .lp = NULL }
 };
@@ -47,6 +54,42 @@ parse_line_team(char *s, void *priv)
 	}
 
 	gd->team_no &= DESIGN_NUMBER_MASK;
+
+	return 0;
+}
+
+
+static
+int
+parse_line_email(char *s, void *priv)
+{
+	globaldata_t gd = priv;
+
+	gd->email = strdup(s);
+
+	return 0;
+}
+
+
+static
+int
+parse_line_academic_year(char *s, void *priv)
+{
+	globaldata_t gd = priv;
+
+	gd->academic_year = strdup(s);
+
+	return 0;
+}
+
+
+static
+int
+parse_line_base_url(char *s, void *priv)
+{
+	globaldata_t gd = priv;
+
+	gd->base_url = strdup(s);
 
 	return 0;
 }

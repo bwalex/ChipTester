@@ -1,3 +1,5 @@
+#include "sram.h"
+
 #define LOGDEBUG		1
 #define LOGINFO			2
 #define LOGWARN			3
@@ -36,17 +38,23 @@
 
 #define iswhitespace(c)		((c == ' ') || (c == '\t'))
 
+
 typedef enum pin_type {
 	INPUT_PIN = 'A', OUTPUT_PIN = 'Q'
 } pin_type_t;
 
 
-typedef struct test_vector {
+struct test_vector {
 	uint8_t metadata;
 	uint8_t input_vector[3];
 	uint8_t output_vector[3];
 	uint8_t metadata2;
-} test_vector;
+	uint8_t x_mask[3];
+	uint8_t padding;
+} __attribute__((__packed__));
+
+typedef struct test_vector test_vector;
+typedef struct test_vector *test_vector_t;
 
 
 struct change_target {
@@ -57,6 +65,7 @@ struct change_target {
 } __attribute__((__packed__));
 
 typedef struct change_target change_target;
+typedef struct change_target *change_target_t;
 
 
 struct change_bitmask {
@@ -66,6 +75,7 @@ struct change_bitmask {
 } __attribute__((__packed__));
 
 typedef struct change_bitmask change_bitmask;
+typedef struct change_bitmask *change_bitmask_t;
 
 
 struct send_dicmd {
@@ -75,6 +85,7 @@ struct send_dicmd {
 } __attribute__((__packed__));
 
 typedef struct send_dicmd send_dicmd;
+typedef struct send_dicmd *send_dicmd_t;
 
 
 struct pll_reconfig {
@@ -86,6 +97,7 @@ struct pll_reconfig {
 } __attribute__((__packed__));
 
 typedef struct pll_reconfig pll_reconfig;
+typedef struct pll_reconfig *pll_reconfig_t;
 
 
 struct mem_end {
@@ -96,6 +108,7 @@ struct mem_end {
 } __attribute__((__packed__));
 
 typedef struct mem_end mem_end;
+typedef struct mem_end *mem_end_t;
 
 
 typedef struct pininfo {
@@ -108,6 +121,10 @@ typedef struct pininfo {
 
 typedef struct globaldata {
 	int team_no;
+	int result_id;
+	char *email;
+	char *base_url;
+	char *academic_year;
 } *globaldata_t;
 
 
@@ -118,6 +135,8 @@ typedef int (*suspend_fn)(void *);
 typedef struct parserinfo {
 	globaldata_t gd;
 
+	int design_result_id;
+
 	suspend_fn suspend_fn;
 
 	char *file_name;
@@ -126,6 +145,7 @@ typedef struct parserinfo {
 	size_t sram_free_bytes;
 	off_t  sram_off;
 
+	int pll_freq;
 	uint8_t pll_m;
 	uint8_t pll_n;
 	uint8_t pll_c;
@@ -133,8 +153,18 @@ typedef struct parserinfo {
 
 	int pin_count;
 	uint8_t bitmask[BITMASK_BYTES];
+	uint8_t trigger_mask[BITMASK_BYTES];
+	uint8_t clock_mask[BITMASK_BYTES];
 	struct pininfo pins[MAX_PINS];
+	uint8_t output[SRAM_SIZE/sizeof(test_vector)];
+	int output_idx;
 } *parserinfo_t;
+
+
+typedef struct tv_helper {
+	char *input;
+	char *output;
+} tv_helper, *tv_helper_t;
 
 
 typedef struct keyword {
@@ -151,10 +181,15 @@ typedef struct dotcommand {
 
 int suspend_emit(void *p);
 int emit(parserinfo_t pi, void *b, size_t bufsz);
-int run_trunner(parserinfo_t pi);
+int run_trunner(parserinfo_t pi, int process);
+void *stage_alloc_chunk(parserinfo_t pi, size_t sz);
+int go(parserinfo_t pi, int process);
+char *build_url(parserinfo_t pi, const char *req_path_fmt, ...);
+int init_remote(parserinfo_t pi);
 
 size_t req_sz(int req);
 size_t print_mem(uint8_t *buf, int sz, int *end);
+void print_req(uint8_t *buf, size_t sz, int *end);
 
 void vlog(int loglevel, const char *fmt, va_list ap);
 void logger(int loglevel, const char *fmt, ...);
@@ -162,12 +197,14 @@ void syntax_error(const char *fmt, ...);
 
 void sbprint(char *s, uint8_t *n, size_t len);
 void bprint(uint8_t *n, size_t len);
+char *h_input(uint8_t *, uint8_t *, size_t);
+char *h_output(uint8_t *, size_t);
+char *h_expected(uint8_t *, uint8_t *, uint8_t *, size_t);
 int tokenizer(char *s, char **tokens, int max_tokens);
 int parse_file(char *fname, FILE *fp, keyword_t keywords, suspend_fn suspend, void *priv);
-void init_parserinfo(parserinfo_t pi);
+void init_parserinfo(parserinfo_t pi, globaldata_t gd);
 
 int parse_cfg_file(char *filename, globaldata_t gd, parserinfo_t pi);
-
 
 int emit_end(parserinfo_t pi);
 int emit_pre_vectors(parserinfo_t pi);
