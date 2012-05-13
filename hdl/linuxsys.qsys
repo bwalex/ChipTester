@@ -151,19 +151,19 @@
          type = "boolean";
       }
    }
-   element sgdma_rx.csr
-   {
-      datum baseAddress
-      {
-         value = "134231104";
-         type = "long";
-      }
-   }
    element sgdma_tx.csr
    {
       datum baseAddress
       {
          value = "134231040";
+         type = "long";
+      }
+   }
+   element sgdma_rx.csr
+   {
+      datum baseAddress
+      {
+         value = "134231104";
          type = "long";
       }
    }
@@ -324,6 +324,19 @@
          type = "long";
       }
    }
+   element sdram_0.s1
+   {
+      datum _lockedAddress
+      {
+         value = "0";
+         type = "boolean";
+      }
+      datum baseAddress
+      {
+         value = "0";
+         type = "long";
+      }
+   }
    element timer.s1
    {
       datum baseAddress
@@ -337,19 +350,6 @@
       datum baseAddress
       {
          value = "134221824";
-         type = "long";
-      }
-   }
-   element sdram_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "0";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "0";
          type = "long";
       }
    }
@@ -607,7 +607,7 @@
  <parameter name="projectName" value="de2115sys.qpf" />
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="1" />
- <parameter name="timeStamp" value="1336921571576" />
+ <parameter name="timeStamp" value="1336942797214" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="altpll_0_c1" internal="altpll_0.c1" type="clock" dir="start">
@@ -1059,7 +1059,7 @@
   <parameter name="enable_ena" value="32" />
   <parameter name="enable_fifoless" value="false" />
   <parameter name="enable_gmii_loopback" value="true" />
-  <parameter name="enable_hd_logic" value="true" />
+  <parameter name="enable_hd_logic" value="false" />
   <parameter name="enable_mac_flow_ctrl" value="true" />
   <parameter name="enable_mac_txaddr_set" value="true" />
   <parameter name="enable_mac_vlan" value="false" />

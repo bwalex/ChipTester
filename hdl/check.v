@@ -59,8 +59,8 @@ module check #(
   wire   [   RTF_WIDTH-1:0] c_result_vector;
 
   wire   [   RTF_WIDTH-1:0] r_result_vector;
-  wire   [   RTF_WIDTH-1:0] r_cycle_count;
-  wire   [   RTF_WIDTH-1:0] r_timeout;
+  wire   [ CYCLE_RANGE-1:0] r_cycle_count;
+  wire                      r_timeout;
 
 
   wire   [   RTF_WIDTH-1:0] result_vector;
@@ -148,6 +148,7 @@ module check #(
   assign c_address        = cfifo_data[CHF_WIDTH-RTF_WIDTH-RTF_WIDTH-1            -: ADDR_WIDTH];
 
 
+  //assign meta_info        = 8'hAA;
   assign meta_info        = { 1'b1, r_timeout, r_cycle_count, check_fail_r }; //8'b0 | META_RUN | check_fail_r;
 
   assign r_result_vector  = rfifo_data[RTF_WIDTH+CYCLE_RANGE -: RTF_WIDTH];
