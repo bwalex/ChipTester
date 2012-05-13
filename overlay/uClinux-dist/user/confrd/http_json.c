@@ -28,6 +28,7 @@ _writedata(char *ptr, size_t size, size_t nmemb, void *priv)
 	struct write_data *wd = priv;
 	size_t wrsize = size*nmemb;
 
+	printf("DEBUG: _writedata(%d)\n", (int)wrsize);
 	if (wd->pos + wrsize >= wd->maxsz - 1) {
 		fprintf(stderr, "out of buffer space\n");
 		/* Returning a value != size*nmemb signals error */
@@ -51,11 +52,34 @@ _readdata(void *ptr, size_t size, size_t nmemb, void *priv)
 	if (rd->total_sz < rdsize)
 		rdsize = rd->total_sz;
 
+	printf("DEBUG: _readdata(%d)\n", (int)rdsize);
 	memcpy(ptr, rd->data + rd->pos, rdsize);
 	rd->pos += rdsize;
 	rd->total_sz -= rdsize;
 
 	return rdsize;
+}
+
+
+static CURL *curl;
+
+int
+http_begin(void)
+{
+	curl_global_init(CURL_GLOBAL_ALL);
+	if ((curl = curl_easy_init()) == NULL) {
+		fprintf(stderr, "Curl error\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+void
+http_end(void)
+{
+	curl_easy_cleanup(curl);
+	curl_global_cleanup();
 }
 
 
@@ -65,7 +89,6 @@ req(const char *url, int method, const char *ctype,
     const char *data, size_t data_len,
     char *dest, size_t bufsz, size_t *sz)
 {
-	CURL *curl;
 	CURLcode status;
 	long code;
 	int ret = 0;
@@ -75,10 +98,7 @@ req(const char *url, int method, const char *ctype,
 	char buf[256];
 
 
-	if ((curl = curl_easy_init()) == NULL) {
-		fprintf(stderr, "Curl error\n");
-		return -1;
-	}
+	curl_easy_reset(curl);
 
 	wd.data = dest;
 	wd.maxsz = bufsz;
@@ -93,7 +113,8 @@ req(const char *url, int method, const char *ctype,
 		rd.total_sz = data_len;
 		rd.pos = 0;
 
-		snprintf(buf, sizeof(buf), "Content-Length: %ju", data_len);
+		printf("DEBUG: Content-Length: %d\n", (int)data_len);
+		snprintf(buf, sizeof(buf), "Content-Length: %d", (int)data_len);
 		slist = curl_slist_append(slist, buf);
 
 		curl_easy_setopt(curl, CURLOPT_READFUNCTION, _readdata);
@@ -102,8 +123,8 @@ req(const char *url, int method, const char *ctype,
 
 	if (method == METHOD_POST) {
 		curl_easy_setopt(curl, CURLOPT_POST, (method == METHOD_POST));
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, data_len);
+		//curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+		//curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)data_len);
 	} else if (method == METHOD_PUT || method == METHOD_PATCH) {
 		curl_easy_setopt(curl, CURLOPT_PUT, 1);
 	}
@@ -123,7 +144,9 @@ req(const char *url, int method, const char *ctype,
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
 	}
 
+	printf("DEBUG: pre-perform\n");
 	status = curl_easy_perform(curl);
+	printf("DEBUG: post-perform\n");
 
 	if (slist != NULL)
 		curl_slist_free_all(slist);
@@ -144,8 +167,6 @@ req(const char *url, int method, const char *ctype,
 	*sz = (size_t)wd.pos;
 
 out:
-	curl_easy_cleanup(curl);
-	curl_global_cleanup();
 
 	return ret;
 }
@@ -159,6 +180,7 @@ req_json(const char *url, int method, json_t *j_in, json_t **j_out)
 	char recv_buf[1024 * 1024]; /* 1 MB */
 	int error;
 	size_t bytes_recvd;
+	size_t sz;
 
 	if (j_in) {
 		data = json_dumps(j_in, JSON_COMPACT);
@@ -166,11 +188,14 @@ req_json(const char *url, int method, json_t *j_in, json_t **j_out)
 			return -1;
 	}
 
+	sz = strlen(data);
+	printf("DEBUG: Sending JSON (%d): %s\n\n", (int)sz, data);
 	error = req(url, method, "application/json", data,
-		    strlen(data), recv_buf, sizeof(recv_buf),
+		    sz, recv_buf, sizeof(recv_buf),
 		    &bytes_recvd);
 
-	free(data);
+	if (j_in)
+		free(data);
 
 	if (error)
 		return error;

@@ -5,3 +5,5 @@
 #define METHOD_DELETE	0x04
 
 int req_json(const char *url, int method, json_t *j_in, json_t **j_out);
+int http_begin(void);
+void http_end(void);

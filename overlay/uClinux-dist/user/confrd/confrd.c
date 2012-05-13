@@ -182,9 +182,10 @@ process_sram_results(parserinfo_t pi)
 	size_t reqsz;
 
 
+	printf("DEBUG: process_sram_results; desres_id=%d\n", pi->design_result_id);
 	if (pi->design_result_id < 1) {
 		/* Push out DesignResult */
-		j_in = json_pack("{s:i, s:s, s:i, s:s, s:s}",
+		j_in = json_pack("{s:s, s:i, s:s, s:s}",
 				 "file_name", pi->file_name,
 				 "clock_freq", pi->pll_freq,
 				 "triggers",  h_output(pi->trigger_mask, sizeof(pi->trigger_mask)),
@@ -232,7 +233,7 @@ process_sram_results(parserinfo_t pi)
 		pbuf = buf;
 		sz = sizeof(buf);
 
-		while (sz > 0) {
+		while (sz > 0 && !done) {
 			req = pbuf[0] >> 5;
 			reqsz = req_sz(req);
 
@@ -250,7 +251,7 @@ process_sram_results(parserinfo_t pi)
 			case REQ_TEST_VECTOR:
 				tv = (test_vector_t)pbuf;
 				/* Push out TestVectorResult */
-				j_in = json_pack("{s:i,s:s,s:s,s:i,s:s,s:s,s:b,s:b,s:b}",
+				j_in = json_pack("{s:i,s:s,s:s,s:s,s:i,s:b,s:b,s:b}",
 						 "type", MD2_MODE(tv->metadata2),
 						 "input_vector", h_input(tv->input_vector,
 								   pi->clock_mask,
@@ -277,6 +278,11 @@ process_sram_results(parserinfo_t pi)
 					return error;
 				}
 
+				break;
+
+
+			case REQ_END:
+				done = 1;
 				break;
 			}
 
@@ -315,6 +321,7 @@ run_trunner(parserinfo_t pi, int process)
 	if ((error = trunner_wait_done()) != 0)
 		return error;
 
+	printf("DEBUG: run_trunner(process=%d)\n", process);
 	if (process)
 		process_sram_results(pi);
 	return 0;
@@ -358,6 +365,7 @@ go(parserinfo_t pi, int process)
 	}
 
 	if (wflag) {
+		printf("DEBUG: go(process=%d), sram_off=%ju\n", process, (size_t)pi->sram_off);
 		error = sram_write(0, sram_stage, (size_t)pi->sram_off);
 		if (error)
 			return error;
@@ -555,6 +563,11 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 
+	if ((error = http_begin()) != 0) {
+		perror("http_begin");
+		exit(1);
+	}
+
 	while ((entry = readdir(mydir))) {
 		if (entry->d_type != DT_DIR)
 			continue;
@@ -574,6 +587,7 @@ main(int argc, char *argv[])
 		}
 	}
 
+	http_end();
 	closedir(mydir);
 
 
