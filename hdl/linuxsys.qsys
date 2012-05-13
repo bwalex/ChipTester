@@ -54,14 +54,6 @@
          type = "long";
       }
    }
-   element altpll_0.c0
-   {
-      datum _clockDomain
-      {
-         value = "altpll_sys";
-         type = "String";
-      }
-   }
    element c0
    {
       datum _sortIndex
@@ -73,6 +65,14 @@
       {
          value = "0";
          type = "boolean";
+      }
+   }
+   element altpll_0.c0
+   {
+      datum _clockDomain
+      {
+         value = "altpll_sys";
+         type = "String";
       }
    }
    element c0_001
@@ -151,19 +151,19 @@
          type = "boolean";
       }
    }
-   element sgdma_rx.csr
-   {
-      datum baseAddress
-      {
-         value = "134231104";
-         type = "long";
-      }
-   }
    element sgdma_tx.csr
    {
       datum baseAddress
       {
          value = "134231040";
+         type = "long";
+      }
+   }
+   element sgdma_rx.csr
+   {
+      datum baseAddress
+      {
+         value = "134231104";
          type = "long";
       }
    }
@@ -324,19 +324,19 @@
          type = "long";
       }
    }
-   element timer.s1
-   {
-      datum baseAddress
-      {
-         value = "134231168";
-         type = "long";
-      }
-   }
    element descriptor_memory.s1
    {
       datum baseAddress
       {
          value = "134221824";
+         type = "long";
+      }
+   }
+   element timer.s1
+   {
+      datum baseAddress
+      {
+         value = "134231168";
          type = "long";
       }
    }
@@ -607,7 +607,7 @@
  <parameter name="projectName" value="de2115sys.qpf" />
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="1" />
- <parameter name="timeStamp" value="1335984263168" />
+ <parameter name="timeStamp" value="1336907814309" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="altpll_0_c1" internal="altpll_0.c1" type="clock" dir="start">
@@ -1059,8 +1059,8 @@
   <parameter name="enable_ena" value="32" />
   <parameter name="enable_fifoless" value="false" />
   <parameter name="enable_gmii_loopback" value="true" />
-  <parameter name="enable_hd_logic" value="false" />
-  <parameter name="enable_mac_flow_ctrl" value="false" />
+  <parameter name="enable_hd_logic" value="true" />
+  <parameter name="enable_mac_flow_ctrl" value="true" />
   <parameter name="enable_mac_txaddr_set" value="true" />
   <parameter name="enable_mac_vlan" value="false" />
   <parameter name="enable_maclite" value="false" />
@@ -1077,7 +1077,7 @@
   <parameter name="export_pwrdn" value="false" />
   <parameter name="ext_stat_cnt_ena" value="false" />
   <parameter name="gigeAdvanceMode" value="true" />
-  <parameter name="ifGMII" value="RGMII" />
+  <parameter name="ifGMII" value="MII_GMII" />
   <parameter name="ifPCSuseEmbeddedSerdes" value="false" />
   <parameter name="ing_addr" value="11" />
   <parameter name="insert_ta" value="true" />

@@ -169,9 +169,12 @@ module de2115sys(
 
   // Ethernet
   assign enet_rx_clk             = ENET0_RX_CLK;
+  assign enet_tx_clk             = ENET0_TX_CLK;
   assign ENET0_GTX_CLK           = enet_gtx_clk;
+
   assign NET0_mdio_in            = ENET0_MDIO;
   assign ENET0_MDIO              = NET0_mdio_oen ? 1'bz : NET0_mdio_out;
+
   assign ENET0_RST_N             = enet_resetn;
   assign set_1000_to_the_tse_mac = 1'b0;
   assign set_10_to_the_tse_mac   = 1'b0;
@@ -193,14 +196,16 @@ module de2115sys(
   assign LCD_ON     = 1'b1; // alwasy on
 
 
-  ddr_o phy_ckgen
-  (
-    .datain_h (1'b1),
-    .datain_l (1'b0),
-    .outclock (enet_tx_clk_phy),
-    .dataout  (enet_gtx_clk)
-  );
+//  ddr_o phy_ckgen
+//  (
+//    .datain_h (1'b1),
+//    .datain_l (1'b0),
+//    .outclock (enet_tx_clk_phy),
+//    .dataout  (enet_gtx_clk)
+//  );
+  assign enet_gtx_clk = 1'b0;
 
+  /*
   enet_rx_clk_pll enet_rx_clk_pll
   (
     .inclk0 (enet_rx_clk),
@@ -208,6 +213,7 @@ module de2115sys(
     .c1     (enet_tx_clk_mac),
     .c2     (enet_tx_clk_phy)
   );
+  */
 
   gen_reset_n system_gen_reset_n (
     .tx_clk      (clock_50),
@@ -345,37 +351,16 @@ module de2115sys(
     .USB_INT0_to_the_usb                    (OTG_INT[0]),
     .USB_INT1_to_the_usb                    (OTG_INT[1]),
 
-//  .tse_mac_conduit_connection_m_rx_d      (ENET0_RX_DATA),
-//  .tse_mac_conduit_connection_m_rx_en     (ENET0_RX_DV),
-//  .tse_mac_conduit_connection_m_rx_err    (ENET0_RX_ER),
-//  .tse_mac_conduit_connection_m_tx_d      (ENET0_TX_DATA),
-//  .tse_mac_conduit_connection_m_tx_en     (ENET0_TX_EN),
-//  .tse_mac_conduit_connection_m_tx_err    (ENET0_TX_ER),
-////.tse_mac_conduit_connection_m_rx_col    (ENET0_RX_COL),
-////.tse_mac_conduit_connection_m_rx_crs    (ENET0_RX_CRS),
-//  .tx_clk_to_the_tse_mac                  (enet_tx_clk_mac),
-//  .rx_clk_to_the_tse_mac                  (enet_rx_clk_270deg),
-//  .set_10_to_the_tse_mac                  (set_10_to_the_tse_mac),
-//  .set_1000_to_the_tse_mac                (set_1000_to_the_tse_mac),
-//  .ena_10_from_the_tse_mac                (ena_10_from_the_tse_mac),
-//  .eth_mode_from_the_tse_mac              (eth_mode_from_the_tse_mac),
-//  .mdio_out_from_the_tse_mac              (NET0_mdio_out),
-//  .mdio_oen_from_the_tse_mac              (NET0_mdio_oen),
-//  .mdio_in_to_the_tse_mac                 (NET0_mdio_in),
-//  .mdc_from_the_tse_mac                   (ENET0_MDC),
-
-//  .rgmii_in_to_the_tse_mac                (ENET0_RX_DATA),
-//  .rgmii_out_from_the_tse_mac             (ENET0_TX_DATA),
-//  .rx_control_to_the_tse_mac              (ENET0_RX_DV),
-//  .tx_control_from_the_tse_mac            (ENET0_TX_EN),
-
-    .tse_mac_conduit_connection_rgmii_in    (ENET0_RX_DATA),
-    .tse_mac_conduit_connection_rgmii_out   (ENET0_TX_DATA),
-    .tse_mac_conduit_connection_rx_control  (ENET0_RX_DV),
-    .tse_mac_conduit_connection_tx_control  (ENET0_TX_EN),
-
-    .tx_clk_to_the_tse_mac                  (enet_tx_clk_mac),
-    .rx_clk_to_the_tse_mac                  (enet_rx_clk_270deg),
+    .tse_mac_conduit_connection_m_rx_d      (ENET0_RX_DATA),
+    .tse_mac_conduit_connection_m_rx_en     (ENET0_RX_DV),
+    .tse_mac_conduit_connection_m_rx_err    (ENET0_RX_ER),
+    .tse_mac_conduit_connection_m_tx_d      (ENET0_TX_DATA),
+    .tse_mac_conduit_connection_m_tx_en     (ENET0_TX_EN),
+    .tse_mac_conduit_connection_m_tx_err    (ENET0_TX_ER),
+    .tse_mac_conduit_connection_m_rx_col    (ENET0_RX_COL),
+    .tse_mac_conduit_connection_m_rx_crs    (ENET0_RX_CRS),
+    .tx_clk_to_the_tse_mac                  (enet_tx_clk),
+    .rx_clk_to_the_tse_mac                  (enet_rx_clk),
     .set_10_to_the_tse_mac                  (set_10_to_the_tse_mac),
     .set_1000_to_the_tse_mac                (set_1000_to_the_tse_mac),
     .ena_10_from_the_tse_mac                (ena_10_from_the_tse_mac),
@@ -384,6 +369,30 @@ module de2115sys(
     .mdio_oen_from_the_tse_mac              (NET0_mdio_oen),
     .mdio_in_to_the_tse_mac                 (NET0_mdio_in),
     .mdc_from_the_tse_mac                   (ENET0_MDC),
+
+////  .rgmii_in_to_the_tse_mac                (ENET0_RX_DATA),
+////  .rgmii_out_from_the_tse_mac             (ENET0_TX_DATA),
+////  .rx_control_to_the_tse_mac              (ENET0_RX_DV),
+////  .tx_control_from_the_tse_mac            (ENET0_TX_EN),
+
+
+
+
+//    .tse_mac_conduit_connection_rgmii_in    (ENET0_RX_DATA),
+//    .tse_mac_conduit_connection_rgmii_out   (ENET0_TX_DATA),
+//    .tse_mac_conduit_connection_rx_control  (ENET0_RX_DV),
+//    .tse_mac_conduit_connection_tx_control  (ENET0_TX_EN),
+//
+//    .tx_clk_to_the_tse_mac                  (enet_tx_clk_mac),
+//    .rx_clk_to_the_tse_mac                  (enet_rx_clk_270deg),
+//    .set_10_to_the_tse_mac                  (set_10_to_the_tse_mac),
+//    .set_1000_to_the_tse_mac                (set_1000_to_the_tse_mac),
+//    .ena_10_from_the_tse_mac                (ena_10_from_the_tse_mac),
+//    .eth_mode_from_the_tse_mac              (eth_mode_from_the_tse_mac),
+//    .mdio_out_from_the_tse_mac              (NET0_mdio_out),
+//    .mdio_oen_from_the_tse_mac              (NET0_mdio_oen),
+//    .mdio_in_to_the_tse_mac                 (NET0_mdio_in),
+//    .mdc_from_the_tse_mac                   (ENET0_MDC),
 
     .lcd_external_data                      (LCD_DATA),
     .lcd_external_E                         (LCD_EN),
