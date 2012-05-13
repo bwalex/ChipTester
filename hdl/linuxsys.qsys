@@ -54,14 +54,6 @@
          type = "long";
       }
    }
-   element altpll_0.c0
-   {
-      datum _clockDomain
-      {
-         value = "altpll_sys";
-         type = "String";
-      }
-   }
    element c0
    {
       datum _sortIndex
@@ -73,6 +65,14 @@
       {
          value = "0";
          type = "boolean";
+      }
+   }
+   element altpll_0.c0
+   {
+      datum _clockDomain
+      {
+         value = "altpll_sys";
+         type = "String";
       }
    }
    element c0_001
@@ -607,7 +607,7 @@
  <parameter name="projectName" value="de2115sys.qpf" />
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="1" />
- <parameter name="timeStamp" value="1335984263168" />
+ <parameter name="timeStamp" value="1336921571576" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="altpll_0_c1" internal="altpll_0.c1" type="clock" dir="start">
@@ -1052,15 +1052,15 @@
   <parameter name="dev_version" value="2817" />
   <parameter name="deviceFamily" value="CYCLONEIVE" />
   <parameter name="deviceFamilyName" value="Cyclone IV E" />
-  <parameter name="eg_addr" value="11" />
+  <parameter name="eg_addr" value="12" />
   <parameter name="ena_hash" value="false" />
   <parameter name="enable_alt_reconfig" value="false" />
   <parameter name="enable_clk_sharing" value="false" />
   <parameter name="enable_ena" value="32" />
   <parameter name="enable_fifoless" value="false" />
   <parameter name="enable_gmii_loopback" value="true" />
-  <parameter name="enable_hd_logic" value="false" />
-  <parameter name="enable_mac_flow_ctrl" value="false" />
+  <parameter name="enable_hd_logic" value="true" />
+  <parameter name="enable_mac_flow_ctrl" value="true" />
   <parameter name="enable_mac_txaddr_set" value="true" />
   <parameter name="enable_mac_vlan" value="false" />
   <parameter name="enable_maclite" value="false" />
@@ -1079,7 +1079,7 @@
   <parameter name="gigeAdvanceMode" value="true" />
   <parameter name="ifGMII" value="RGMII" />
   <parameter name="ifPCSuseEmbeddedSerdes" value="false" />
-  <parameter name="ing_addr" value="11" />
+  <parameter name="ing_addr" value="12" />
   <parameter name="insert_ta" value="true" />
   <parameter name="maclite_gige" value="false" />
   <parameter name="max_channels" value="1" />
@@ -1088,7 +1088,7 @@
   <parameter name="ramType" value="AUTO" />
   <parameter name="reset_level" value="1" />
   <parameter name="starting_channel_number" value="0" />
-  <parameter name="stat_cnt_ena" value="true" />
+  <parameter name="stat_cnt_ena" value="false" />
   <parameter name="timingAdapterName" value="timingAdapter" />
   <parameter name="toolContext" value="SOPC_BUILDER" />
   <parameter name="transceiver_type" value="GXB" />

@@ -101,6 +101,12 @@ class DesignResult
   property :design_name, String # 4-bit Adder
   has n, :test_vector_results
   has n, :frequency_measurements
+
+  def failed?
+    count = test_vector_results.count(:fail => true)
+    puts "COUNT: #{count}"
+    return (count > 0) ? true : false
+  end
 end
 
 class TestVectorResult
