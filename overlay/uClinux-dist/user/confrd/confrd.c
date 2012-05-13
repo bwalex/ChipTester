@@ -102,9 +102,8 @@ init_remote(parserinfo_t pi)
 	json_t *j_out;
 	int error;
 
-	j_in = json_pack("{s:i, s:i, s:s, s:b}",
+	j_in = json_pack("{s:i, s:s, s:b}",
 			 "team", gd->team_no,
-			 "run_date", (int)time(NULL),
 			 "academic_year", gd->academic_year,
 			 "virtual", vflag);
 	if (j_in == NULL) {
@@ -141,6 +140,28 @@ init_remote(parserinfo_t pi)
 }
 
 
+int
+submit_measurement_freq(parserinfo_t pi, double freq)
+{
+	int error;
+	json_t *j_in;
+	char *url;
+
+	url = build_url(pi, "api/result/%d/design/%d/measurement/frequency",
+			pi->gd->result_id, pi->design_result_id);
+
+	j_in = json_pack("{s:f}", "frequency", freq);
+	if (j_in == NULL) {
+		logger(LOGERR, "Error packing JSON for frequency measurement");
+		return -1;
+	}
+
+	error = req_json(url, METHOD_POST, j_in, NULL);
+	json_decref(j_in);
+	return error;
+}
+
+
 static
 int
 process_sram_results(parserinfo_t pi)
@@ -161,41 +182,43 @@ process_sram_results(parserinfo_t pi)
 	size_t reqsz;
 
 
-	/* Push out DesignResult */
-	j_in = json_pack("{s:i, s:s, s:i, s:s, s:s}",
-			 "run_date", (int)time(NULL),
-			 "file_name", pi->file_name,
-			 "clock_freq", pi->pll_freq,
-			 "triggers",  h_output(pi->trigger_mask, sizeof(pi->trigger_mask)),
-			 "design_name", pi->design_name);
-	if (j_in == NULL) {
-		logger(LOGERR, "Error packing JSON for 'DesignResult'");
-		return -1;
-	}
-
-	error = req_json(build_url(pi, "api/result/%d/design", pi->gd->result_id),
-			 METHOD_POST, j_in, &j_out);
-
-	json_decref(j_in);
-
-	if (error) {
-		logger(LOGERR, "Error sending JSON for 'DesignResult', %d",
-		       error);
-		return error;
-	}
-
-	error = json_unpack(j_out, "{s:i}", "id", &pi->design_result_id);
-
-	json_decref(j_out);
-
-	if (error) {
-		logger(LOGERR, "Error parsing received JSON for 'DesignResult'");
-		return error;
-	}
-
+	printf("DEBUG: process_sram_results; desres_id=%d\n", pi->design_result_id);
 	if (pi->design_result_id < 1) {
-		logger(LOGERR, "Invalid design_result id");
-		return -1;
+		/* Push out DesignResult */
+		j_in = json_pack("{s:s, s:i, s:s, s:s}",
+				 "file_name", pi->file_name,
+				 "clock_freq", pi->pll_freq,
+				 "triggers",  h_output(pi->trigger_mask, sizeof(pi->trigger_mask)),
+				 "design_name", pi->design_name);
+		if (j_in == NULL) {
+			logger(LOGERR, "Error packing JSON for 'DesignResult'");
+			return -1;
+		}
+
+		error = req_json(build_url(pi, "api/result/%d/design", pi->gd->result_id),
+				 METHOD_POST, j_in, &j_out);
+
+		json_decref(j_in);
+
+		if (error) {
+			logger(LOGERR, "Error sending JSON for 'DesignResult', %d",
+			       error);
+			return error;
+		}
+
+		error = json_unpack(j_out, "{s:i}", "id", &pi->design_result_id);
+
+		json_decref(j_out);
+
+		if (error) {
+			logger(LOGERR, "Error parsing received JSON for 'DesignResult'");
+			return error;
+		}
+
+		if (pi->design_result_id < 1) {
+			logger(LOGERR, "Invalid design_result id");
+			return -1;
+		}
 	}
 
 	/* Pre-build url to avoid the cost on 'req' */
@@ -210,7 +233,7 @@ process_sram_results(parserinfo_t pi)
 		pbuf = buf;
 		sz = sizeof(buf);
 
-		while (sz > 0) {
+		while (sz > 0 && !done) {
 			req = pbuf[0] >> 5;
 			reqsz = req_sz(req);
 
@@ -228,7 +251,7 @@ process_sram_results(parserinfo_t pi)
 			case REQ_TEST_VECTOR:
 				tv = (test_vector_t)pbuf;
 				/* Push out TestVectorResult */
-				j_in = json_pack("{s:i,s:s,s:s,s:i,s:s,s:s,s:b,s:b}",
+				j_in = json_pack("{s:i,s:s,s:s,s:s,s:i,s:b,s:b,s:b}",
 						 "type", MD2_MODE(tv->metadata2),
 						 "input_vector", h_input(tv->input_vector,
 								   pi->clock_mask,
@@ -239,6 +262,7 @@ process_sram_results(parserinfo_t pi)
 						 "actual_result", h_output(tv->output_vector,
 								    sizeof(tv->output_vector)),
 						 "cycle_count", MD2_CYCLES(tv->metadata2) + 1,
+						 "trigger_timeout", tv->metadata2 & MD2_TIMEOUT,
 						 "fail", tv->metadata2 & MD2_FAIL,
 						 "has_run", tv->metadata2 & MD2_RUN);
 				if (j_in == NULL) {
@@ -254,6 +278,11 @@ process_sram_results(parserinfo_t pi)
 					return error;
 				}
 
+				break;
+
+
+			case REQ_END:
+				done = 1;
 				break;
 			}
 
@@ -292,6 +321,7 @@ run_trunner(parserinfo_t pi, int process)
 	if ((error = trunner_wait_done()) != 0)
 		return error;
 
+	printf("DEBUG: run_trunner(process=%d)\n", process);
 	if (process)
 		process_sram_results(pi);
 	return 0;
@@ -335,6 +365,7 @@ go(parserinfo_t pi, int process)
 	}
 
 	if (wflag) {
+		printf("DEBUG: go(process=%d), sram_off=%ju\n", process, (size_t)pi->sram_off);
 		error = sram_write(0, sram_stage, (size_t)pi->sram_off);
 		if (error)
 			return error;
@@ -532,6 +563,11 @@ main(int argc, char *argv[])
 		exit(1);
 	}
 
+	if ((error = http_begin()) != 0) {
+		perror("http_begin");
+		exit(1);
+	}
+
 	while ((entry = readdir(mydir))) {
 		if (entry->d_type != DT_DIR)
 			continue;
@@ -551,6 +587,7 @@ main(int argc, char *argv[])
 		}
 	}
 
+	http_end();
 	closedir(mydir);
 
 

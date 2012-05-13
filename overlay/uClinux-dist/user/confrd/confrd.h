@@ -10,7 +10,7 @@
 #define MAX_INPUT_OUTPUT_SIZE	24
 #define MAX_INPUT_PIN		(MAX_INPUT_OUTPUT_SIZE-1)
 #define MAX_OUTPUT_PIN		(MAX_INPUT_OUTPUT_SIZE-1)
-#define BITMASK_BYTES		MAX_INPUT_OUTPUT_SIZE
+#define BITMASK_BYTES		(MAX_INPUT_OUTPUT_SIZE/8)
 #define MAX_PINS		(2*MAX_INPUT_OUTPUT_SIZE)
 
 #define DESIGN_NUMBER_MASK	0x1f
@@ -27,6 +27,7 @@
 
 #define MD2_FAIL		0x01
 #define MD2_RUN			0x80
+#define MD2_TIMEOUT             0x40
 #define MD2_SET_CYCLES(c)       ((((c)-1) & 0x1f) << 1)
 #define MD2_SET_MODE(m)         ((m & 0x01) << 6)
 #define MD2_CYCLES(md2)         (((md2 >> 1) & 0x1f) + 1)
@@ -186,6 +187,7 @@ void *stage_alloc_chunk(parserinfo_t pi, size_t sz);
 int go(parserinfo_t pi, int process);
 char *build_url(parserinfo_t pi, const char *req_path_fmt, ...);
 int init_remote(parserinfo_t pi);
+int submit_measurement_freq(parserinfo_t pi, double freq);
 
 size_t req_sz(int req);
 size_t print_mem(uint8_t *buf, int sz, int *end);

@@ -8,3 +8,5 @@ gem 'json', "~> 1.6.6"
 gem 'sass', "~> 3.1.15"
 gem 'synatra-flash', "~> 0.3.0"
 gem 'bcrypt-ruby', "~>3.0.1"
+gem 'mail', "~> 2.4.4"
+

@@ -42,14 +42,19 @@ vlog(int loglevel, const char *fmt, va_list ap)
 	if (!wflag || base_url == NULL)
 		return;
 
-	/* XXX: add remote logging */
-	j_in = json_pack("{s:i,s:s}",
-			 "level", loglevel,
+	/*
+	 * Do our best to log remotely, but fail silently if it
+	 * doesn't work out.
+	 */
+	j_in = json_pack("{s:i,s:s,s:i,s:s}",
+			 "type", loglevel,
+			 "file", cur_filename,
+			 "line", cur_lineno,
 			 "message", msgbuf);
 	if (j_in == NULL)
 		return;
 
-	snprintf(urlbuf, sizeof(urlbuf), "%s/log", base_url);
+	snprintf(urlbuf, sizeof(urlbuf), "%s/api/log", base_url);
 	req_json(urlbuf, METHOD_POST, j_in, NULL);
 }
 

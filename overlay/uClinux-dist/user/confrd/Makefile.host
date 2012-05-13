@@ -8,7 +8,7 @@ CFLAGS= -g3 -O0 $(WARNFLAGS)
 LDFLAGS= -ljansson -lcurl
 CC?= gcc
 
-OBJS= confrd.o trunner_if.o sram.o req.o log.o parser_common.o parser_vec.o parser_cfg.o http_json.o
+OBJS= confrd.o trunner_if.o fcounter_if.o de2lcd_if.o sram.o req.o log.o parser_common.o parser_vec.o parser_cfg.o http_json.o
 
 
 all: $(OBJS)

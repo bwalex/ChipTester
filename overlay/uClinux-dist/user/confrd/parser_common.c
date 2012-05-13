@@ -79,7 +79,9 @@ h_output(uint8_t *b, size_t sz)
 {
 	static char buf[64];
 
+	printf("DEBUG: h_output, b=%p, sz=%ju\n", b, sz);
 	sbprint(buf, b, sz);
+	printf("DEBUG: h_output post sbprint\n");
 	return buf;
 }
 
@@ -94,7 +96,7 @@ h_expected(uint8_t *n, uint8_t *x, uint8_t *x2, size_t len)
 	for (i = 0; i < len; i++) {
 		mask = 1 << (8*sizeof(*n) - 1);
 		do {
-			*s++ = ((x[i] | x2[i]) & mask) ? 'X' :
+			*s++ = ((x[i] | ~x2[i]) & mask) ? 'X' :
 				((n[i] & mask) ? '1' : '0');
 			mask >>= 1;
 		} while (mask != 0);

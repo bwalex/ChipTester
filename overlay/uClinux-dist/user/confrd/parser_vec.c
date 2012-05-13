@@ -14,6 +14,7 @@
 
 #include "confrd.h"
 #include "pll_settings.h"
+#include "fcounter_if.h"
 
 
 static int parse_line_design(char *, void *);
@@ -55,7 +56,9 @@ parse_line_measure(char *s, void *priv)
 	uint32_t timeout = (1 << 24);
 	int error;
 	uint32_t pin_no;
+	uint32_t cyc_count;
 	int ntokens;
+	double freq;
 
 	/* Flush current content */
 	if (pi->suspend_fn != NULL) {
@@ -77,7 +80,7 @@ parse_line_measure(char *s, void *priv)
 		}
 
 		if (*tokens[1] == 'Q')
-			*tokens[1]++;
+			tokens[1]++;
 
 		pin_no = strtol(tokens[1], &e, 10);
 		if (*e != '\0') {
@@ -93,14 +96,37 @@ parse_line_measure(char *s, void *priv)
 			}
 		}
 
-#if 0
-		/* XXX */
-		error = fcounter_set_cycles(timeout);
-		error = fcounter_select(pin_no);
-		error = fcounter_enable();
-		error = fcounter_wait_done();
-		fcounter_read_count();
-#endif
+		if ((error = fcounter_set_cycles(timeout)) != 0) {
+			logger(LOGERR, "Error setting fcounter cycles");
+			return error;
+		}
+
+		if ((error = fcounter_select(pin_no)) != 0) {
+			logger(LOGERR, "Error setting fcounter pin select");
+			return error;
+		}
+
+		if ((error = fcounter_enable()) != 0) {
+			logger(LOGERR, "Error enabling fcounter");
+			return error;
+		}
+
+		if ((error = fcounter_wait_done()) != 0) {
+			logger(LOGERR, "Error waiting for fcounter");
+			return error;
+		}
+
+		if ((error = fcounter_read_count(&cyc_count)) != 0) {
+			logger(LOGERR, "Error reading fcounter result");
+			return error;
+		}
+
+		freq = (1.0 * cyc_count)/(1.0 * timeout) * FCOUNTER_SYS_FREQUENCY;
+		logger(LOGINFO, "Measured frequency: %lf MHz", freq);
+		if ((error = submit_measurement_freq(pi, freq)) != 0) {
+			logger(LOGERR, "Error submitting frequency measurement");
+			return error;
+		}
 	} else if ((strcmp(tokens[0], "adc")) == 0) {
 	} else {
 		syntax_error("Unknown measurement command");

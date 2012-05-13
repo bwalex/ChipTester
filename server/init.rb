@@ -2,13 +2,8 @@ require 'rubygems'
 require 'yaml'
 
 #Start up server initializations
-start_up_config = YAML::parse(File.open( "config.yml" ))
+start_up_config = YAML::load(File.open( "config.yml" ))
 
-if Admin.all(:email => start_up_config['admin']['username'].value).empty?
-  @admin = Admin.create(
-    :email => start_up_config['admin']['username'].value,
-    :password_hash => start_up_config['admin']['password'].value,
-    :permission => start_up_config['admin']['permission'].value
-    )
-  @admin.save
+if Admin.first(:email => start_up_config['admin']['username']).nil?
+  Admin.create_first_admin(start_up_config['admin']['username'], start_up_config['admin']['permission'], start_up_config['admin']['password'])
 end

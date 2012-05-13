@@ -10,7 +10,7 @@ require 'sass'
 require 'digest/md5'
 require 'mail'
 
-config = YAML::parse( File.open( "config.yml" ))
+config = YAML::load( File.open( "config.yml" ))
 #Enabling Sessions
 enable :sessions
 
@@ -26,7 +26,7 @@ end
 
 #Admin view
 get '/admin' do
-   if Admin.all(:email => session['user'])[0].nil?
+   if Admin.first(:email => session['user']).nil?
      redirect '/admin_login' 
    else
      @username = session['user']
@@ -62,7 +62,7 @@ end
 #Login View
 get '/admin_login' do
   @flash_error = flash
-    if Admin.all(:email => session['user'])[0].nil?
+    if Admin.first(:email => session['user']).nil?
       erb :login
     else
       redirect '/admin'
@@ -100,7 +100,7 @@ get '/download_configuration' do
       end
    end
   if file == nil
-   status 404
+   halt 404
   else
     send_file(file, :disposition => 'attachment', :filename => File.basename(file))
   end 
@@ -108,9 +108,9 @@ end
 
 get '/add_admin' do
   @flash_error = flash
-  if Admin.all(:email => session['user'])[0].permission == 0
+  if Admin.first(:email => session['user']).permission == 0
     erb :add_admin
-  elsif Admin.all(:email => session['user'])[0].nil?
+  elsif Admin.first(:email => session['user']).nil?
     erb :login
   else
     flash[:error] = "You do not have the valid permissions to add new administrators. <br />"
@@ -151,7 +151,7 @@ post '/added_admin' do
     flash[:error] = error_msg
     redirect '/add_admin'
   else
-  if Admin.create(:email => params['email'], :password => params['password'], :permission => params['permission'])
+  if Admin.create_admin(params['email'], params['permission'], params['password'])
     flash[:notice] = "New administrator created successfully<br />"
     redirect '/add_admin'
   else
@@ -209,34 +209,69 @@ post '/submited_files' do
 end
 
 
-post '/' do
-   unless params['json_posted'].nil?
-      id_value = {}
-      json_parsed = JSON.parse(params['json_posted'])
-      
-      if json_parsed.has_key? "LogEntry"
-	  log_stored = Store_LogEntry(json_parsed)
-	  id_value = {"id" => log_stored.id}
-      end
-      if json_parsed.has_key? "Result"
-	    result_stored = StoreResult(json_parsed)
-	    id_value = { "id" => result_stored.id }
-      end
-      if json_parsed.has_key? "DesignResult"
-	    design_stored = StoreDesignResult(json_parsed)
-	    id_value = { "id" => design_stored.id }
-      end
-      if json_parsed.has_key? "TestVectorResult"
-	    test_stored = StoreTestVectorResult(json_parsed)
-	    id_value = { "id" => test_stored.id }
-      end
-      if json_parsed.has_key? "DownloadSuccess"
-	@file_upload = FileUpload.all(:file_name=> json_parsed['DownloadSuccess']['file_name'])
-	@file_upload.update(:sent=> true, :erased => true)
-	File.delete('uploads/' + json_parsed['DownloadSuccess']['file_name'])
-      end
-   end
-      id_value.to_json()
+post '/api/result' do
+  content_type :json
+  @result = Result.new
+  JSON.parse(request.body.read).each { |k, v| @result.send(k + "=", v) }
+  @result.save
+
+  @result.to_json
+end
+
+
+post '/api/result/:result_id/design' do
+  content_type :json
+  data =  JSON.parse(request.body.read)
+  @result = Result.get!(params[:result_id])
+  @design = @result.design_results.create(data)
+  @result.save
+
+  @design.to_json
+
+end
+
+post '/api/result/:result_id/design/:design_id/measurement/frequency' do
+  content_type :json
+  data =  JSON.parse(request.body.read)
+  @result = Result.get!(params[:result_id])
+  @design = DesignResult.get!(params[:design_id])
+  @fm = @design.frequency_measurements.create(data)
+
+  @fm.to_json
+end
+
+post '/api/result/:result_id/design/:design_id/vector' do
+  content_type :json
+  data =  JSON.parse(request.body.read)
+  @result = Result.get!(params[:result_id])
+  @design = DesignResult.get!(params[:design_id])
+  @vector = @design.test_vector_results.create(data)
+
+  @vector.to_json
+end
+
+
+post '/api/log' do
+  content_type :json
+  data = JSON.parse(request.body.read)
+  @log = LogEntry.create(data)
+
+  @log.to_json
+end
+
+get '/api/vdesign' do
+  @fu = FileUpload.first
+  if @fu.nil?
+    halt 404
+  else
+    file = File.join('uploads/', @fu.file_name)
+    send_file(file, :disposition => 'attachment', :filename => File.basename(file))
+  end
+end
+
+delete '/api/vdesign' do
+  @fu = FileUpload.first
+  @fu.destroy
 end
 
 post '/logout_submited' do
@@ -265,9 +300,8 @@ post '/login_submitted' do
        flash[:error] = error_msg
        redirect "/admin_login"
     end
-    #ADD PASSWORD ENCRYPTION HERE
     begin
-         if Admin.all(:email => params['username'])[0].password == params['password']
+         if Admin.authenticate(params['username'],params['password'])
 	   session['user'] = params['username']
 	   redirect "/admin"
 	 else
