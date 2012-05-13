@@ -14,12 +14,15 @@
 		</tr>
 		<% @designs.each_index do |idx| design=@designs[idx] %> 
 		<tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
-			<td><%= if(design.outcome == 1)
-					"<a href=\"TestResult/"+ design.id.to_s() + "\">" + "failed" + "</a>"
-					else
-			    		"passed"
-					end %></td>
-			<td><%=design.run_date.strftime("%m/%d/%Y at %I:%M%p") %></td>
+			<td><a href="TestResult/<%= design.id %>">
+			    <% if design.failed? %>
+			       failed
+			    <% else %>
+			       passed
+			    <% end %>
+			    </a>
+			</td>
+			<td><%=design.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
 			<td><%=design.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
 			<td><%=design.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
 			<td><%=design.file_name %></td>

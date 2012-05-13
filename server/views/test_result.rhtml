@@ -9,11 +9,6 @@
 			<th>Expected Result</th>
 			<th>Actual Result</th>
 			<th>Cycle Count</th>
-			<th>Clock Frequency</th>
-			<th>Clock Connections</th>
-			<th>Bit Mask</th>
-			<th>Don't Care Mask</th>
-			<th>Trigger Mask</th>
 			<th>Result</th>
 			<th>Trigger timeout</th>
 			<th>Has run</th>
@@ -27,16 +22,12 @@
 			<td><%= test.expected_result %></td>
 			<td><%= test.actual_result%></td>
 			<td><%= test.cycle_count%></td>
-			<td><%= test.clock_freq %></td>
-			<td><%= test.clock_connections%></td>
-			<td><%= test.bitmask %></td>
-			<td><%= test.dontcare_mask %></td>
-			<td><%= test.trigger_mask %></td>
-			<td><%= if(test.outcome == 1)
-					"failed"
-					else
-			    		"passed"
-					end %></td>
+			<td><% if test.fail %>
+			       failed
+			    <% else %>
+			       passed
+			    <% end %>
+			</td>
 			<td><%= test.trigger_timeout.to_s() %></td>
 			<td><%= test.has_run.to_s() %></td>
 			<td><%= test.created_at.strftime("%m/%d/%Y at %I:%M%p")%></td>

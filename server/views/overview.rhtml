@@ -16,13 +16,9 @@
       		<% @results.each_index do |idx| result=@results[idx] %> 
      			<tr	 class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
 				<td><%=result.team.to_s() %></td>
-				<td><%=result.run_date.strftime("%m/%d/%Y at %I:%M%p") %></td>
+				<td><%=result.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
 				<td><%=result.academic_year.to_s() %></td>
-				<td><%=if(result.outcome == 1)
-					"<a href=\"DesignResult/"+ result.id.to_s() + "\">" + "failed" + "</a>"
-					else
-			    		"passed"
-					end %>
+				<td><a href="DesignResult/<%= result.id %>">Details</a>
 		  		</td>
 				<td><%=result.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
 				<td><%=result.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
