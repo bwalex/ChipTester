@@ -1,7 +1,7 @@
 #Master email address and password
 admin:
     username: prw@soton.ac.uk
-    password: chip1234
+    password: $2a$10$KVIbro1v6wwL0CoHYt.L2.EQab4kGVTWdmRgz2YRV4SEe56PQErNG
     permission: 0 
 #Maximum permission in the databse
 

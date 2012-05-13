@@ -49,3 +49,9 @@
       "file_name":"80fc473532731858f154cff62319fd52.JPG"
   }	
 }
+
+{
+  "send_email":{
+      "team_id":1
+  }	
+}

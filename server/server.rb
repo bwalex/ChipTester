@@ -244,7 +244,9 @@ post '/logout_submited' do
     redirect '/'
 end
 post '/send_email_results' do
-    send_email_to_team(1)
+    unless params['json_posted'].nil?
+	send_email_to_team(json_posted['send_email']['team_id'])
+    end
     redirect '/admin'
 end
 
@@ -353,5 +355,7 @@ def send_email_to_team(team_id)
   @results = Result.all(:team => team_id)
   @designs = @results.design_results
   str = erb :email_body
-  send_email('torres.romel@gmail.com', str, 'Results')
+  if email = FileUpload.all(:team => team_id)[0].email
+    send_email(email, str, 'Results')
+  end
 end

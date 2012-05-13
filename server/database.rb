@@ -1,5 +1,7 @@
 require 'data_mapper'
 require 'yaml'
+require 'bcrypt'
+
 
 database_config = YAML::parse( File.open( "config.yml" ))
 config = database_config['database']['type'].value + '://' + database_config['database']['user'].value + ':' + database_config['database']['password'].value + '@' + database_config['database']['address'].value +  '/' + database_config['database']['database_name'].value
@@ -7,11 +9,47 @@ DataMapper.setup(:default, config)
 #Refer to config.yml to change the config line
 DataMapper::Logger.new($stdout, :debug)
 DataMapper::Model.raise_on_save_failure = true
+  
 class Admin
  include DataMapper::Resource
+ include BCrypt
  property :email, String, :key => true #Natural primary key
- property :password, String, :required =>true
  property :permission, Integer, :required =>true
+ property :password_hash, String, :required => true
+ 
+ def create_admin(email,permission,password)
+   @admin = Admin.create(
+     :email => email,
+     :permission => permission,
+     :password_hash => BCrypt::Password.create(password)
+     )
+   @admin.save
+   return @admin 
+ end
+ 
+ def change_password(the_pass)
+   self.password_hash = BCrypt::Password.create(the_pass)
+ end
+
+ def crypted_pass
+   pass = attribute_get(:password_hash)
+   return nil if pass.nil?
+   BCrypt::Password.new(pass)
+ end
+  alias_method :crypted_password, :crypted_pass
+   
+  def authenticate(password)
+    crypted_pass == (password)
+  end
+ 
+  def self.authenticate(username, password)
+    u = first(:email => username.to_s.downcase)
+    if u && u.authenticate(password)
+      u
+    else
+      nil
+    end
+  end
 end
 
 class FileUpload
