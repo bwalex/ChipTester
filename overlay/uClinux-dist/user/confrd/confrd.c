@@ -261,7 +261,7 @@ process_sram_results(parserinfo_t pi)
 								      sizeof(tv->output_vector)),
 						 "actual_result", h_output(tv->output_vector,
 								    sizeof(tv->output_vector)),
-						 "cycle_count", MD2_CYCLES(tv->metadata2) + 1,
+						 "cycle_count", MD2_CYCLES(tv->metadata2),
 						 "trigger_timeout", tv->metadata2 & MD2_TIMEOUT,
 						 "fail", tv->metadata2 & MD2_FAIL,
 						 "has_run", tv->metadata2 & MD2_RUN);
@@ -278,6 +278,7 @@ process_sram_results(parserinfo_t pi)
 					return error;
 				}
 
+				i += sizeof(tv->output_vector);
 				break;
 
 
@@ -286,7 +287,6 @@ process_sram_results(parserinfo_t pi)
 				break;
 			}
 
-			i += sizeof(tv->output_vector);
 			sz   -= reqsz;
 			pbuf += reqsz;
 		}

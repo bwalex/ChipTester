@@ -157,7 +157,7 @@ typedef struct parserinfo {
 	uint8_t trigger_mask[BITMASK_BYTES];
 	uint8_t clock_mask[BITMASK_BYTES];
 	struct pininfo pins[MAX_PINS];
-	uint8_t output[SRAM_SIZE/sizeof(test_vector)];
+	uint8_t output[3*SRAM_SIZE/sizeof(test_vector)];
 	int output_idx;
 } *parserinfo_t;
 
