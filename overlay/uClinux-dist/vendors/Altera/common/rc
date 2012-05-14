@@ -35,11 +35,16 @@ mount -t devpts devpts /dev/pts -o noexec,nosuid
 #
 mount -t ramfs var /var
 mkdir /var/tmp /var/log /var/run /var/lock /var/lib
+mkdir /media
 
 #
 # Give temp files a read/write location not in flash/etc...
 #
 mount -t tmpfs tmp /tmp -o nosuid,nodev
+
+
+mount -t tmpfs tmp-media /media -o nosuid,nodev
+
 
 #
 # Needed if you plan on doing anything USB related
@@ -75,12 +80,23 @@ grep -qs nfsd /proc/filesystems && mount -t nfsd nfsd /proc/fs/nfsd
 #echo 4096 > /proc/sys/vm/min_free_kbytes
 #echo 300  > /proc/sys/vm/vfs_cache_pressure
 
+
+echo "Starting syslogd"
+syslogd
+
 #
 # Do random network setup
 #
 #ifconfig eth0 10.100.4.251 up
 ifconfig lo 127.0.0.1
-dhcpcd eth0 &
+
+
+echo "Starting dhcpcd"
+dhcpcd -d eth0 &
+
+
+echo "Starting crond"
+crond -S -l 7
 
 
 if [ -e /bin/de2lcd ] ; then
