@@ -1,0 +1,94 @@
+
+root:/> cat /proc/cpuinfo 
+CPU:            Nios II/fast
+MMU:            present
+FPU:            none
+Clocking:       100.00 MHz
+BogoMips:       48.89
+Calibration:    24448000 loops
+HW:
+ MUL:           yes
+ MULX:          no
+ DIV:           yes
+Icache:         8kB, line length: 32
+Dcache:         4kB, line length: 32
+TLB:            16 ways, 256 entries
+
+
+1000000 runs
+-----------------
+Microseconds for one run through Dhrystone:   10.9 
+Dhrystones per Second:                      91324.2 
+
+Microseconds for one run through Dhrystone:   10.9 
+Dhrystones per Second:                      91407.7 
+
+Microseconds for one run through Dhrystone:   10.9 
+Dhrystones per Second:                      92165.9 
+
+
+
+BYTEmark* Native Mode Benchmark ver. 2 (10/95)
+Index-split by Andrew D. Balsa (11/97)
+Linux/Unix* port by Uwe F. Mayer (12/96,11/97)
+
+TEST                : Iterations/sec.  : Old Index   : New Index
+                    :                  : Pentium 90* : AMD K6/233*
+--------------------:------------------:-------------:------------
+NUMERIC SORT        :          26.574  :       0.68  :       0.22
+STRING SORT         :          1.3667  :       0.61  :       0.09
+BITFIELD            :      5.6997e+06  :       0.98  :       0.20
+FP EMULATION        :          2.4528  :       1.18  :       0.27
+FOURIER             :          9.5987  :       0.01  :       0.01
+ASSIGNMENT          :         0.34459  :       1.31  :       0.34
+IDEA                :          72.333  :       1.11  :       0.33
+HUFFMAN             :          31.476  :       0.87  :       0.28
+
+
+
+
+
+root:/> cat /proc/cpuinfo 
+CPU:            Nios II/fast
+MMU:            present
+FPU:            none
+Clocking:       100.00 MHz
+BogoMips:       49.47
+Calibration:    24736000 loops
+HW:
+ MUL:           yes
+ MULX:          no
+ DIV:           yes
+Icache:         64kB, line length: 32
+Dcache:         32kB, line length: 32
+TLB:            16 ways, 256 entries
+
+
+1000000 runs
+-----------------
+Microseconds for one run through Dhrystone:    8.5 
+Dhrystones per Second:                      118203.3 
+
+Microseconds for one run through Dhrystone:    8.5 
+Dhrystones per Second:                      117233.3 
+
+Microseconds for one run through Dhrystone:    8.4 
+Dhrystones per Second:                      119617.2 
+
+
+BYTEmark* Native Mode Benchmark ver. 2 (10/95)
+Index-split by Andrew D. Balsa (11/97)
+Linux/Unix* port by Uwe F. Mayer (12/96,11/97)
+
+TEST                : Iterations/sec.  : Old Index   : New Index
+                    :                  : Pentium 90* : AMD K6/233*
+--------------------:------------------:-------------:------------
+NUMERIC SORT        :           33.36  :       0.86  :       0.28
+STRING SORT         :          1.8123  :       0.81  :       0.13
+BITFIELD            :      5.8613e+06  :       1.01  :       0.21
+FP EMULATION        :          2.5671  :       1.23  :       0.28
+FOURIER             :          11.688  :       0.01  :       0.01
+ASSIGNMENT          :         0.46526  :       1.77  :       0.46
+IDEA                :          74.906  :       1.15  :       0.34
+HUFFMAN             :          34.892  :       0.97  :       0.31
+
