@@ -62,6 +62,7 @@ prepare-dist:
 	cp u-boot/u-boot.bin dist/u-boot.bin
 	cp uClinux-dist/images/vmImage dist/vmImage
 	cp uClinux-dist/images/zImage dist/zImage
+	cp uClinux-dist/images/rootfs.jffs2 dist/rootfs.jffs2
 
 prime-sof:
 	sof2flash.jar --epcs --input=$(SOF) --output=dist/sys.sof.flash
