@@ -55,5 +55,29 @@ overlay: bootstrap
 patch: submodules-clean bootstrap
 	bash ./patch_overlay.sh -po
 
+read-uboot-cfg:
+	LD_LIBRARY_PATH=$(LIBRARY_PATH) nios2-flash-programmer -M -b 0x0A000000 -B 0x00040000+0x00010000 -R dist/custom-uboot.cfg
+
+prepare-dist:
+	cp u-boot/u-boot.bin dist/u-boot.bin
+	cp uClinux-dist/images/vmImage dist/vmImage
+	cp uClinux-dist/images/zImage dist/zImage
+
+prime-sof:
+	sof2flash.jar --epcs --input=$(SOF) --output=dist/sys.sof.flash
+
+prime-dist:
+	bin2flash.jar --input=dist/rootfs.jffs2 --output=dist/rootfs.jffs2.flash --location=0x00200000
+	bin2flash.jar --input=dist/u-boot.bin --output=dist/u-boot.bin.flash --location=0x00000000
+	bin2flash.jar --input=dist/vmImage --output=dist/vmImage.flash --location=0x00050000
+
+deploy-dist: prime-dist
+	LD_LIBRARY_PATH=$(LIBRARY_PATH) nios2-flash-programmer -M -b $(FLASH_BASE) -P dist/u-boot.bin.flash
+	LD_LIBRARY_PATH=$(LIBRARY_PATH) nios2-flash-programmer -M -b $(FLASH_BASE) -P dist/vmImage.flash
+	LD_LIBRARY_PATH=$(LIBRARY_PATH) nios2-flash-programmer -M -b $(FLASH_BASE) -P dist/rootfs.jffs2.flash
+	LD_LIBRARY_PATH=$(LIBRARY_PATH) nios2-flash-programmer -M -b $(FLASH_BASE) -P -g dist/uboot.cfg
+
+
 .PHONY: config flashimage download terminal
 .PHONY: bootstrap submodules-clean patch overlay
+.PHONY: read-uboot-cfg prime-dist deploy-dist prepare-dist
