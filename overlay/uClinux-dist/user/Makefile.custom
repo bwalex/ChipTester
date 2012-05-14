@@ -3,3 +3,4 @@ dir_y += sram
 dir_y += confrd
 dir_y += de2lcd
 dir_y += fcounter
+dir_y += umount2
