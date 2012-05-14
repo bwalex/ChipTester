@@ -324,19 +324,19 @@
          type = "long";
       }
    }
-   element descriptor_memory.s1
-   {
-      datum baseAddress
-      {
-         value = "134221824";
-         type = "long";
-      }
-   }
    element timer.s1
    {
       datum baseAddress
       {
          value = "134231168";
+         type = "long";
+      }
+   }
+   element descriptor_memory.s1
+   {
+      datum baseAddress
+      {
+         value = "134221824";
          type = "long";
       }
    }
@@ -375,7 +375,7 @@
       }
       datum sopceditor_expanded
       {
-         value = "0";
+         value = "1";
          type = "boolean";
       }
    }
@@ -626,7 +626,7 @@
  <parameter name="projectName" value="de2115sys.qpf" />
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="1" />
- <parameter name="timeStamp" value="1337027912268" />
+ <parameter name="timeStamp" value="1337032454978" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="altpll_0_c1" internal="altpll_0.c1" type="clock" dir="start">
@@ -1281,8 +1281,8 @@
   <parameter name="tightlyCoupledInstructionMaster1AddrWidth" value="1" />
   <parameter name="tightlyCoupledInstructionMaster2AddrWidth" value="1" />
   <parameter name="tightlyCoupledInstructionMaster3AddrWidth" value="1" />
-  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='sdram_0.s1' start='0x0' end='0x8000000' /><slave name='descriptor_memory.s1' start='0x8001000' end='0x8002000' /><slave name='cpu.jtag_debug_module' start='0x8002800' end='0x8003000' /><slave name='cfi_flash_0.uas' start='0xA000000' end='0xA800000' /><slave name='lcd_0.control_slave' start='0xB000010' end='0xB000020' /><slave name='eep_i2c_scl.s1' start='0xB0000C0' end='0xB0000D0' /><slave name='eep_i2c_sda.s1' start='0xB0000D0' end='0xB0000E0' /><slave name='sd_clk.s1' start='0xB000100' end='0xB000110' /><slave name='sd_cmd.s1' start='0xB000110' end='0xB000120' /><slave name='sd_dat.s1' start='0xB000120' end='0xB000130' /><slave name='sd_wp_n.s1' start='0xB000130' end='0xB000140' /><slave name='slave_fpga_nstatus_gpio.s1' start='0xB000200' end='0xB000210' /><slave name='slave_fpga_conf_done_gpio.s1' start='0xB000210' end='0xB000220' /><slave name='slave_fpga_nconfig_gpio.s1' start='0xB000220' end='0xB000240' /><slave name='slave_fpga_nce_gpio.s1' start='0xB000240' end='0xB000260' /><slave name='sysid_qsys_0.control_slave' start='0xBA00000' end='0xBA00008' /><slave name='spi_0.spi_control_port' start='0xBA10000' end='0xBA10020' /><slave name='spi_1.spi_control_port' start='0xBA20000' end='0xBA20020' /><slave name='sram_bridge_0.avalon_slave_0' start='0xC000000' end='0xC200000' /><slave name='test_runner_0.avalon_slave_0' start='0xD000000' end='0xD000100' /><slave name='uart_0.s1' start='0xD100000' end='0xD100020' /><slave name='freq_counter_0.avalon_slave_0' start='0xD200000' end='0xD200400' /></address-map>]]></parameter>
-  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='sdram_0.s1' start='0x0' end='0x8000000' /><slave name='descriptor_memory.s1' start='0x8001000' end='0x8002000' /><slave name='cpu.jtag_debug_module' start='0x8002800' end='0x8003000' /><slave name='tse_mac.control_port' start='0x8003000' end='0x8003400' /><slave name='sgdma_tx.csr' start='0x8003400' end='0x8003440' /><slave name='sgdma_rx.csr' start='0x8003440' end='0x8003480' /><slave name='timer.s1' start='0x8003480' end='0x80034A0' /><slave name='altpll_0.pll_slave' start='0x80034A0' end='0x80034B0' /><slave name='jtag_uart.avalon_jtag_slave' start='0x80034B0' end='0x80034B8' /><slave name='ISP1362_IF_0.hc' start='0x8221000' end='0x8221008' /><slave name='ISP1362_IF_0.dc' start='0x8221008' end='0x8221010' /><slave name='usb.hc' start='0x82224D8' end='0x82224E0' /><slave name='usb.dc' start='0x82224E0' end='0x82224E8' /><slave name='cfi_flash_0.uas' start='0xA000000' end='0xA800000' /><slave name='lcd_0.control_slave' start='0xB000010' end='0xB000020' /><slave name='eep_i2c_scl.s1' start='0xB0000C0' end='0xB0000D0' /><slave name='eep_i2c_sda.s1' start='0xB0000D0' end='0xB0000E0' /><slave name='sd_clk.s1' start='0xB000100' end='0xB000110' /><slave name='sd_cmd.s1' start='0xB000110' end='0xB000120' /><slave name='sd_dat.s1' start='0xB000120' end='0xB000130' /><slave name='sd_wp_n.s1' start='0xB000130' end='0xB000140' /><slave name='slave_fpga_nstatus_gpio.s1' start='0xB000200' end='0xB000210' /><slave name='slave_fpga_conf_done_gpio.s1' start='0xB000210' end='0xB000220' /><slave name='slave_fpga_nconfig_gpio.s1' start='0xB000220' end='0xB000240' /><slave name='slave_fpga_nce_gpio.s1' start='0xB000240' end='0xB000260' /><slave name='sysid_qsys_0.control_slave' start='0xBA00000' end='0xBA00008' /><slave name='spi_0.spi_control_port' start='0xBA10000' end='0xBA10020' /><slave name='spi_1.spi_control_port' start='0xBA20000' end='0xBA20020' /><slave name='sram_bridge_0.avalon_slave_0' start='0xC000000' end='0xC200000' /><slave name='test_runner_0.avalon_slave_0' start='0xD000000' end='0xD000100' /><slave name='uart_0.s1' start='0xD100000' end='0xD100020' /><slave name='freq_counter_0.avalon_slave_0' start='0xD200000' end='0xD200400' /></address-map>]]></parameter>
+  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='sdram_0.s1' start='0x0' end='0x8000000' /><slave name='descriptor_memory.s1' start='0x8001000' end='0x8002000' /><slave name='cpu.jtag_debug_module' start='0x8002800' end='0x8003000' /><slave name='cfi_flash_0.uas' start='0xA000000' end='0xA800000' /><slave name='lcd_0.control_slave' start='0xB000010' end='0xB000020' /><slave name='eep_i2c_scl.s1' start='0xB0000C0' end='0xB0000D0' /><slave name='eep_i2c_sda.s1' start='0xB0000D0' end='0xB0000E0' /><slave name='sd_clk.s1' start='0xB000100' end='0xB000110' /><slave name='sd_cmd.s1' start='0xB000110' end='0xB000120' /><slave name='sd_dat.s1' start='0xB000120' end='0xB000130' /><slave name='sd_wp_n.s1' start='0xB000130' end='0xB000140' /><slave name='slave_fpga_nstatus_gpio.s1' start='0xB000200' end='0xB000210' /><slave name='slave_fpga_conf_done_gpio.s1' start='0xB000210' end='0xB000220' /><slave name='slave_fpga_nconfig_gpio.s1' start='0xB000220' end='0xB000230' /><slave name='slave_fpga_nce_gpio.s1' start='0xB000230' end='0xB000240' /><slave name='sysid_qsys_0.control_slave' start='0xBA00000' end='0xBA00008' /><slave name='spi_0.spi_control_port' start='0xBA10000' end='0xBA10020' /><slave name='spi_1.spi_control_port' start='0xBA20000' end='0xBA20020' /><slave name='sram_bridge_0.avalon_slave_0' start='0xC000000' end='0xC200000' /><slave name='test_runner_0.avalon_slave_0' start='0xD000000' end='0xD000100' /><slave name='uart_0.s1' start='0xD100000' end='0xD100020' /><slave name='freq_counter_0.avalon_slave_0' start='0xD200000' end='0xD200400' /></address-map>]]></parameter>
+  <parameter name="dataSlaveMapParam"><![CDATA[<address-map><slave name='sdram_0.s1' start='0x0' end='0x8000000' /><slave name='descriptor_memory.s1' start='0x8001000' end='0x8002000' /><slave name='cpu.jtag_debug_module' start='0x8002800' end='0x8003000' /><slave name='tse_mac.control_port' start='0x8003000' end='0x8003400' /><slave name='sgdma_tx.csr' start='0x8003400' end='0x8003440' /><slave name='sgdma_rx.csr' start='0x8003440' end='0x8003480' /><slave name='timer.s1' start='0x8003480' end='0x80034A0' /><slave name='altpll_0.pll_slave' start='0x80034A0' end='0x80034B0' /><slave name='jtag_uart.avalon_jtag_slave' start='0x80034B0' end='0x80034B8' /><slave name='ISP1362_IF_0.hc' start='0x8221000' end='0x8221008' /><slave name='ISP1362_IF_0.dc' start='0x8221008' end='0x8221010' /><slave name='usb.hc' start='0x82224D8' end='0x82224E0' /><slave name='usb.dc' start='0x82224E0' end='0x82224E8' /><slave name='cfi_flash_0.uas' start='0xA000000' end='0xA800000' /><slave name='lcd_0.control_slave' start='0xB000010' end='0xB000020' /><slave name='eep_i2c_scl.s1' start='0xB0000C0' end='0xB0000D0' /><slave name='eep_i2c_sda.s1' start='0xB0000D0' end='0xB0000E0' /><slave name='sd_clk.s1' start='0xB000100' end='0xB000110' /><slave name='sd_cmd.s1' start='0xB000110' end='0xB000120' /><slave name='sd_dat.s1' start='0xB000120' end='0xB000130' /><slave name='sd_wp_n.s1' start='0xB000130' end='0xB000140' /><slave name='slave_fpga_nstatus_gpio.s1' start='0xB000200' end='0xB000210' /><slave name='slave_fpga_conf_done_gpio.s1' start='0xB000210' end='0xB000220' /><slave name='slave_fpga_nconfig_gpio.s1' start='0xB000220' end='0xB000230' /><slave name='slave_fpga_nce_gpio.s1' start='0xB000230' end='0xB000240' /><slave name='sysid_qsys_0.control_slave' start='0xBA00000' end='0xBA00008' /><slave name='spi_0.spi_control_port' start='0xBA10000' end='0xBA10020' /><slave name='spi_1.spi_control_port' start='0xBA20000' end='0xBA20020' /><slave name='sram_bridge_0.avalon_slave_0' start='0xC000000' end='0xC200000' /><slave name='test_runner_0.avalon_slave_0' start='0xD000000' end='0xD000100' /><slave name='uart_0.s1' start='0xD100000' end='0xD100020' /><slave name='freq_counter_0.avalon_slave_0' start='0xD200000' end='0xD200400' /></address-map>]]></parameter>
   <parameter name="clockFrequency" value="100000000" />
   <parameter name="deviceFamilyName" value="Cyclone IV E" />
   <parameter name="internalIrqMaskSystemInfo" value="8191" />
@@ -1651,7 +1651,7 @@
    enabled="1"
    name="slave_fpga_nconfig_gpio">
   <parameter name="bitClearingEdgeCapReg" value="false" />
-  <parameter name="bitModifyingOutReg" value="true" />
+  <parameter name="bitModifyingOutReg" value="false" />
   <parameter name="captureEdge" value="false" />
   <parameter name="clockRate" value="10000000" />
   <parameter name="direction" value="Output" />
@@ -1669,7 +1669,7 @@
    enabled="1"
    name="slave_fpga_nce_gpio">
   <parameter name="bitClearingEdgeCapReg" value="false" />
-  <parameter name="bitModifyingOutReg" value="true" />
+  <parameter name="bitModifyingOutReg" value="false" />
   <parameter name="captureEdge" value="false" />
   <parameter name="clockRate" value="10000000" />
   <parameter name="direction" value="Output" />
@@ -2543,6 +2543,6 @@
    start="mm_clock_crossing_bridge_0.m0"
    end="slave_fpga_nce_gpio.s1">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0240" />
+  <parameter name="baseAddress" value="0x0230" />
  </connection>
 </system>

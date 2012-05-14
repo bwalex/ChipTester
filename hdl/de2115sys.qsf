@@ -143,7 +143,7 @@ set_location_assignment PIN_AC28 -to SLAVE_FPGA_nSTATUS
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SLAVE_FPGA_nSTATUS
 set_location_assignment PIN_G19 -to SLAVE_FPGA_nCONFIG
 set_instance_assignment -name IO_STANDARD "2.5 V" -to SLAVE_FPGA_nCONFIG
-set_location_assignment PIN_F19 -to SLAVE_FPGA_nSCE
+set_location_assignment PIN_F19 -to SLAVE_FPGA_nCE
 set_instance_assignment -name IO_STANDARD "2.5 V" -to SLAVE_FPGA_nCE
 
 #============================================================
