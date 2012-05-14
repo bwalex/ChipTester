@@ -24,8 +24,8 @@
 			clock-frequency = < 100000000 >;	/* embeddedsw.CMacro.CPU_FREQ type NUMBER */
 			dcache-line-size = < 32 >;	/* embeddedsw.CMacro.DCACHE_LINE_SIZE type NUMBER */
 			icache-line-size = < 32 >;	/* embeddedsw.CMacro.ICACHE_LINE_SIZE type NUMBER */
-			dcache-size = < 4096 >;	/* embeddedsw.CMacro.DCACHE_SIZE type NUMBER */
-			icache-size = < 8192 >;	/* embeddedsw.CMacro.ICACHE_SIZE type NUMBER */
+			dcache-size = < 32768 >;	/* embeddedsw.CMacro.DCACHE_SIZE type NUMBER */
+			icache-size = < 65536 >;	/* embeddedsw.CMacro.ICACHE_SIZE type NUMBER */
 			ALTR,implementation = "fast";	/* embeddedsw.CMacro.CPU_IMPLEMENTATION type STRING*/
 			ALTR,pid-num-bits = < 10 >;	/* embeddedsw.CMacro.PROCESS_ID_NUM_BITS type NUMBER */
 			ALTR,tlb-num-ways = < 16 >;	/* embeddedsw.CMacro.TLB_NUM_WAYS type NUMBER */
