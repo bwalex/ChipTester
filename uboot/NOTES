@@ -10,11 +10,37 @@
 
 
 
+==> mtdparts    
+
+device nor0 <flash-0>, # parts = 5
+ #: name                size            offset          mask_flags
+ 0: u-boot              0x00040000      0x00000000      0
+ 1: u-boot_cfg          0x00010000      0x00040000      0
+ 2: kernel              0x001b0000      0x00050000      0
+ 3: rootfs              0x00580000      0x00200000      0
+ 4: config              0x00080000      0x00780000      0
+
+
+==> bootm 0xEA050000
+
+
+
+bootcmd: This variable defines a command string that is automatically executed when the initial countdown is not interrupted. 
+This command is only executed when the variable bootdelay is also defined!
+bootdelay: After reset, U-Boot will wait this number of seconds before it executes the contents of the bootcmd variable. During this time a countdown is printed, which can be interrupted by pressing any key. 
+Set this variable to 0 boot without delay. Be careful: depending on the contents of your bootcmd variable, this can prevent you from entering interactive commands again forever! 
+Set this variable to -1 to disable autoboot.
+
+setenv foo bar
+
+
 
 == ENV (stored on flash in u-boot_cfg)
 ==> printenv
 baudrate=115200
 bootargs=root=/dev/mtdblock3 ro rootfstype=jffs2 earlyprintk
+bootcmd=bootm 0xEA050000
+bootdelay=5
 ethact=ALTERA_TSE-0
 mtdparts=mtdparts=flash-0:256k(u-boot),64k(u-boot_cfg),1728k(kernel),5632k(rootfs),512k(config)
 nor0=flash-0
@@ -23,5 +49,6 @@ stdin=serial
 stdout=serial
 unlock=yes
 
-Environment size: 277/65532 bytes
+Environment size: 318/65532 bytes
+
 
