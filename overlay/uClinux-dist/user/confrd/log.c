@@ -16,6 +16,7 @@
 
 #include "http_json.h"
 #include "confrd.h"
+#include "de2lcd_if.h"
 
 
 extern char *cur_filename;
@@ -28,19 +29,28 @@ extern char *base_url;
 void
 vlog(int loglevel, const char *fmt, va_list ap)
 {
+	static int active;
 	char urlbuf[512];
 	char msgbuf[4096];
 	json_t *j_in;
 
+	/* Don't allow vlog recursion */
+	if (active)
+		return;
+
+	active = 1;
 	vsnprintf(msgbuf, sizeof(msgbuf), fmt, ap);
 
-	if (loglevel == LOGERR)
+	if (loglevel == LOGERR) {
 		fprintf(stderr, "%s\n", msgbuf);
-	else
+		/* We also log errors to the LCD */
+		de2lcd_printf(msgbuf);
+	} else {
 		printf("%s\n", msgbuf);
+	}
 
 	if (!wflag || base_url == NULL)
-		return;
+		goto out;
 
 	/*
 	 * Do our best to log remotely, but fail silently if it
@@ -52,10 +62,14 @@ vlog(int loglevel, const char *fmt, va_list ap)
 			 "line", cur_lineno,
 			 "message", msgbuf);
 	if (j_in == NULL)
-		return;
+		goto out;
 
 	snprintf(urlbuf, sizeof(urlbuf), "%s/api/log", base_url);
 	req_json(urlbuf, METHOD_POST, j_in, NULL);
+
+out:
+	active = 0;
+	return;
 }
 
 

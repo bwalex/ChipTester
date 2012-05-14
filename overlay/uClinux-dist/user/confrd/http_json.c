@@ -6,6 +6,7 @@
 #include <curl/curl.h>
 
 #include "http_json.h"
+#include "confrd.h"
 
 
 struct write_data {
@@ -62,6 +63,8 @@ _readdata(void *ptr, size_t size, size_t nmemb, void *priv)
 
 
 static CURL *curl;
+int net_err = 0;
+
 
 int
 http_begin(void)
@@ -152,14 +155,14 @@ req(const char *url, int method, const char *ctype,
 		curl_slist_free_all(slist);
 
 	if (status != 0) {
-		fprintf(stderr, "curl err: %s\n", curl_easy_strerror(status));
+		logger(LOGERR, "net: %s", curl_easy_strerror(status));
+		net_err = 1;
 		ret = 1;
 		goto out;
 	}
 
 	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);
 	if (code != 200) {
-		fprintf(stderr, "Server error: %ld\n", code);
 		ret = (int)code;
 		goto out;
 	}

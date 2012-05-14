@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include <string.h>
 #include "de2lcd_if.h"
 
@@ -21,6 +22,34 @@
 #define CURSOR_TOPLEFT	0x00
 #define CURSOR_BOTLEFT	0x40
 
+
+int
+de2lcd_printf(const char *fmt, ...)
+{
+	char msgbuf[128];
+	va_list ap;
+	int n;
+
+	va_start(ap, fmt);
+	n = vsnprintf(msgbuf, sizeof(msgbuf), fmt, ap);
+	va_end(ap);
+
+	if (n > 80) {
+		n = 80;
+		msgbuf[79] = '\0';
+	}
+
+	de2lcd_clear();
+
+	de2lcd_write(msgbuf);
+	printf("!-DEBUG de2lcd_printf, n=%d\n", n);
+	if (n > 16)
+		de2lcd_set_shl(150);
+	else
+		de2lcd_set_shl(0);
+
+	return n;
+}
 
 
 int

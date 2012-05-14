@@ -17,6 +17,7 @@
 #include "http_json.h"
 #include "confrd.h"
 #include "trunner_if.h"
+#include "de2lcd_if.h"
 
 
 
@@ -117,8 +118,6 @@ init_remote(parserinfo_t pi)
 	json_decref(j_in);
 
 	if (error) {
-		logger(LOGERR, "Error sending JSON for 'Result', %d",
-		       error);
 		return error;
 	}
 
@@ -182,7 +181,7 @@ process_sram_results(parserinfo_t pi)
 	size_t reqsz;
 
 
-	printf("DEBUG: process_sram_results; desres_id=%d\n", pi->design_result_id);
+	de2lcd_printf("Upload results");
 	if (pi->design_result_id < 1) {
 		/* Push out DesignResult */
 		j_in = json_pack("{s:s, s:i, s:s, s:s}",
@@ -201,7 +200,8 @@ process_sram_results(parserinfo_t pi)
 		json_decref(j_in);
 
 		if (error) {
-			logger(LOGERR, "Error sending JSON for 'DesignResult', %d",
+			/* only LOGINFO, as we already have LOGERR from req_json/req */
+			logger(LOGINFO, "Error sending JSON for 'DesignResult', %d",
 			       error);
 			return error;
 		}
@@ -273,7 +273,8 @@ process_sram_results(parserinfo_t pi)
 				error = req_json(url, METHOD_POST, j_in, NULL);
 				json_decref(j_in);
 				if (error) {
-					logger(LOGERR, "Error sending JSON for Vector, %d",
+					/* Only LOGINFO as we already have a LOGERR from req_json/req */
+					logger(LOGINFO, "Error sending JSON for Vector, %d",
 						error);
 					return error;
 				}
@@ -294,6 +295,7 @@ process_sram_results(parserinfo_t pi)
 		off += sizeof(buf) - sz;
 	} while(!error && !done);
 
+	de2lcd_printf("Upload done");
 	return (error && !done) ? -1 : 0;
 }
 
@@ -347,6 +349,7 @@ suspend_emit(void *p)
 	pi->sram_off = 0;
 	pi->sram_free_bytes = SRAM_SIZE;
 
+	de2lcd_printf("Parse %s", cur_filename);
 	return 0;
 }
 
@@ -365,7 +368,7 @@ go(parserinfo_t pi, int process)
 	}
 
 	if (wflag) {
-		printf("DEBUG: go(process=%d), sram_off=%ju\n", process, (size_t)pi->sram_off);
+		de2lcd_printf("Load SRAM");
 		error = sram_write(0, sram_stage, (size_t)pi->sram_off);
 		if (error)
 			return error;
@@ -453,12 +456,14 @@ parse_team_dir(char *dirname)
 		init_parserinfo(&pi, &gd);
 		snprintf(fname, PATH_MAX, "%s/%s", dirname, entry->d_name);
 		logger(LOGINFO, "Processing %s", fname);
+		de2lcd_printf("Parse %s", entry->d_name);
 
 		if ((error = parse_vec_file(fname, suspend_emit, &pi)) != 0) {
-			logger(LOGERR, "Error parsing %s", fname);
+			logger(LOGWARN, "Error parsing %s", fname);
 			continue;
 		}
 
+		de2lcd_printf("Done.");
 		rc = go(&pi, 1);
 		if (rc)
 			return -1;
@@ -508,6 +513,9 @@ main(int argc, char *argv[])
 	char fname[PATH_MAX];
 	int c, error;
 
+
+	de2lcd_cursor_off();
+	de2lcd_clear();
 
 	while ((c = getopt (argc, argv, "ps:wh?")) != -1) {
 		switch (c) {
@@ -582,14 +590,14 @@ main(int argc, char *argv[])
 		printf("Processing %s\n", fname);
 
 		if ((error = parse_team_dir(fname)) != 0) {
-			logger(LOGERR, "Error parsing %s", fname);
+			/* only LOGWARN as we'll already have a LOGERR from elsewhere */
+			logger(LOGWARN, "Error parsing %s", fname);
 			continue;
 		}
 	}
 
 	http_end();
 	closedir(mydir);
-
 
 	if (wflag)
 		sram_close();
