@@ -77,6 +77,8 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS 1
 #define CONFIG_SYS_MAX_FLASH_SECT 1024
 
+#define CONFIG_BOOTDELAY	5
+
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MTDPARTS     /* mtdparts command line support */
 #define CONFIG_MTD_DEVICE       /* needed for mtdparts commands */
