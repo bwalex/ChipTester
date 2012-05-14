@@ -60,7 +60,7 @@ int page_program(int fd, uint32_t addr, uint8_t *data, size_t len);
 int block_64_eraser(int fd, uint32_t addr);
 /*BLOCK_32_ERASE 0x52 Instruction, address to erase 32KB onwards*/
 int block_32_eraser(int fd, uint32_t addr);
-/**SECTOR_ERASE 0x20 Instruction, adress to erase a sector/
+/*SECTOR_ERASE 0x20 Instruction, adress to erase a sector */
 int sector_eraser(int fd, uint32_t addr);
 /*Function to test the memory. It returns -1 if the memory ID wasn't read properly.*/
 int test_memory(int fd);
