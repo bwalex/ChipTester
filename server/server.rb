@@ -240,6 +240,17 @@ post '/api/result/:result_id/design/:design_id/measurement/frequency' do
   @fm.to_json
 end
 
+post '/api/result/:result_id/design/:design_id/measurement/adc' do
+  content_type :json
+  @result = Result.get!(params[:result_id])
+  @design = DesignResult.get!(params[:design_id])
+  @ad = @design.adc_measurements.new
+  @ad.data = request.body.read
+  @ad.save
+  @ad.to_json
+end
+
+
 post '/api/result/:result_id/design/:design_id/vector' do
   content_type :json
   data =  JSON.parse(request.body.read)

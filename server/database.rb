@@ -101,6 +101,7 @@ class DesignResult
   property :design_name, String # 4-bit Adder
   has n, :test_vector_results
   has n, :frequency_measurements
+  has n, :adc_measurements
 
   def failed?
     count = test_vector_results.count(:fail => true)
@@ -132,6 +133,28 @@ class FrequencyMeasurement
   property :frequency, Float
   property :created_at, DateTime
   property :updated_at, DateTime
+end
+
+
+class AdcMeasurement
+  include DataMapper::Resource
+  property :id, Serial
+  belongs_to :design_result
+  property :created_at, DateTime
+  property :updated_at, DateTime
+
+  def path
+    "adc_data/#{id}.adc"
+  end
+
+  def data= d
+    # Save data d to a file in public/adc
+    Dir.mkdir("adc_data") unless File.exists?("adc_data")
+    File.open(path, "w") do |f|
+      # ... process the file
+      f.syswrite(d)
+    end
+  end
 end
 
 
