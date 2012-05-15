@@ -25,6 +25,7 @@
 
 /*Global Variables*/
 static const char *device = "";
+static const char *file = NULL;
 static uint8_t mode;
 static uint8_t bits = 8;
 static uint32_t speed = 8000000;
@@ -519,7 +520,7 @@ int test_memory(int fd) {
 
 static void print_usage(const char *prog)
 {
-	printf("Usage: %s [-DsbdlHOLC3]\n", prog);
+	printf("Usage: %s [-DsbdlHOLC3] <file to program>\n", prog);
 	puts("  -D --device   device to use (default /dev/spidev1.1)\n"
 			"  -s --speed    max speed (Hz)\n"
 			"  -d --delay    delay (usec)\n"
@@ -536,6 +537,8 @@ static void print_usage(const char *prog)
 
 static void parse_opts(int argc, char *argv[])
 {
+	const char *prog_name = argv[0];
+
 	while (1) {
 		static const struct option lopts[] = {
 				{ "device",  1, 0, 'D' },
@@ -596,14 +599,21 @@ static void parse_opts(int argc, char *argv[])
 			mode |= SPI_READY;
 			break;
 		default:
-			print_usage(argv[0]);
+			print_usage(prog_name);
 			break;
 		}
 	}
+
+	argc -= optind;
+	argv += optind;
+
+	if (argc < 1)
+		print_usage(prog_name);
+
+	file = argv[0];
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
 
 	int ret = 0;
@@ -614,7 +624,7 @@ int main(int argc, char *argv[])
 	fd = open(device, O_RDWR);
 	if (fd < 0) {
 		perror("can't open device");
-		abort();
+		exit(1);
 	}
 
 
@@ -623,12 +633,12 @@ int main(int argc, char *argv[])
 	ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
 	if (ret == -1) {
 		perror("can't set spi mode");
-		abort();
+		exit(1);
 	}
 	ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);
 	if (ret == -1) {
 		perror("can't get spi mode");
-		abort();
+		exit(1);
 	}
 
 	//bits per word
@@ -636,12 +646,12 @@ int main(int argc, char *argv[])
 	ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
 	if (ret == -1) {
 		perror("can't set bits per word");
-		abort();
+		exit(1);
 	}
 	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
 	if (ret == -1) {
 		perror("can't get bits per word");
-		abort();
+		exit(1);
 	}
 
 	//max speed hz
@@ -649,13 +659,13 @@ int main(int argc, char *argv[])
 	ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
 	if (ret == -1) {
 		perror("can't set max speed hz");
-		abort();
+		exit(1);
 	}
 
 	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
 	if (ret == -1) {
 		perror("can't get max speed hz");
-		abort();
+		exit(1);
 	}
 
 	printf("spi mode: %d\n", mode);

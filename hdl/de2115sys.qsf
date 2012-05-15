@@ -122,14 +122,10 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to EEP_I2C_SDAT
 #============================================================
 # LED
 #============================================================
-set_location_assignment PIN_G19 -to LEDR[0]
+set_location_assignment PIN_E19 -to LEDR[0]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[0]
-set_location_assignment PIN_F19 -to LEDR[1]
+set_location_assignment PIN_F21 -to LEDR[1]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[1]
-set_location_assignment PIN_E19 -to LEDR[2]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[2]
-set_location_assignment PIN_F21 -to LEDR[3]
-set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDR[3]
 set_location_assignment PIN_G21 -to LEDG
 set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDG
 set_location_assignment PIN_E21 -to LEDG0
@@ -139,11 +135,16 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to LEDG4
 
 
 #============================================================
-# Switches
+# slave FPGA config interface
 #============================================================
-set_location_assignment PIN_AB28 -to SW_SEL
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW_SEL
-
+set_location_assignment PIN_AB28 -to SLAVE_FPGA_CONF_DONE
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SLAVE_FPGA_CONF_DONE
+set_location_assignment PIN_AC28 -to SLAVE_FPGA_nSTATUS
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SLAVE_FPGA_nSTATUS
+set_location_assignment PIN_G19 -to SLAVE_FPGA_nCONFIG
+set_instance_assignment -name IO_STANDARD "2.5 V" -to SLAVE_FPGA_nCONFIG
+set_location_assignment PIN_F19 -to SLAVE_FPGA_nCE
+set_instance_assignment -name IO_STANDARD "2.5 V" -to SLAVE_FPGA_nCE
 
 #============================================================
 # USB 2.0 OTG

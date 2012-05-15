@@ -24,9 +24,6 @@ module de2115sys(
   output        SRAM_WE_N,
   output [ 1:0] SRAM_BE_N,
 
-  // Switch
-  input         SW_SEL,
-
   // UART
   input         UART_RXD,
   input         UART_RTS,
@@ -34,10 +31,16 @@ module de2115sys(
   output        UART_CTS,
 
   // LED
-  output [ 3:0] LEDR,
+  output [ 1:0] LEDR,
   output        LEDG,
   output        LEDG0,
   output        LEDG4,
+
+  // Slave FPGA direct interface
+  input         SLAVE_FPGA_CONF_DONE,
+  input         SLAVE_FPGA_nSTATUS,
+  output        SLAVE_FPGA_nCE,
+  output        SLAVE_FPGA_nCONFIG,
   
   //////////// I2C for EEPROM //////////
   output        EEP_I2C_SCLK,
@@ -402,10 +405,10 @@ module de2115sys(
     .spi_0_external_SCLK                    (SD_CLK),
     .spi_0_external_SS_n                    (SD_DAT3),
 
-//  .spi_1_external_MISO                    (),
-//  .spi_1_external_MOSI                    (),
-//  .spi_1_external_SCLK                    (),
-//  .spi_1_external_SS_n                    (),
+//  .spi_1_external_MISO                    (SLAVE_FPGA_SPI_MISO),
+//  .spi_1_external_MOSI                    (SLAVE_FPGA_SPI_MOSI),
+//  .spi_1_external_SCLK                    (SLAVE_FPGA_SPI_SCLK),
+//  .spi_1_external_SS_n                    (SLAVE_FPGA_SPI_nSS),
 
     .uart_0_external_rxd                    (UART_RXD),
     .uart_0_external_txd                    (UART_TXD),
@@ -432,7 +435,10 @@ module de2115sys(
     .freq_counter_external_in_signal        (temp_test),
     .freq_counter_external_busy             (LEDG4),
 
-    .func_sel_external_connection_export    (LEDR)
+    .slave_fpga_nstatus_gpio_external_connection_export   (SLAVE_FPGA_nSTATUS),
+    .slave_fpga_conf_done_gpio_external_connection_export (SLAVE_FPGA_CONF_DONE),
+    .slave_fpga_nconfig_gpio_external_connection_export   (SLAVE_FPGA_nCONFIG),
+    .slave_fpga_nce_gpio_external_connection_export       (SLAVE_FPGA_nCE)
   );
 
 endmodule
