@@ -21,7 +21,7 @@
 #include <getopt.h>
 #include <sys/ioctl.h>
 #include <linux/types.h>
-#include <linux/spi/spidev.h>
+#include "spidev.h"
 #include "spi.h"
 #include "spi_flash_model.h"
 
