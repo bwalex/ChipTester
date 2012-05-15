@@ -38,7 +38,11 @@ fi
 
 unzip -l $TARGET_FILE
 if [ "$?" = "0" ]; then
-	unzip -o $TARGET_FILE -d $WORK_DIR || exit 1
+	unzip -o $TARGET_FILE -d $WORK_DIR
+	if [ "$?" != "0" ]; then
+		rlog -b $BASE_URL -l err "Invalid zip archive"
+		exit 1
+	fi
 else
 	MODIFIER="INVALID"
 
@@ -67,6 +71,7 @@ else
 	fi
 
 	if [ "$MODIFIER" = "INVALID" ]; then
+		rlog -b $BASE_URL -l err "Invalid tarball"
 		exit 2
 	fi
 
@@ -75,7 +80,7 @@ fi
 
 confrd -p $WORK_DIR
 if [ "$?" != "0" ]; then
-	echo "Configuration doesn't pass sanity check"
+	rlog -b $BASE_URL -l err "Configuration doesn't pass sanity check"
 	exit 5
 fi
 
@@ -92,7 +97,7 @@ sleep 2
 
 FLASH_LOG=`spi_flash -D $SPI_DEV $WORK_DIR/fpga.rbf`
 if [ "$?" != "0" ]; then
-	echo "Writing to SPI flash failed"
+	rlog -b $BASE_URL -l err "Writing to SPI flash failed"
 	exit 10
 fi
 
@@ -107,10 +112,12 @@ sleep 10
 # Check whether it's the latter by looking at the nSTATUS pin
 FPGA_OK=`cat $PIN_NSTATUS`
 if [ "$FPGA_OK" = "0" ]; then
-	echo "FPGA is unhappy."
+	rlog -b $BASE_URL -l err "FPGA is unhappy."
 	exit 12
 fi
 
 # We are all set now; the slave FPGA is configured, so we can
 # start the proper testing. confrd handles the rest from here.
+rlog -b $BASE_URL -l info "Starting virtual design test"
+
 confrd -vw $WORK_DIR

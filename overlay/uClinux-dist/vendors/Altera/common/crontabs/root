@@ -1,1 +1,1 @@
-*/1 * * * *	/bin/touch /test
+*/10 * * * *	flock -xn /var/lock/vconfig.lock /etc/vconfig.sh /media/mmcblk0p1
