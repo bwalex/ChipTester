@@ -4,30 +4,28 @@
 		<div class="entry">
 		<table class="fullwidth">
 		<tr>
-			<th>Result</th>
+			<th>Design Name</th>
 			<th>Run Date</th>
-			<th>Created</th>
-			<th>Updated</th>
 			<th>File Name</th>
 			<th>Clock Frequency</th>
-			<th>Design Name</th>
+			<th>Triggers</th>
+			<th class="center">Pass rate</th>
+			<th class="center">Frequency measurements</th>
+			<th class="center">ADC captures</th>
+
 		</tr>
 		<% @designs.each_index do |idx| design=@designs[idx] %> 
 		<tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
-			<td><a href="TestResult/<%= design.id %>">
-			    <% if design.failed? %>
-			       failed
-			    <% else %>
-			       passed
-			    <% end %>
-			    </a>
-			</td>
-			<td><%=design.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
-			<td><%=design.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
-			<td><%=design.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
-			<td><%=design.file_name %></td>
-			<td><%=design.clock_freq%></td>
 			<td><%=design.design_name %></td>
+			<td><%=design.created_at.strftime("%m/%d/%Y - %I:%M%p") %></td>
+			<td><code><%=design.file_name %></code></td>
+			<td><%=design.clock_freq%> MHz</td>
+			<td><code><%=design.triggers_formatted %></code></td>
+
+			<td class="center"><a href="TestResult/<%= design.id %>"><%= format("%.2f", design.pass_rate) %></td>
+			
+			<td class="center"><a href="frequency/<%= design.id %>"><%= design.frequency_measurements.count %></td>
+			<td class="center"><a href="adc/<%= design.id %>"><%= design.adc_measurements.count %></td>
 		</tr>
 		<% end %>
 		</table>

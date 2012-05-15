@@ -56,9 +56,45 @@ end
 
 #Design Result Test View
 get '/DesignResult/TestResult/:design_result_id' do
+    @design = DesignResult.get(params[:design_result_id])
     @tests = TestVectorResult.all(:design_result_id => params[:design_result_id])
     erb :test_result
 end
+
+get '/DesignResult/frequency/:design_result_id' do
+    @design = DesignResult.get(params[:design_result_id])
+    @freqs = FrequencyMeasurement.all(:design_result_id => params[:design_result_id])
+    erb :freq_meas
+end
+
+get '/DesignResult/adc/:design_result_id' do
+    @design = DesignResult.get(params[:design_result_id])
+    @adcs = AdcMeasurement.all(:design_result_id => params[:design_result_id])
+    erb :adc_capture
+end
+
+
+get '/adc/:adc_id/figure' do
+  @adc = AdcMeasurement.get(params[:adc_id])
+  send_file @adc.png_path,
+    :type => 'image/png',
+    :disposition => 'inline'
+end
+
+get '/adc/:adc_id/raw' do
+  @adc = AdcMeasurement.get(params[:adc_id])
+  send_file @adc.path,
+    :type => 'application/octet-stream',
+    :disposition => 'attachment'
+end
+
+get '/adc/:adc_id/csv' do
+  @adc = AdcMeasurement.get(params[:adc_id])
+  content_type "text/csv"
+  @adc.as_csv
+end
+
+
 #Login View
 get '/admin_login' do
   @flash_error = flash
@@ -244,9 +280,8 @@ post '/api/result/:result_id/design/:design_id/measurement/adc' do
   content_type :json
   @result = Result.get!(params[:result_id])
   @design = DesignResult.get!(params[:design_id])
-  @ad = @design.adc_measurements.new
+  @ad = @design.adc_measurements.create
   @ad.data = request.body.read
-  @ad.save
   @ad.to_json
 end
 

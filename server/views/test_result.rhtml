@@ -1,6 +1,6 @@
 <div id="content" class="row">
 	<div class="post">
-		<h2 class="title"><a href="#">Test vectors Results</a></h2>
+		<h2 class="title"><a href="#">Test vectors Results for <%= @design.design_name %></a></h2>
 		<div class="entry">
 		<table class="fullwidth">
 		<tr>
@@ -8,30 +8,24 @@
 			<th>Input Vector</th>
 			<th>Expected Result</th>
 			<th>Actual Result</th>
-			<th>Cycle Count</th>
-			<th>Result</th>
-			<th>Trigger timeout</th>
-			<th>Has run</th>
+			<th class="right">Cycle Count</th>
+			<th class="center">Result</th>
+			<th class="center">Trigger timeout</th>
+			<th class="center">Has run</th>
 			<th>Created</th>
-			<th>Updated</th>
 		</tr>
 		<% @tests.each_index do |idx| test=@tests[idx] %> 
 		<tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
-			<td><%= test.type.to_s()%></td>
-			<td><%= test.input_vector%></td>
-			<td><%= test.expected_result %></td>
-			<td><%= test.actual_result%></td>
-			<td><%= test.cycle_count%></td>
-			<td><% if test.fail %>
-			       failed
-			    <% else %>
-			       passed
-			    <% end %>
+			<td class="smaller"><%= test.type_str %></td>
+			<td><code class="vec"><%= test.input_vector%></code></td>
+			<td><code class="vec"><%= test.expected_result %></code></td>
+			<td><code class="vec"><%= test.actual_result%></code></td>
+			<td class="right"><%= test.cycle_count%></td>
+			<td class="center <%= test.fail ? "fail" : "pass" %>"><%= test.fail ? "fail" : "pass" %>
 			</td>
-			<td><%= test.trigger_timeout.to_s() %></td>
-			<td><%= test.has_run.to_s() %></td>
-			<td><%= test.created_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
-			<td><%= test.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+			<td class="center"><%= test.trigger_timeout ? "yes" : "no" %></td>
+			<td class="center"><%= test.has_run ? "yes" : "no" %></td>
+			<td class="smaller"><%= test.created_at.strftime("%m/%d/%Y - %I:%M%p")%></td>
 		</tr>
 		<% end %>
 		</table>
