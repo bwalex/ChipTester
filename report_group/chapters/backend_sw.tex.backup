@@ -48,7 +48,7 @@ for our application. The figure \ref{fig:Json_message} shows an example of a JSO
 \label{fig:Json_message}
 \end{figure}
 
-post '/api/result'
+
 
 
 \section{``Server'' (Sinatra stuff, database, etc)}

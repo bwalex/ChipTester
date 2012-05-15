@@ -6,7 +6,6 @@ require 'bcrypt'
 database_config = YAML::load( File.open( "config.yml" ))
 config = database_config['database']['type'] + '://' + database_config['database']['user'] + ':' + database_config['database']['password'] + '@' + database_config['database']['address'] +  '/' + database_config['database']['database_name']
 DataMapper.setup(:default, config)
-#DataMapper.setup(:default, 'sqlite:test.db')
 #Refer to config.yml to change the config line
 DataMapper::Logger.new($stdout, :debug)
 DataMapper::Model.raise_on_save_failure = true
@@ -46,7 +45,12 @@ def self.authenticate(username, password)
     else
       nil
     end
-  end
+end
+
+def self.Change_password(the_pass)
+   self.update(:password_hash => BCrypt::Password.create(the_pass))
+end
+
 end
 
 class FileUpload
@@ -148,8 +152,6 @@ def StoreFileUpload(email, team, file_name, valid_value, sent, erased)
   @uploaded_file.save
 end
  
-def Change_password(the_pass)
-   Admin.update(:password_hash => BCrypt::Password.create(the_pass))
-end
+
 
 DataMapper.finalize

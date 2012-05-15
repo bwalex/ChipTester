@@ -8,6 +8,9 @@
 				<th>Type of message</th>
 				<th>Message</th>
 				<th>File</th>
+				<th>Line</th>
+				<th>Created at</th>
+				<th>Updated at</th>
       			</tr>
       		<% @logs.each_index do |idx| log=@logs[idx] %> 
      			<tr	 class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
@@ -21,6 +24,9 @@
 				</td>
 				<td><%= log.message %></td>
 				<td><%= log.file %></td>
+				<td><%= log.line.to_s() %></td>
+				<td><%= log.created_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
+				<td><%= log.updated_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
       			</tr>
       		<% end %>
     		</table>
