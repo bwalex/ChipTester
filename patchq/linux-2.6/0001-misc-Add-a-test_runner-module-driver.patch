@@ -43,7 +43,7 @@ diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
 index fa435f8..7650fcb 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -50,4 +50,7 @@ obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
+@@ -50,3 +50,7 @@ obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
  obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
  obj-$(CONFIG_MAX8997_MUIC)	+= max8997-muic.o
  obj-$(CONFIG_ALTERA_SYSID)	+= altsysid.o
