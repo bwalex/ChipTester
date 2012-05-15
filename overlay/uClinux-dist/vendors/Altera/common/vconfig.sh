@@ -95,7 +95,7 @@ echo 0 > $PIN_NCONFIG
 # To be on the safe side, we wait a couple of seconds
 sleep 2
 
-FLASH_LOG=`spi_flash -D $SPI_DEV $WORK_DIR/fpga.rbf`
+FLASH_LOG=`spi_flash -c -D $SPI_DEV $WORK_DIR/fpga.rbf`
 if [ "$?" != "0" ]; then
 	rlog -b $BASE_URL -l err "Writing to SPI flash failed"
 	exit 10
