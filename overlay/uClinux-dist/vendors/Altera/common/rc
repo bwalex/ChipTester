@@ -80,6 +80,23 @@ grep -qs nfsd /proc/filesystems && mount -t nfsd nfsd /proc/fs/nfsd
 #echo 300  > /proc/sys/vm/vfs_cache_pressure
 
 
+# Prepare GPIO
+echo "Preparing GPIO"
+# 243 -> nCE
+# 244 <- CONF_DONE
+# 245 <- nSTATUS
+# 246 -> nCONFIG
+echo 246 > /sys/class/gpio/export
+echo 245 > /sys/class/gpio/export
+echo 244 > /sys/class/gpio/export
+echo 243 > /sys/class/gpio/export
+echo "in"  > /sys/class/gpio/gpio244/direction
+echo "in"  > /sys/class/gpio/gpio245/direction
+echo "out" > /sys/class/gpio/gpio243/direction
+echo "out" > /sys/class/gpio/gpio246/direction
+
+
+
 echo "Starting syslogd"
 syslogd
 

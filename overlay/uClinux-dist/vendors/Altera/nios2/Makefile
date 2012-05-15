@@ -41,6 +41,7 @@ romfs::
 	$(ROMFSINST) -s /proc/mounts /etc/mtab
 
 	$(ROMFSINST) -p 0755 ../common/automount.sh /etc/automount.sh
+	$(ROMFSINST) -p 0755 ../common/vconfig.sh /etc/vconfig.sh
 
 	set -e ; \
 	for f in $(ETC_FILES-y) ; do \
