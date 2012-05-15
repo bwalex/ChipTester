@@ -1,0 +1,37 @@
+\begin{thebibliography}{6}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{{\tt #1}}\fi
+
+\bibitem[{Altera Corporation}(2009)]{Altera:2009:HSMCspec}
+{Altera Corporation}.
+\newblock High {S}peed {M}ezzanine {C}ard specification, June 2009.
+\newblock Revision 17.
+
+\bibitem[{Altera Corporation}(2011)]{Altera:2011:cyclone3handbook}
+{Altera Corporation}.
+\newblock {\em Cyclone {III} {D}evice {H}andbook}, volume~1.
+\newblock December 2011.
+
+\bibitem[Spansion(2011)]{Spansion:2011:appnote}
+Spansion.
+\newblock Connecting {S}pansion {SPI} {S}erial {F}lash to {C}onfigure {A}ltera
+  {FPGA}s, 16 November 2011.
+\newblock Revision 4.
+
+\bibitem[{ST Microelectronics}(2012)]{STMicro:2012:LD1117xx}
+{ST Microelectronics}.
+\newblock L{D}1117xx datasheet, {A}djustable and fixed low drop positive
+  voltage regulator, 13 February 2012.
+\newblock Datasheet.
+
+\bibitem[{Texas Instruments}(2008)]{TI:2008:TPS782}
+{Texas Instruments}.
+\newblock T{PS}782 150m{A}, {U}ltra-low {Q}uiescent {C}urrent, {L}ow-{D}ropout
+  {L}inear {R}egulator {D}atasheet, September 2008.
+
+\bibitem[TXC()]{TXC:osc_datasheet}
+TXC.
+\newblock Oscillators 7{X}5mm {SMD} {CMOS} {CXO} 7{W} {S}eries {D}atasheet.
+
+\end{thebibliography}

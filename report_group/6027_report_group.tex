@@ -1,0 +1,97 @@
+%% ----------------------------------------------------------------
+%% GDP.tex
+%% ----------------------------------------------------------------
+\documentclass{ecsgdp}         % Use the GDP Report Style
+\graphicspath{{./figures/}}   % Location of your graphics files
+\usepackage{natbib}            % Use Natbib style for the refs.
+\hypersetup{colorlinks=true}   % Set to false for black/white printing
+% \input{Definitions}            % Include your abbreviations
+%% ----------------------------------------------------------------
+\usepackage{color}
+\usepackage{soul}
+\usepackage{graphicx}
+\usepackage{amsmath}
+% \usepackage[center]{caption}
+\usepackage{multirow}
+\usepackage{xfrac}
+
+
+\begin{document}
+\frontmatter
+\title      {ELEC6027 VLSI Group Design Project \\%
+             Team I \\%
+	     Southampton Superchip Automated Tester}
+\authors    { \\%
+	     \texorpdfstring{\href{mailto:ah3e11@ecs.soton.ac.uk}{Alexander Hornung}} {Alexander Hornung} \\%
+	     \texorpdfstring{\href{mailto:xl1g11@ecs.soton.ac.uk}{Xiaolong Li}} {Xiaolong Li} \\%
+	     \texorpdfstring{\href{mailto:pp5g11@ecs.soton.ac.uk}{Pavlos Progias}} {Pavlos Progias} \\%
+	     \texorpdfstring{\href{mailto:rt5g11@ecs.soton.ac.uk}{Romel Torres}} {Romel Torres} \\%
+	     \texorpdfstring{\href{mailto:bz1g11@ecs.soton.ac.uk}{Bo Zhou}} {Bo Zhou}
+            }
+% \addresses  {\groupname\\\deptname\\\univname}
+\date       {\today}
+\subject    {}
+\keywords   {}
+\supervisor {Dr Peter R. Wilson}
+% \examiner   {Dr Butthead}
+\degree     {Master of Engineering}
+\maketitle
+\begin{abstract}
+ \include{report_abstract}
+\end{abstract}
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings
+\listofsymbols{ll}{$w$ & The weight vector}
+\acknowledgements{Thanks to no one.}
+\dedicatory{To \dots}
+\mainmatter
+%% ----------------------------------------------------------------
+% \include{chapters/introduction}
+\include{chapters/hardware}
+% \include{chapters/sopc}
+% \include{chapters/embedded_sw}
+% \include{chapters/backend_sw}
+% \include{chapters/technical_data}
+%% ----------------------------------------------------------------
+
+\appendix
+\include{chapters/AppendixA}
+
+\backmatter
+\bibliographystyle{ecs}
+\bibliography{ECS}
+\end{document}
+%% ----------------------------------------------------------------
+
+% Report overview
+% ========================
+% Introduction
+% ------------------------
+% Pavlos (get started)
+%  + Design (System) Overview
+%    see slides
+%
+% Hardware
+% ------------------------
+% Pavlos
+%  + SRAM Arbiter (sram_arb_sync.v)
+%
+% SoPC
+% ------------------------
+% Pavlos
+%  + frequency counter
+%      mention: synchronizer
+%  + ADC
+%
+% Embedded Software
+% ------------------------
+%
+% Backend Software
+% ------------------------
+% Pavlos
+%  + User Interface
+%
+% Some other yet-unnamed section
+% -----------------------

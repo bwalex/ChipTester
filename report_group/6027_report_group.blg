@@ -1,0 +1,51 @@
+This is BibTeX, Version 0.99c (TeX Live 2009/Debian)
+The top-level auxiliary file: 6027_report_group.aux
+A level-1 auxiliary file: report_abstract.aux
+A level-1 auxiliary file: chapters/hardware.aux
+A level-1 auxiliary file: chapters/AppendixA.aux
+The style file: ecs.bst
+Database file #1: ECS.bib
+Warning--empty publisher in Altera:2011:cyclone3handbook
+Warning--empty year in TXC:osc_datasheet
+You've used 6 entries,
+            2638 wiz_defined-function locations,
+            607 strings with 5510 characters,
+and the built_in function-call counts, 1944 in all, are:
+= -- 172
+> -- 60
+< -- 7
++ -- 24
+- -- 18
+* -- 97
+:= -- 315
+add.period$ -- 16
+call.type$ -- 6
+change.case$ -- 29
+chr.to.int$ -- 6
+cite$ -- 8
+duplicate$ -- 100
+empty$ -- 196
+format.name$ -- 24
+if$ -- 406
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 2
+newline$ -- 34
+num.names$ -- 24
+pop$ -- 83
+preamble$ -- 1
+purify$ -- 24
+quote$ -- 0
+skip$ -- 88
+stack$ -- 0
+substring$ -- 36
+swap$ -- 12
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 61
+warning$ -- 2
+while$ -- 18
+width$ -- 0
+write$ -- 72
+(There were 2 warnings)
