@@ -169,7 +169,7 @@ submit_measurement_adc(parserinfo_t pi)
 	url = build_url(pi, "api/result/%d/design/%d/measurement/adc",
 			pi->gd->result_id, pi->design_result_id);
 
-	error = req(url, 'POST', "application/octet-stream",
+	error = req(url, METHOD_POST, "application/octet-stream",
 		    (const char *)pi, SRAM_SIZE, _adc_readdata,
 		    recv_buf, sizeof(recv_buf), &bytes_recvd);
 

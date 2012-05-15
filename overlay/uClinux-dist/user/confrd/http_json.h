@@ -4,7 +4,7 @@
 #define METHOD_PATCH	0x03
 #define METHOD_DELETE	0x04
 
-typedef size_t (*curl_readdata_t)(char *ptr, size_t size, size_t nmemb, void *priv);
+typedef size_t (*curl_readdata_t)(void *ptr, size_t size, size_t nmemb, void *priv);
 
 
 struct read_data {
