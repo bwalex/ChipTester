@@ -186,7 +186,7 @@ parse_line_vectors(char *s, void *priv)
 			for (e = &(s[len]); *e != '\0' && iswhitespace(*e); e++)
 				;
 
-			return dc->lp(s, priv);
+			return dc->lp(e, priv);
 		}
 
 		if (dc->command == NULL) {

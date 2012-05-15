@@ -371,7 +371,7 @@ run_trunner(parserinfo_t pi, int process)
 int
 suspend_emit(void *p)
 {
-	parserinfo_t pi = pi;
+	parserinfo_t pi = p;
 	int error;
 
 	error = emit_end(pi);
