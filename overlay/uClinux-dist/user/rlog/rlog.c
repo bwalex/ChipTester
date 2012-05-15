@@ -137,7 +137,11 @@ main(int argc, char *argv[])
 		/* NOT REACHED */
 	}
 
+	http_begin();
+
 	logger(loglevel, "%s", argv[0]);
+
+	http_end();
 
 	return 0;
 }
