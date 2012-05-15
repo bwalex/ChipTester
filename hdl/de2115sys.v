@@ -36,6 +36,10 @@ module de2115sys(
   output        LEDG0,
   output        LEDG4,
 
+  // ADC
+  input  [ 7:0] ADC_DATA,
+  output        ADC_PWRDWN,
+
   // Slave FPGA direct interface
   input         SLAVE_FPGA_CONF_DONE,
   input         SLAVE_FPGA_nSTATUS,
@@ -148,12 +152,21 @@ module de2115sys(
   wire   [15:0] tr_sram_writedata;
   wire          tr_sram_waitrequest;
 
+  wire   [19:0] adc_sram_address;
+  wire   [ 1:0] adc_sram_byteenable;
+  wire          adc_sram_write;
+  wire   [15:0] adc_sram_writedata;
+  wire          adc_sram_waitrequest;
+
   wire   [ 3:0] func_sel;
 
-  wire          sram_arb_msel;
+  wire   [ 2:0] sram_arb_msel;
 
   wire          tr_done;
   wire          tr_enable;
+
+  wire          adc_done;
+  wire          adc_enable;
 
   wire   [23:0] temp_test;
   wire   [23:0] tr_miso;
@@ -248,7 +261,7 @@ module de2115sys(
   sram_arb_sync#(
     .ADDR_WIDTH (20),
     .DATA_WIDTH (16),
-    .SEL_WIDTH  (1)
+    .SEL_WIDTH  (2)
   ) sram_arb
   (
     .clock               (clock_100),
@@ -272,6 +285,12 @@ module de2115sys(
     .sopc_writedata      (sopc_sram_writedata),
     .sopc_waitrequest    (sopc_sram_waitrequest),
 
+    .adc_address         (adc_sram_address),
+    .adc_byteenable      (adc_sram_byteenable),
+    .adc_write           (adc_sram_write),
+    .adc_writedata       (adc_sram_writedata),
+    .adc_waitrequest     (adc_sram_waitrequest),
+
     .tr_address          (tr_sram_address),
     .tr_byteenable       (tr_sram_byteenable),
     .tr_read             (tr_sram_read),
@@ -280,6 +299,29 @@ module de2115sys(
     .tr_write            (tr_sram_write),
     .tr_writedata        (tr_sram_writedata),
     .tr_waitrequest      (tr_sram_waitrequest)
+  );
+
+
+  adc#(
+    .ADDR_WIDTH          (20),
+    .DATA_WIDTH          (16),
+    .ADC_WIDTH           (8)
+  ) adc
+  (
+    .clock               (clock_100),
+    .reset_n             (global_reset_n),
+
+    .enable              (adc_enable),
+    .done                (adc_done),
+
+    .mem_address         (adc_sram_address),
+    .mem_byteenable      (adc_sram_byteenable),
+    .mem_write           (adc_sram_write),
+    .mem_writedata       (adc_sram_writedata),
+    .mem_waitrequest     (adc_sram_waitrequest),
+
+    .adc_d               (ADC_DATA),
+    .adc_pwrdwn          (ADC_PWRDWN)
   );
 
 
@@ -430,10 +472,14 @@ module de2115sys(
 
     .test_runner_conduit_done               (tr_done),
     .test_runner_conduit_enable             (tr_enable),
-    .test_runner_conduit_busy               (sram_arb_msel),
+    .test_runner_conduit_busy               (sram_arb_msel[0]),
 
     .freq_counter_external_in_signal        (temp_test),
     .freq_counter_external_busy             (LEDG4),
+
+    .adc_conduit_done                       (adc_done),
+    .adc_conduit_enable                     (adc_enable),
+    .adc_conduit_busy                       (sram_arb_msel[1]),
 
     .slave_fpga_nstatus_gpio_external_connection_export   (SLAVE_FPGA_nSTATUS),
     .slave_fpga_conf_done_gpio_external_connection_export (SLAVE_FPGA_CONF_DONE),
