@@ -4,3 +4,4 @@ dir_y += confrd
 dir_y += de2lcd
 dir_y += fcounter
 dir_y += umount2
+dir_y += rlog
