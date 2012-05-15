@@ -495,6 +495,8 @@ usage(int exitval)
 		" -s <file>\n"
 		"\t Write an SRAM initialization file containing the data generated\n"
 		"\t using the configuration file(s).\n"
+		" -v\n"
+		"\t Marks this as a virtual design. Only affects remote logging.\n"
 		" -w\n"
 		"\t Write to actual SRAM and start the test runner after reading\n"
 		"\t a file.\n"
@@ -517,7 +519,7 @@ main(int argc, char *argv[])
 	de2lcd_cursor_off();
 	de2lcd_clear();
 
-	while ((c = getopt (argc, argv, "ps:wh?")) != -1) {
+	while ((c = getopt (argc, argv, "ps:vwh?")) != -1) {
 		switch (c) {
 		case 'p':
 			pflag = 1;
@@ -532,6 +534,10 @@ main(int argc, char *argv[])
 
 		case 'w':
 			wflag = 1;
+			break;
+
+		case 'v':
+			vflag = 1;
 			break;
 
 		case '?':
