@@ -12,7 +12,7 @@ diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
 index 6b6fc13..facc068 100644
 --- a/drivers/misc/Kconfig
 +++ b/drivers/misc/Kconfig
-@@ -514,6 +514,21 @@ config ALTERA_SYSID
+@@ -514,6 +514,26 @@ config ALTERA_SYSID
  	  This enables support for the Altera SYSID core wich identifies a
  	  system created with Altera's SOPCBuilder
  
@@ -31,6 +31,11 @@ index 6b6fc13..facc068 100644
 +	help
 +	  This enables support for the custom Frequency Counter module.
 +
++config ADC_INTERFACE
++	tristate "ADC Interface Module Driver"
++	help
++	  This enables support for the custom ADC interface module.
++
  source "drivers/misc/c2port/Kconfig"
  source "drivers/misc/eeprom/Kconfig"
  source "drivers/misc/cb710/Kconfig"
@@ -38,13 +43,14 @@ diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
 index fa435f8..7650fcb 100644
 --- a/drivers/misc/Makefile
 +++ b/drivers/misc/Makefile
-@@ -50,3 +50,6 @@ obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
+@@ -50,4 +50,7 @@ obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
  obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
  obj-$(CONFIG_MAX8997_MUIC)	+= max8997-muic.o
  obj-$(CONFIG_ALTERA_SYSID)	+= altsysid.o
 +obj-$(CONFIG_TEST_RUNNER)	+= trunner_dev.o
 +obj-$(CONFIG_DE2_LCD)		+= de2lcd_dev.o
 +obj-$(CONFIG_FREQ_COUNTER)	+= fcounter_dev.o
++obj-$(CONFIG_ADC_INTERFACE)	+= adc_dev.o
 -- 
 1.7.3.4
 
