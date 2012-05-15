@@ -266,12 +266,9 @@ get '/api/vdesign' do
   else
     file = File.join('uploads/', @fu.file_name)
     send_file(file, :disposition => 'attachment', :filename => File.basename(file))
+    @fu.destroy
+    # XXX: need to deal with file deletion
   end
-end
-
-delete '/api/vdesign' do
-  @fu = FileUpload.first
-  @fu.destroy
 end
 
 post '/logout_submited' do

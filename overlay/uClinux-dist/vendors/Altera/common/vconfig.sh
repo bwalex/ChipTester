@@ -1,6 +1,6 @@
 #!/bin/sh
 
-URL_PATH="/about"
+URL_PATH="/api/vdesign"
 WORK_DIR="/tmp/vconfig"
 
 # GPIO pins used for configuration
