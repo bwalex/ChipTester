@@ -21,6 +21,7 @@
 
 #define MAJOR_NUM		0xFB
 #define ADC_IOC_ENABLE		_IO(MAJOR_NUM, 0)
+#define ADC_IOC_GET_DONE	_IOR(MAJOR_NUM, 1, uint8_t)
 #define ADC_IOC_GET_MAGIC	_IOR(MAJOR_NUM, 2, uint8_t)
 
 #define ADC_IRQ_REG		0x0A
