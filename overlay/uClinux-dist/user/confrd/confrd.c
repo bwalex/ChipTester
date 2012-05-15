@@ -139,6 +139,44 @@ init_remote(parserinfo_t pi)
 }
 
 
+static
+size_t
+_adc_readdata(void *ptr, size_t size, size_t nmemb, void *priv)
+{
+	struct read_data *rd = priv;
+	size_t rdsize = size*nmemb;
+
+	if (rd->total_sz < rdsize)
+		rdsize = rd->total_sz;
+
+	printf("DEBUG: _adc_readdata(%d)\n", (int)rdsize);
+	sram_read(rd->pos, ptr, rdsize); /* XXX: endianess? */
+	rd->pos += rdsize;
+	rd->total_sz -= rdsize;
+
+	return rdsize;
+}
+
+
+int
+submit_measurement_adc(parserinfo_t pi)
+{
+	char recv_buf[1024 * 1024]; /* 1 MB */
+	size_t bytes_recvd;
+	int error;
+	char *url;
+
+	url = build_url(pi, "api/result/%d/design/%d/measurement/adc",
+			pi->gd->result_id, pi->design_result_id);
+
+	error = req(url, 'POST', "application/octet-stream",
+		    (const char *)pi, SRAM_SIZE, _adc_readdata,
+		    recv_buf, sizeof(recv_buf), &bytes_recvd);
+
+	return error;
+}
+
+
 int
 submit_measurement_freq(parserinfo_t pi, double freq)
 {
