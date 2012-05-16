@@ -274,28 +274,34 @@ post '/api/log' do
   @log.to_json
 end
 
+
+post '/api/done/:result_id' do
+  @result = Result.get(params[:result_id])
+  if @result.mail_sent or @result.email == "" or config['email']['email_enable']
+      @result.update(:mail_sent => send_mail(@result))
+  end
+end
+
+
 get '/api/vdesign' do
   @fu = FileUpload.first
   if @fu.nil?
     halt 404
   else
     file = File.join('uploads/', @fu.file_name)
-    send_file(file, :disposition => 'attachment', :filename => File.basename(file))
     @fu.destroy
-    # XXX: need to deal with file deletion
+    send_file(file, :disposition => 'attachment', :filename => File.basename(file))
+    #Nothing after the send_file is executed
   end
 end
 
+delete '/api/received/:name' do
+  file = File.join('uploads/', params[:name])
+  File.delete(file)
+end
 post '/logout_submited' do
     session[:user] = nil
     redirect '/'
-end
-
-post '/api/done/:result_id' do
-  @result = result.get(params[:result_id])
-  if @result.sent or @result.email == "" or config['email'][]
-      @result.update(:mail_sent => send_mail(@result))
-  end
 end
 
 post '/login_submitted' do
@@ -398,8 +404,11 @@ post '/manage_file_upload' do
     redirect "/admin_database"
 end
     
-def send_email_to_team(result) 
-  @result = result
-  str = render :action => :email_body, :layout => false
-  return send_email(@result.email, str, 'Results')
+def send_mail(result) 
+  config = YAML::load( File.open( "config.yml" ))
+  @results = result
+  @designs = result.design_results
+  @web_address = config['web']['server_address']
+  str = erb :email_body, :layout => false
+  return send_email_api(@result.email, str, 'Results')
 end

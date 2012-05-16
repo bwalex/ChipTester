@@ -15,8 +15,8 @@ Mail.defaults do
 }
 end
 
-def send_email(to_address, e_body, e_subject)
-  
+def send_email_api(to_address, e_body, e_subject)
+  email_config = YAML::load( File.open( "config.yml" ) )
   mail = Mail.new do
   from email_config['email']['username']
   content_type 'text/html; charset=UTF-8'

@@ -23,37 +23,28 @@ function toggle(source,name) {
 		<div>&nbsp;</div>
 	      
 		<form method="post" action="/manage_results">
-		  <table class="fullwidth">
-			  <tr>
-				  <th><input type="checkbox" onClick="toggle(this,'erase_result[]')"/></th>
-				  <th>Team</th>
-				  <th>Run Date</th>
-				  <th>Academic Year</th>
-				  <th>Results</th>
-				  <th>Created</th>
-				  <th>Updated</th>
-				  <th>Virtual</th>
-			  </tr>
-		  <% @results.each_index do |idx| result=@results[idx] %> 
-			  <tr	 class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
-				  <td>  
-				      <input type="checkbox" name="erase_result[]" value=<%=result.id.to_s()%>> 
-				  </td>
-				  <td><%=result.team.to_s() %></td>
-				  <td><%=result.run_date.strftime("%m/%d/%Y at %I:%M%p") %></td>
-				  <td><%=result.academic_year.to_s() %></td>
-				  <td><%=if(result.outcome == 1)
-					  "failed"
-					  else
-					  "passed"
-					  end %>
-				  </td>
-				  <td><%=result.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
-				  <td><%=result.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
-				  <td><%=result.virtual.to_s() %></td>
-			  </tr>
-		  <% end %>
-		  </table>
+		<table class="fullwidth">
+			<tr>
+				<th><input type="checkbox" onClick="toggle(this,'erase_result[]')"/></th>
+				<th>Team</th>
+				<th>Academic Year</th>
+				<th>Run Date</th>
+				<th>Results</th>
+				<th>Virtual</th>
+      			</tr>
+      		<% @results.each_index do |idx| result=@results[idx] %> 
+     			<tr	 class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+				<td>  
+				    <input type="checkbox" name="erase_result[]" value=<%=result.id.to_s()%>> 
+				</td>
+				<td><%=result.team.to_s() %></td>
+				<td><%=result.academic_year.to_s() %></td>
+				<td><%=result.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+				<td>Details</td>
+				<td><%= result.virtual ? "Yes" : "No" %></td>
+      			</tr>
+      		<% end %>
+    		</table>
 		  <input class="fourtypc" value="Erase selected" type="submit"/>
 		</form>
 		
@@ -61,38 +52,37 @@ function toggle(source,name) {
 		<div>&nbsp;</div>
 		
 		<form method="post" action="/manage_designs">
-		  <table class="fullwidth">
+		<table class="fullwidth">
 		<tr>
 			<th><input type="checkbox" onClick="toggle(this,'erase_design[]')"/></th>
-			<th>Result</th>
+			<th>Design Name</th>
 			<th>Run Date</th>
-			<th>Created</th>
-			<th>Updated</th>
 			<th>File Name</th>
 			<th>Clock Frequency</th>
-			<th>Design Name</th>
+			<th>Triggers</th>
+			<th class="center">Pass rate</th>
+			<th class="center">Frequency measurements</th>
+			<th class="center">ADC captures</th>
+
 		</tr>
 		<% @designs.each_index do |idx| design=@designs[idx] %> 
 		<tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
-			  <td>  
-			      <input type="checkbox" name="erase_design[]" value=<%=design.id.to_s()%>> 
-			  </td>
-			  <td>
-				<%= if(design.outcome == 1)
-				  "failed"
-				else
-				  "passed"
-				end %>
-			  </td>
-			  <td><%=design.run_date.strftime("%m/%d/%Y at %I:%M%p") %></td>
-			  <td><%=design.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
-			  <td><%=design.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
-			  <td><%=design.file_name %></td>
-			  <td><%=design.clock_freq%></td>
-			  <td><%=design.design_name %></td>
-			</tr>
-		    <% end %>
-		  </table>
+			<td>  
+			   <input type="checkbox" name="erase_design[]" value=<%=design.id.to_s()%>> 
+			</td>
+			<td><%=design.design_name %></td>
+			<td><%=design.created_at.strftime("%m/%d/%Y - %I:%M%p") %></td>
+			<td><code><%=design.file_name %></code></td>
+			<td><%=design.clock_freq%> MHz</td>
+			<td><code><%=design.triggers_formatted %></code></td>
+
+			<td class="center"><%= format("%.2f", design.pass_rate) %></td>
+			
+			<td class="center"><%= design.frequency_measurements.count %></td>
+			<td class="center"><%= design.adc_measurements.count %></td>
+		</tr>
+		<% end %>
+		</table>
 		  <input class="fourtypc" value="Erase selected" type="submit"/>
 		</form>
 	  
@@ -100,52 +90,36 @@ function toggle(source,name) {
 		<div>&nbsp;</div>
 	  
 		<form method="post" action="/manage_test_result">
-		  <table class="fullwidth">
-		    <tr>
-			    <th><input type="checkbox" onClick="toggle(this,'erase_test_result[]')"/></th>
-			    <th>Type</th>
-			    <th>Input Vector</th>
-			    <th>Expected Result</th>
-			    <th>Actual Result</th>
-			    <th>Cycle Count</th>
-			    <th>Clock Frequency</th>
-			    <th>Clock Connections</th>
-			    <th>Bit Mask</th>
-			    <th>Don't Care Mask</th>
-			    <th>Trigger Mask</th>
-			    <th>Result</th>
-			    <th>Trigger timeout</th>
-			    <th>Has run</th>
-			    <th>Created</th>
-			    <th>Updated</th>
-		    </tr>
-		    <% @tests.each_index do |idx| test=@tests[idx] %> 
-		    <tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+		<table class="fullwidth">
+		<tr>
+			<th>Type</th>
+			<th>Input Vector</th>
+			<th>Expected Result</th>
+			<th>Actual Result</th>
+			<th class="right">Cycle Count</th>
+			<th class="center">Result</th>
+			<th class="center">Trigger timeout</th>
+			<th class="center">Has run</th>
+			<th>Created</th>
+		</tr>
+		<% @tests.each_index do |idx| test=@tests[idx] %> 
+		  <tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
 			    <td>  
 				<input type="checkbox" name="erase_test_result[]" value=<%=test.id.to_s()%>> 
 			    </td>
-			    <td><%= test.type.to_s()%></td>
-			    <td><%= test.input_vector%></td>
-			    <td><%= test.expected_result %></td>
-			    <td><%= test.actual_result%></td>
-			    <td><%= test.cycle_count%></td>
-			    <td><%= test.clock_freq %></td>
-			    <td><%= test.clock_connections%></td>
-			    <td><%= test.bitmask %></td>
-			    <td><%= test.dontcare_mask %></td>
-			    <td><%= test.trigger_mask %></td>
-			    <td><%= if(test.outcome == 1)
-					    "failed"
-					    else
-					    "passed"
-					    end %></td>
-			    <td><%= test.trigger_timeout.to_s() %></td>
-			    <td><%= test.has_run.to_s() %></td>
-			    <td><%= test.created_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
-			    <td><%= test.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
-		    </tr>
-		    <% end %>
-		    </table>
+			    <td class="smaller"><%= test.type_str %></td>
+			    <td><code class="vec"><%= test.input_vector%></code></td>
+			    <td><code class="vec"><%= test.expected_result %></code></td>
+			    <td><code class="vec"><%= test.actual_result%></code></td>
+			    <td class="right"><%= test.cycle_count%></td>
+			    <td class="center <%= test.fail ? "fail" : "pass" %>"><%= test.fail ? "fail" : "pass" %>
+			    </td>
+			    <td class="center"><%= test.trigger_timeout ? "yes" : "no" %></td>
+			    <td class="center"><%= test.has_run ? "yes" : "no" %></td>
+			    <td class="smaller"><%= test.created_at.strftime("%m/%d/%Y - %I:%M%p")%></td>
+		  </tr>
+		<% end %>
+		</table>
 		  <input class="fourtypc" value="Erase selected" type="submit"/>
 		</form>
 		
@@ -160,9 +134,8 @@ function toggle(source,name) {
 			    <th>Team</th>
 			    <th>File Name</th>
 			    <th>Is valid</th>
-			    <th>Sent</th>
-			    <th>Erased</th>
-			    <th>Uploaded at</th>
+			    <th>Created at</th>
+			    <th>Updated at</th>
 		    </tr>
 		    <% @FilesUploaded.each_index do |idx| fileupload=@FilesUploaded[idx] %> 
 		    <tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
@@ -173,9 +146,8 @@ function toggle(source,name) {
 			    <td><%= fileupload.team.to_s()%></td>
 			    <td><%= fileupload.file_name%></td>
 			    <td><%= fileupload.is_valid%></td>
-			    <td><%= fileupload.sent%></td>
-			    <td><%= fileupload.erased %></td>
-			    <td><%= fileupload.uploaded_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
+			    <td><%= fileupload.created_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
+			    <td><%= fileupload.updated_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
 		    </tr>
 		    <% end %>
 		    </table>
