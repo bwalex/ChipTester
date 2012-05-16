@@ -16,19 +16,18 @@ Mail.defaults do
 end
 
 def send_email(to_address, e_body, e_subject)
-  email_config = YAML::parse( File.open( "config.yml" ) )
-  if email_config['email']['email_enable']
-	mail = Mail.new do
-	from email_config['email']['username']
-	content_type 'text/html; charset=UTF-8'
-	to to_address
-	subject e_subject
-	body e_body
-	
-	end
-  mail.deliver!
-  return 'sent'
-  else
-    return 'Email not enabled'
+  
+  mail = Mail.new do
+  from email_config['email']['username']
+  content_type 'text/html; charset=UTF-8'
+  to to_address
+  subject e_subject
+  body e_body
+  end
+  begin
+    mail.deliver!
+    return true
+  rescue
+    return false
   end
 end

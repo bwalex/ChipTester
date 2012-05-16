@@ -7,8 +7,8 @@ require './plot.rb'
 database_config = YAML::load( File.open( "config.yml" ))
 config = database_config['database']['type'] + '://' + database_config['database']['user'] + ':' + database_config['database']['password'] + '@' + database_config['database']['address'] +  '/' + database_config['database']['database_name']
 
-DataMapper.setup(:default, config)
-
+#DataMapper.setup(:default, config)
+DataMapper.setup(:default, 'sqlite:test.db')
 #Refer to config.yml to change the config line
 DataMapper::Logger.new($stdout, :debug)
 DataMapper::Model.raise_on_save_failure = true
@@ -98,9 +98,11 @@ class Result
   property :id, Serial
   property :team, Integer # 1
   property :academic_year, String # 2011/12
+  property :email, String
   property :created_at, DateTime
   property :updated_at, DateTime
   property :virtual, Boolean # whether it's a virtual design or not
+  property :mail_sent, Boolean
   has n, :design_results
 end
 
@@ -175,6 +177,10 @@ class FrequencyMeasurement
   property :frequency, Float
   property :created_at, DateTime
   property :updated_at, DateTime
+
+  def pin_pretty
+    "Q#{pin}"
+  end
 end
 
 
@@ -228,7 +234,7 @@ def StoreFileUpload(email, team, file_name, valid_value)
   :file_name => file_name,
   :is_valid => valid_value,
   :created_at => DateTime.now,
-  :updated_at = DateTime.now
+  :updated_at => DateTime.now
 )  
   @uploaded_file.save
 end

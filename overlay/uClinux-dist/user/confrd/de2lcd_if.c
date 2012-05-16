@@ -42,7 +42,6 @@ de2lcd_printf(const char *fmt, ...)
 	de2lcd_clear();
 
 	de2lcd_write(msgbuf);
-	printf("!-DEBUG de2lcd_printf, n=%d\n", n);
 	if (n > 16)
 		de2lcd_set_shl(150);
 	else

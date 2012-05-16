@@ -26,4 +26,4 @@ email:
     enable_ttls: true
 
 web:
-    server_address: http://localhost:4567/
+    server_address: 0.0.0.0:8080

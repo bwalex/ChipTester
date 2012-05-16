@@ -44,7 +44,7 @@ get '/admin_database' do
 end
 #Overview 
 get '/' do
-   @results = Result.all
+   @results = Result.all(:order => [ :created_at.desc ])
    erb :overview
 end
 
@@ -107,7 +107,7 @@ end
 
 #Log Entries view
 get '/LogEntries' do
-  @logs = LogEntry.all
+  @logs = LogEntry.all(:order => [ :created_at.desc ])
   erb :log_entry
 end
 
@@ -290,11 +290,12 @@ post '/logout_submited' do
     session[:user] = nil
     redirect '/'
 end
-post '/send_email_results' do
-    unless params['json_posted'].nil?
-	send_email_to_team(json_posted['send_email']['team_id'])
-    end
-    redirect '/admin'
+
+post '/api/done/:result_id' do
+  @result = result.get(params[:result_id])
+  if @result.sent or @result.email == "" or config['email'][]
+      @result.update(:mail_sent => send_mail(@result))
+  end
 end
 
 post '/login_submitted' do
@@ -397,11 +398,8 @@ post '/manage_file_upload' do
     redirect "/admin_database"
 end
     
-def send_email_to_team(team_id)  
-  @results = Result.all(:team => team_id)
-  @designs = @results.design_results
-  str = erb :email_body
-  if email = FileUpload.first(:team => team_id).email
-    send_email(email, str, 'Results')
-  end
+def send_email_to_team(result) 
+  @result = result
+  str = render :action => :email_body, :layout => false
+  return send_email(@result.email, str, 'Results')
 end

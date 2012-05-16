@@ -1,22 +1,18 @@
 <div id="content" class="row">
 	<div class="post">
-		<h2 class="title"><a href="#">Add new administrator</a></h2>
+		<h2 class="title"><a href="#">Add New Administrator</a></h2>
 		<p class="meta">NOTE: All fields are required!</p>
 		<div class="entry">
-<!--		<div id="message"><center>
-		  <% if @flash_error[:error] %>
-		    <p class="error" style="color:red"><%= @flash_error[:error] %></p>
-		  <% end %> 
-		</div>-->
-		<form method="post" action = "/added_admin" style="padding-left:10%">
-		  <table border="0">
+
+		<form method="post" action = "/added_admin">
+		  <table class="center">
 		  <tr>
-		    <td style="width:25%">E-Mail:</td>
-		    <td style="width:70%"> <input type="text" name="email" style="width:100%" maxlength="35"></td>
+		    <td class="thirtypc">E-Mail:</td>
+		    <td class="seventypc"> <input class="hundredpc" type="text" name="email" maxlength="35"></td>
 		  </tr>
 		  <tr>
-		    <td style="width:25%">Permission:</td>
-		    <td style="width:70%"> <input type="number" name="permission" style="width:100%" maxlength="2"></td>
+		    <td class="thirtypc">Permission:</td>
+		    <td class="seventypc"> <input class="hundredpc" type="number" name="permission"></td>
 		  </tr>
 		  <tr>
 		    <td class="thirtypc">Password:</td>
@@ -26,16 +22,15 @@
 		    <td class="thirtypc">Repeat password:</td>
 		    <td class="seventypc"> <input class="hundredpc" type="password" name="password_rep"></td>
 		  </tr>
-		  <tr><td>&nbsp;</td></tr>
 		  <tr>
-		  	<td colspan=2 style="text-align:center"><input type="submit" value="Add admin" style="width:50%"></td>
+		  	<td colspan=2><input class="fourtypc" type="submit" value="Add New Admin"></td>
 		  </tr>
 		  <tr>
-		  	<td colspan=2 style="text-align:center">
+		  	<td colspan=2>
 		  	<% if @flash_error[:error] %>
-			  <p class="error" style="color:red"><%= @flash_error[:error] %></p>
+			  <p class="error"><%= @flash_error[:error] %></p>
 			<% elsif @flash_error[:notice]%>
-			  <p class ="notice" style="color:green"><%=@flash_error[:notice] %></p>
+			  <p class ="notice"><%=@flash_error[:notice] %></p>
 		  	<% end %> 
 		  	</td>
 		  </tr>
@@ -43,5 +38,4 @@
 		</form>
 		</div>
 	</div>
-	<div style="clear: both;">&nbsp;</div>
 </div>
