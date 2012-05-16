@@ -99,6 +99,7 @@ class Result
   property :id, Serial
   property :team, Integer # 1
   property :academic_year, String # 2011/12
+  property :email, String
   property :created_at, DateTime
   property :updated_at, DateTime
   property :virtual, Boolean # whether it's a virtual design or not
@@ -176,6 +177,10 @@ class FrequencyMeasurement
   property :frequency, Float
   property :created_at, DateTime
   property :updated_at, DateTime
+
+  def pin_pretty
+    "Q#{pin}"
+  end
 end
 
 
