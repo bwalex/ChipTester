@@ -5,9 +5,10 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Interaction between elements in the system}}{18}{figure.54}
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Example of the HTTP method get in the browser and in the server}}{19}{figure.57}
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Folder structure of the server}}{19}{figure.59}
-\contentsline {figure}{\numberline {5.4}{\ignorespaces Database system selection using the config.yml file}}{20}{figure.61}
-\contentsline {figure}{\numberline {5.5}{\ignorespaces Initial Master Admin selection using the config.yml file}}{20}{figure.63}
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Interaction between elements in the system}}{17}{figure.54}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Example of the HTTP method GET in the browser and in the server}}{18}{figure.56}
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Example of a JSON message}}{19}{figure.57}
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Folder structure of the server}}{20}{figure.60}
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Database system selection using the config.yml file}}{20}{figure.62}
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Initial Master Admin selection using the config.yml file}}{21}{figure.64}
 \addvspace {10\p@ }

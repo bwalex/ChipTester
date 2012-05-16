@@ -1,28 +1,22 @@
 <div id="content" class="row">
 	<div class="post">
 		<h2 class="title"><a href="#">Chip Tester Results </a></h2>
-		<p class="meta">Updating from database...</p>
 		<div class="entry">
 		<table class="fullwidth">
 			<tr>
 				<th>Team</th>
-				<th>Run Date</th>
 				<th>Academic Year</th>
+				<th>Run Date</th>
 				<th>Results</th>
-				<th>Created</th>
-				<th>Updated</th>
 				<th>Virtual</th>
       			</tr>
       		<% @results.each_index do |idx| result=@results[idx] %> 
      			<tr	 class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
 				<td><%=result.team.to_s() %></td>
-				<td><%=result.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
 				<td><%=result.academic_year.to_s() %></td>
-				<td><a href="DesignResult/<%= result.id %>">Details</a>
-		  		</td>
 				<td><%=result.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
-				<td><%=result.updated_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
-				<td><%=result.virtual.to_s() %></td>
+				<td><a href="DesignResult/<%= result.id %>">Details</a></td>
+				<td><%= result.virtual ? "Yes" : "No" %></td>
       			</tr>
       		<% end %>
     		</table>

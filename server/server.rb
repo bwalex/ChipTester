@@ -56,9 +56,45 @@ end
 
 #Design Result Test View
 get '/DesignResult/TestResult/:design_result_id' do
+    @design = DesignResult.get(params[:design_result_id])
     @tests = TestVectorResult.all(:design_result_id => params[:design_result_id])
     erb :test_result
 end
+
+get '/DesignResult/frequency/:design_result_id' do
+    @design = DesignResult.get(params[:design_result_id])
+    @freqs = FrequencyMeasurement.all(:design_result_id => params[:design_result_id])
+    erb :freq_meas
+end
+
+get '/DesignResult/adc/:design_result_id' do
+    @design = DesignResult.get(params[:design_result_id])
+    @adcs = AdcMeasurement.all(:design_result_id => params[:design_result_id])
+    erb :adc_capture
+end
+
+
+get '/adc/:adc_id/figure' do
+  @adc = AdcMeasurement.get(params[:adc_id])
+  send_file @adc.png_path,
+    :type => 'image/png',
+    :disposition => 'inline'
+end
+
+get '/adc/:adc_id/raw' do
+  @adc = AdcMeasurement.get(params[:adc_id])
+  send_file @adc.path,
+    :type => 'application/octet-stream',
+    :disposition => 'attachment'
+end
+
+get '/adc/:adc_id/csv' do
+  @adc = AdcMeasurement.get(params[:adc_id])
+  content_type "text/csv"
+  @adc.as_csv
+end
+
+
 #Login View
 get '/admin_login' do
   @flash_error = flash
@@ -73,37 +109,6 @@ end
 get '/LogEntries' do
   @logs = LogEntry.all
   erb :log_entry
-end
-
-get '/download_configuration' do 
-  @files_uploaded = (FileUpload.all(:erased => false) & FileUpload.all(:sent => false) & FileUpload.all(:is_valid => true)).all(:order => [ :uploaded_at.desc ])
-  @files_resend = (FileUpload.all(:erased => false) & FileUpload.all(:sent => true) & FileUpload.all(:is_valid => true)).all(:order => [ :uploaded_at.desc ])
-  file = nil
-  if !@files_uploaded.empty?
-    @files_uploaded.each_index do |idx| file_uploaded = @files_uploaded[idx]
-      if idx == 0 
-	  file = File.join('uploads/', file_uploaded.file_name)
-	  file_uploaded.update(:sent => true) #Update it before erasing it
-      else
-	  @files_uploaded.update(:is_valid => false) #Update it before erasing it
-      end
-    end
-  elsif !@files_resend.empty?
-    #We have sent this already but if it didn't work I will keep sending it until we get any confirmation
-    @files_resend.each_index do |idx| file_resend = @files_resend[idx]
-	if idx == 0
-	  file = File.join('uploads/', file_resend.file_name)
-	else
-	  file_resend.update(:is_valid => false)
-	  #It is no longer valid
-	end
-      end
-   end
-  if file == nil
-   halt 404
-  else
-    send_file(file, :disposition => 'attachment', :filename => File.basename(file))
-  end 
 end
 
 get '/add_admin' do
@@ -195,7 +200,7 @@ post '/submited_files' do
     #It does not allow repeated files
      md5_name = Digest::MD5.hexdigest(params['uploaded_file'][:tempfile].read) + File.extname(params['uploaded_file'][:filename])
      if FileUpload.all(:file_name => md5_name).empty?
-      StoreFileUpload(params['email'], params['team_number'], md5_name, true, false, false)
+      StoreFileUpload(params['email'], params['team_number'], md5_name, true)
       directory = "public/files"
       filename = File.join('uploads/', name)
       FileUtils.cp tempfile.path, 'uploads/' + md5_name
@@ -239,6 +244,16 @@ post '/api/result/:result_id/design/:design_id/measurement/frequency' do
 
   @fm.to_json
 end
+
+post '/api/result/:result_id/design/:design_id/measurement/adc' do
+  content_type :json
+  @result = Result.get!(params[:result_id])
+  @design = DesignResult.get!(params[:design_id])
+  @ad = @design.adc_measurements.create
+  @ad.data = request.body.read
+  @ad.to_json
+end
+
 
 post '/api/result/:result_id/design/:design_id/vector' do
   content_type :json
@@ -386,7 +401,7 @@ def send_email_to_team(team_id)
   @results = Result.all(:team => team_id)
   @designs = @results.design_results
   str = erb :email_body
-  if email = FileUpload.all(:team => team_id)[0].email
+  if email = FileUpload.first(:team => team_id).email
     send_email(email, str, 'Results')
   end
 end

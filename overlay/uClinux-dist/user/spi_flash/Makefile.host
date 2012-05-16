@@ -8,8 +8,8 @@ CFLAGS= -g3 -O0 $(WARNFLAGS)
 CC?= gcc
 
 all:
-	$(CC) $(CFLAGS) spi_flash_model.c spi.c -o si_flash
+	$(CC) $(CFLAGS) spi_flash_model.c spi.c -o spi_flash
 
 clean:
-	rm -f sfmtest
+	rm -f spi_flash *.o
 

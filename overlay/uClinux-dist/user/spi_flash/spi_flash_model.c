@@ -70,7 +70,7 @@ struct sector {
 	uint8_t b[4096];
 };
 
-struct sector sectors[128];
+struct sector sectors[128*16];
 
 
 
@@ -124,7 +124,7 @@ struct sector sectors[128];
 #define CHECK_TXADDR(a)								\
 	do { 									\
 		uint32_t __addr = 0;						\
-		__addr |= (txbuf[1] << 2) | (txbuf[2] << 1) | txbuf[3];		\
+		__addr |= (txbuf[1] << 16) | (txbuf[2] << 8) | txbuf[3];		\
 		__addr &= 0x00FFFFFF;						\
 		if (__addr != (a & 0x00FFFFFF)) {				\
 			fprintf(stderr, "FLASH: expected address %x, but "	\
@@ -137,7 +137,7 @@ static
 uint32_t get_addr(uint8_t *txbuf) {
 	uint32_t addr = 0;
 
-	addr |= (txbuf[1] << 2) | (txbuf[2] << 1) | txbuf[3];
+	addr |= (txbuf[1] << 16) | (txbuf[2] << 8) | txbuf[3];
 	addr &= 0x00FFFFFF;
 
 	return addr;
@@ -149,7 +149,7 @@ void
 mem_clear(void) {
 	int i;
 
-	for (i = 0; i < 128; i++) {
+	for (i = 0; i < 128*16; i++) {
 		sectors[i].clear = 1;
 		sectors[i].protected = 0;
 		memset(sectors[i].b, 0xFF, sizeof(sectors[i].b));
@@ -344,14 +344,14 @@ model_spi_xfer(uint8_t *txbuf, size_t txlen, uint8_t *rxbuf, size_t rxlen)
 	case SECTOR_ERASE:
 		CHECK_TXLEN(4);
 		CHECK_BUSY();
-		sec = get_addr(txbuf);
+		sec = get_addr(txbuf)/4096; /* XXX: is this really a *sector* address, or an address */
 		if (!status.WEL) {
 			fprintf(stderr, "FLASH: Sector Erase (sector = %#x) failed!\n",
 				sec);
 			fprintf(stderr, "FLASH: Write Enable must occur before Sector "
 				"Erase\n");
 			return -1;
-		} else if (sec >= 128) {
+		} else if (sec >= 128*16) {
 			fprintf(stderr, "FLASH: Sector Erase (sector = %#x) failed!\n",
 				sec);
 			fprintf(stderr, "FLASH: Sector %#x does not exist!", sec);
@@ -379,20 +379,19 @@ model_spi_xfer(uint8_t *txbuf, size_t txlen, uint8_t *rxbuf, size_t rxlen)
 		addr = get_addr(txbuf);
 		txlen -= 4;
 		txbuf += 4;
-
 		if (!status.WEL) {
 			fprintf(stderr, "FLASH: Page Program (addr = %#x) failed!\n",
 				addr);
 			fprintf(stderr, "FLASH: Write Enable must occur before Page "
 				"Program\n");
 			return -1;
-		} else if (addr >= 128*4096) {
+		} else if (addr >= 128*16*4096) {
 			fprintf(stderr, "FLASH: Page Program (addr = %#x) failed!\n",
 				addr);
 			fprintf(stderr, "FLASH: Address %#x does not exist!", addr);
 			return -1;
 		} else {
-			if (addr%256+txlen >= 256) {
+			if (addr%256+txlen > 256) {
 				fprintf(stderr, "FLASH: Page Program (addr = %#x) failed!\n",
 					addr);
 				fprintf(stderr, "FLASH: Page Program cannot cross page "
@@ -406,7 +405,7 @@ model_spi_xfer(uint8_t *txbuf, size_t txlen, uint8_t *rxbuf, size_t rxlen)
 					if (sectors[sec].b[off] != 0xFF) {
 						fprintf(stderr, "FLASH: Page Program "
 							"failed, addr %#x was "
-							"not previously erased",
+							"not previously erased\n",
 							addr-1);
 						return -1;
 					}
@@ -426,7 +425,7 @@ model_spi_xfer(uint8_t *txbuf, size_t txlen, uint8_t *rxbuf, size_t rxlen)
 		CHECK_RXBUF();
 		CHECK_BUSY();
 		addr = get_addr(txbuf);
-		if (addr+rxlen >= 128*4096) {
+		if (addr+rxlen >= 128*16*4096) {
 			fprintf(stderr, "FLASH: Read Data (addr = %#x) failed!\n",
 				addr);
 			fprintf(stderr, "FLASH: Address %#x out of bounds!", addr);

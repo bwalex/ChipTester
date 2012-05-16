@@ -48,8 +48,28 @@ for our application. The figure \ref{fig:Json_message} shows an example of a JSO
 \label{fig:Json_message}
 \end{figure}
 
+Whenever the FPGA wants to post information to the server it uses the following ``links'' to post the information to it post 
 
+\begin{table}
+\centering
+    \begin{tabular}{ | l | l | l |}
+    \hline
+    Type & Link & Command   \\ \hline
+    post & '/api/result' &\\ \hline
+    post & '/api/result/:result_id/design' & \\ \hline
+    post & '/api/result/:result_id/design/:design_id/measurement/frequency' & Integer & BCryptHash \\ \hline
+    post & '/api/result/:result_id/design/:design_id/measurement/adc' & Integer & BCryptHash \\ \hline
+    post & '/api/result/:result_id/design/:design_id/vector' & Integer & BCryptHash \\ \hline
+    \end{tabular}
+    \caption{Admin table in the database}
+    \label{tab:admin_table}
+\end{table}
 
+post 
+post 
+post 
+post 
+get '/api/vdesign'
 
 \section{``Server'' (Sinatra stuff, database, etc)}
 

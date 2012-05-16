@@ -1,0 +1,23 @@
+<div id="content" class="row">
+	<div class="post">
+		<h2 class="title"><a href="#">ADC Captures for <%= @design.design_name %></a></h2>
+		<div class="entry">
+		<table class="fullwidth">
+		<tr>
+			<th>Number</th>
+			<th>Figure</th>
+			<th>Raw data</th>
+			<th>CSV data</th>
+		</tr>
+		<% @adcs.each_index do |idx| meas = @adcs[idx] %> 
+		<tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+                        <td><%= idx+1 %></td>
+			<td><a href="/adc/<%= meas.id %>/figure">Figure</a></td>
+			<td><a href="/adc/<%= meas.id %>/raw">Raw</a></td>
+			<td><a href="/adc/<%= meas.id %>/csv">CSV</a></td>
+		</tr>
+		<% end %>
+		</table>
+		</div>
+	</div>
+</div>

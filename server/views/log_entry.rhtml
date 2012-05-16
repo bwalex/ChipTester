@@ -1,10 +1,10 @@
 <div id="content" class="row">
 	<div class="post">
 		<h2 class="title"><a href="#">Chip Tester Results </a></h2>
-		<p class="meta">Updating from database...</p>
 		<div class="entry">
 		<table class="fullwidth">
 			<tr>
+				<th>Date</th>
 				<th>Type of message</th>
 				<th>Message</th>
 				<th>File</th>
@@ -25,8 +25,10 @@
 				<td><%= log.message %></td>
 				<td><%= log.file %></td>
 				<td><%= log.line.to_s() %></td>
-				<td><%= log.created_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
-				<td><%= log.updated_at.strftime("%m/%d/%Y at %I:%M%p")%></td>
+				<td><%= log.created_at.strftime("%m/%d/%Y - %I:%M%p") %></td>
+				<td><%= log.type_str %></td>
+				<td><code><%= log.message %></code></td>
+				<td><code><%= log.file %></code></td>
       			</tr>
       		<% end %>
     		</table>

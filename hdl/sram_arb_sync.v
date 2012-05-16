@@ -1,7 +1,7 @@
 module sram_arb_sync #(
   parameter ADDR_WIDTH = 20,
             DATA_WIDTH = 16,
-            SEL_WIDTH  = 1,
+            SEL_WIDTH  = 2,
             BE_WIDTH   = DATA_WIDTH/8
 )(
   input                   clock,
@@ -46,7 +46,17 @@ module sram_arb_sync #(
   input                       tr_write,
   input      [DATA_WIDTH-1:0] tr_writedata,
 
-  output                      tr_waitrequest
+  output                      tr_waitrequest,
+
+
+  /* Avalon MM slave interface for adc */
+  input      [ADDR_WIDTH-1:0] adc_address,
+  input      [  BE_WIDTH-1:0] adc_byteenable,
+
+  input                       adc_write,
+  input      [DATA_WIDTH-1:0] adc_writedata,
+
+  output                      adc_waitrequest
 );
 
 
@@ -66,24 +76,36 @@ module sram_arb_sync #(
   wire                    sram_we_int_n;
 
 
-  assign address          =  (sel == 1'b0) ? sopc_address    : tr_address;
-  assign byteenable       =  (sel == 1'b0) ? sopc_byteenable : tr_byteenable;
-  assign writedata        =  (sel == 1'b0) ? sopc_writedata  : tr_writedata;
-  assign read             =  (sel == 1'b0) ? sopc_read       : tr_read;
-  assign write            =  (sel == 1'b0) ? sopc_write      : tr_write;
-  assign sopc_waitrequest = ~(sel == 1'b0);
-  assign tr_waitrequest   = ~(sel == 1'b1);
+  assign address          =  (sel[1] == 1'b1) ? adc_address
+                                              : (sel[0] == 1'b0) ? sopc_address
+                                                                 : tr_address;
+  assign byteenable       =  (sel[1] == 1'b1) ? adc_byteenable
+                                              : (sel[0] == 1'b0) ? sopc_byteenable
+                                                                 : tr_byteenable;
+  assign writedata        =  (sel[1] == 1'b1) ? adc_writedata
+                                              : (sel[0] == 1'b0) ? sopc_writedata
+                                                                 : tr_writedata;
+  assign read             =  (sel[1] == 1'b1) ? 1'b0
+                                              : (sel[0] == 1'b0) ? sopc_read
+                                                                 : tr_read;
+  assign write            =  (sel[1] == 1'b1) ? adc_write
+                                              : (sel[0] == 1'b0) ? sopc_write
+                                                                 : tr_write;
 
-  assign sopc_readdataready = (sel == 1'b0) ? readdataready_r : 1'b0;
-  assign tr_readdataready   = (sel == 1'b1) ? readdataready_r : 1'b0;
+  assign sopc_waitrequest    = (sel[0] | sel[1]);
+  assign tr_waitrequest      = ((~sel[0]) | sel[1]);
+  assign adc_waitrequest     = (~sel[1]);
 
-  assign tr_readdata      = readdata_r;
-  assign sopc_readdata    = readdata_r;
+  assign sopc_readdataready  = (~sel[1] && sel[0] == 1'b0) ? readdataready_r : 1'b0;
+  assign tr_readdataready    = (~sel[1] && sel[0] == 1'b1) ? readdataready_r : 1'b0;
 
-  assign sram_ce_n     = 1'b0;
-  assign sram_oe_int_n = (~read  || write);
-  assign sram_we_int_n = (~write || read);
-  assign sram_be_int_n = ~byteenable;
+  assign tr_readdata         = readdata_r;
+  assign sopc_readdata       = readdata_r;
+
+  assign sram_ce_n           = 1'b0;
+  assign sram_oe_int_n       = (~read  || write);
+  assign sram_we_int_n       = (~write || read);
+  assign sram_be_int_n       = ~byteenable;
 
 
   always @(posedge clock, negedge reset_n)

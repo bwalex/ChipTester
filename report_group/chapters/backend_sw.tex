@@ -39,7 +39,7 @@ HTTP defines 9 methods indicating the action to be performed on a resource: HEAD
 
 In order to communicate from the FPGA to the server a data exchange language is needed; the most popular data exchange language is ``XML'', nevertheless, adding the xml parsing libraries in the $\mu$Clinux
 would slow down the parsing data process due to the complexity of the xml libraries. JSON, is a lightweight data exchange library supported in C (for the FPGA) and ruby (for the Server) therefore it was perfect 
-for our application. The figure \ref{fig:Json_message} shows an example of a JSON message that would be sent from the FPGA to the server.
+for our application. The figure \ref{fig:Json_message} shows an example of a message in the JSON format that would be sent from the FPGA to the server.
 
 \begin{figure}[htb]
 \centering
@@ -48,7 +48,23 @@ for our application. The figure \ref{fig:Json_message} shows an example of a JSO
 \label{fig:Json_message}
 \end{figure}
 
-post '/api/result'
+The table \ref{tab:api_server_fpga} shows the ``URL'' the FPGA uses to connect to the server, and a brief description of what each command does in the server. 
+
+\begin{table}
+\centering
+    \begin{tabular}{ | l | p{7.5cm} | p{5cm}|}
+    \hline
+    Type & Link & Command   \\ \hline
+    post & /api/result & Stores the results sent from the fpga in the table Results in the database\\ \hline
+    post & /api/result/:result\_id/design & Stores in the table Design\_Results associated to the result (in the table Results) identified with the id: result\_id (results summarized)\\ \hline
+    post & /api/result/:result\_id/design/:design\_id	/measurement/frequency & Stores in the table FrequencyMeasurement associated to the design\_result identified with the id design\_id (information related to the frequency of the oscillator in the design)\\ \hline
+    post & /api/result/:result\_id/design/:design\_id	/measurement/adc & Stores in the table AdcMeasurement associated to the design\_result identified with the id design\_id (information related to the sampled oscillator in the design)  \\ \hline
+    post & /api/result/:result\_id/design/:design\_id	/vector & Stores in the table Test\_vector associated to the design\_result identified with the id design\_id (more information about the results of the test)\\ \hline
+    get & /api/vdesign & Download a configuration file into the fpga\\ \hline
+    \end{tabular}
+    \caption{API for the communication between the fpga and the server}
+    \label{tab:api_server_fpga}
+\end{table}
 
 
 \section{``Server'' (Sinatra stuff, database, etc)}

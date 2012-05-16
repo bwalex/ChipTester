@@ -8,6 +8,7 @@
  */
 
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -16,10 +17,11 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
+#include <assert.h>
 #include <getopt.h>
 #include <sys/ioctl.h>
 #include <linux/types.h>
-#include <linux/spi/spidev.h>
+#include "spidev.h"
 #include "spi.h"
 #include "spi_flash_model.h"
 
@@ -30,6 +32,12 @@ static uint8_t mode;
 static uint8_t bits = 8;
 static uint32_t speed = 8000000;
 static uint16_t delay;
+static int tflag = 0;
+static int cflag = 0;
+static int iflag = 0;
+
+#define SECTOR_SIZE 4096
+#define PAGE_SIZE 256
 
 //Read instructions
 #define READ_JEDEC_ID 0x9F
@@ -76,6 +84,15 @@ int spi_xfer(int fd, uint8_t* txbuf, size_t txlen, uint8_t* rxbuf, size_t rxlen,
 	//SPI Transfers
 	struct spi_ioc_transfer xfer[2];
 	struct spi_ioc_transfer write_xfer;
+
+	memset(xfer, 0, sizeof(xfer));
+	memset(&write_xfer, 0, sizeof(write_xfer));
+
+	if (tflag) {
+		/* Running in test mode, only using model */
+		return model_spi_xfer(txbuf, txlen, rxbuf, rxlen);
+	}
+
 	switch (full_duplex) {
 	case FULL_DUPLEX:
 		xfer[0].tx_buf = (unsigned long) txbuf;
@@ -110,95 +127,81 @@ int spi_xfer(int fd, uint8_t* txbuf, size_t txlen, uint8_t* rxbuf, size_t rxlen,
 
 
 int write_enable(int fd) {
-	uint8_t *buffer = malloc(sizeof(*buffer));
+	uint8_t buf;
 	int status;
 
-	*buffer = WRITE_ENABLE;
+	buf = WRITE_ENABLE;
 	//Just Write operation
-	status = spi_xfer(fd, buffer, 1, NULL,0, WRITE);
+	status = spi_xfer(fd, &buf, 1, NULL,0, WRITE);
 	if(status < 0) {
 		fprintf(stderr,"WRITE ENABLE could not be processed\n");
-		free(buffer);
 		return -1;
 	}
-	printf("WRITE ENABLE successful\n");
-	free(buffer);
 	return 0;
 }
 
 int write_disable(int fd) {
-	uint8_t *buffer = malloc(sizeof(*buffer));
+	uint8_t buf;
 	int status;
 
-	*buffer = WRITE_DISABLE;
+	buf = WRITE_DISABLE;
 	//Just Write operation
-	status = spi_xfer(fd, buffer, 1, NULL,0, WRITE);
+	status = spi_xfer(fd, &buf, 1, NULL, 0, WRITE);
 	if(status < 0) {
 		fprintf(stderr,"WRITE DISABLE could not be processed\n");
-		free(buffer);
 		return -1;
 	}
-	printf("WRITE DISABLE successful\n");
-	free(buffer);
+
 	return 0;
 }
 
 int write_enable_sreg(int fd) {
-	uint8_t *buffer = malloc(sizeof(*buffer));
+	uint8_t buf;
 	int status;
 
-	*buffer = WRITE_ENABLE_VOLATILE;
+	buf = WRITE_ENABLE_VOLATILE;
 	//Just Write operation
-	status = spi_xfer(fd, buffer, 1, NULL,0, WRITE);
+	status = spi_xfer(fd, &buf, 1, NULL,0, WRITE);
 	if(status < 0) {
 		fprintf(stderr,"WRITE ENABLE FOR VOLATILE REGISTER could not be processed\n");
-		free(buffer);
 		return -1;
 	}
-	printf("WRITE ENABLE FOR VOLATILE REGISTER successful\n");
-	free(buffer);
 	return 0;
 }
 
 int read_sreg1(int fd, uint8_t *sreg1) {
-	uint8_t *buffer = malloc(sizeof(*buffer));
+	uint8_t buf;
 	int status;
-	*buffer = READ_STATUS_REGISTER_1;
+	buf = READ_STATUS_REGISTER_1;
 	//FULL duplex instruction, the result of the status register 1 is stored in the pointer *sreg1
-	status = spi_xfer(fd,buffer,1,sreg1,1,FULL_DUPLEX);
+	status = spi_xfer(fd, &buf,1,sreg1,1,FULL_DUPLEX);
 	if(status < 0) {
 		fprintf(stderr,"READ STATUS REGISTER 1 could not be processed\n");
-		free(buffer);
 		return -1;
 	}
-	free(buffer);
 	return 0;
 }
 
 int read_sreg2(int fd, uint8_t *sreg2) {
-	uint8_t *buffer = malloc(sizeof(*buffer));
+	uint8_t buf;
 	int status;
-	*buffer = READ_STATUS_REGISTER_2;
+	buf = READ_STATUS_REGISTER_2;
 	//FULL duplex instruction, the result of the status register 2 is stored in the pointer *sreg2
-	status = spi_xfer(fd,buffer,1,sreg2,1,FULL_DUPLEX);
+	status = spi_xfer(fd, &buf,1,sreg2,1,FULL_DUPLEX);
 	if(status < 0) {
 		fprintf(stderr,"READ STATUS REGISTER 1 could not be processed\n");
-		free(buffer);
 		return -1;
 	}
-	free(buffer);
 	return 0;
 }
 
 int wait_busy(int fd) {
-	uint8_t *sreg1 = malloc(sizeof(*sreg1));
+	uint8_t sreg1 = 0xFF;
 	do {
-		if(read_sreg1(fd,sreg1) < 0) {
-			free(sreg1);
+		if(read_sreg1(fd,&sreg1) < 0) {
 			return -1;
 		}
-	}while((*sreg1 & REGISTER_BUSY) != 0);
-	free(sreg1);
+	}while((sreg1 & REGISTER_BUSY) != 0);
 	return 0;
 }
 
@@ -223,12 +226,11 @@ int write_sreg(int fd, uint8_t sreg1, uint8_t sreg2) {
 
 
 int chip_erase(int fd) {
-	uint8_t *buffer = malloc(sizeof(*buffer));
+	uint8_t buf;
 	int status;
 
 	if(wait_busy(fd) < 0) {
 		fprintf(stderr,"CHIP ERASE could not be processed, Busy status could not be retrieved\n");
-		free(buffer);
 		return -1;
 	}
 
@@ -237,20 +239,16 @@ int chip_erase(int fd) {
 		return -1;
 	}
 
-	*buffer = CHIP_ERASE;
-	status = spi_xfer(fd, buffer, 1, NULL, 0, WRITE);
+	buf = CHIP_ERASE;
+	status = spi_xfer(fd, &buf, 1, NULL, 0, WRITE);
 	if(status < 0) {
 		fprintf(stderr,"CHIP ERASE could not be processed\n");
-		free(buffer);
 		return -1;
 	}
 	if(wait_busy(fd) < 0) {
 		fprintf(stderr,"CHIP ERASE could not be processed, Busy status could not be retrieved\n");
-		free(buffer);
 		return -1;
 	}
-	printf("CHIP ERASE successful\n");
-	free(buffer);
 	return 0;
 }
 
@@ -268,9 +266,9 @@ int read_data(int fd, uint32_t addr, size_t len, uint8_t *buffer) {
 	}
 
 	buffer[0] = (uint8_t) READ_DATA;
-	buffer[1] = (uint8_t) addr >> 16;
-	buffer[2] = (uint8_t) addr >> 8;
-	buffer[3] = (uint8_t) addr ;
+	buffer[1] = (uint8_t) (addr >> 16);
+	buffer[2] = (uint8_t) (addr >> 8);
+	buffer[3] = (uint8_t) (addr) ;
 	/*If it's busy wait until it is free*/
 	if(wait_busy(fd) < 0) {
 		fprintf(stderr,"READ DATA could not be processed\n");
@@ -282,7 +280,6 @@ int read_data(int fd, uint32_t addr, size_t len, uint8_t *buffer) {
 		fprintf(stderr,"READ DATA could not be processed\n");
 		return -1;
 	}
-	printf("READ DATA successful\n");
 	return 0;
 }
 
@@ -306,31 +303,25 @@ int read_jedecID(int fd, read_jedec_id *jedec_data) {
 	jedec_data->manufacturer_id = buffer[0];
 	jedec_data->memory_type = buffer[1];
 	jedec_data->capacity = buffer[2];
-	printf("READ JEDEC ID successful\n");
 	return 0;
 }
 
 int read_unique_id(int fd, uint64_t *unique_id) {
 	//64 bit long plus 5bytes of instructions.
 	uint8_t buffer[8];
-	memset((void *)buffer, 0, sizeof buffer);
-	int i;
 	int status;
+
 	buffer[0] = READ_UNIQUE_ID;
 	/*If it's busy wait until it is free*/
 	if(wait_busy(fd) < 0) {
 		fprintf(stderr,"READ UNIQUE ID could not be processed\n");
 		return -1;
 	}
-	status = spi_xfer(fd, buffer,DUMMY_BYTES + 1,buffer,8,FULL_DUPLEX);
+	status = spi_xfer(fd, buffer,DUMMY_BYTES + 1, (uint8_t *)unique_id,8,FULL_DUPLEX);
 	if(status < 0) {
 		fprintf(stderr,"READ UNIQUE ID could not be processed\n");
 		return -1;
 	}
-	for(i = sizeof(buffer) - 1; i >= 0; i--) {
-		*unique_id |= (buffer[sizeof(buffer) - 1 - i] << (i));
-	}
-	printf("READ UNIQUE ID successful\n");
 	return 0;
 }
 
@@ -352,7 +343,6 @@ int read_manufacturer_id(int fd, manufacturer_read *mf_data) {
 	}
 	mf_data->manufacturer_id = buffer[0];
 	mf_data->device_id = buffer[1];
-	printf("MANUFACTURER ID successful\n");
 	return 0;
 }
 
@@ -372,9 +362,9 @@ int page_program(int fd, uint32_t addr, uint8_t * data, size_t len) {
 	}
 	memcpy(buffer + sizeof(addr), data, len);
 	buffer[0] = PAGE_PROGRAM;
-	buffer[1] = (uint8_t) addr >> 16;
-	buffer[2] = (uint8_t) addr >> 8;
-	buffer[3] = (uint8_t) addr ;
+	buffer[1] = (uint8_t) (addr >> 16);
+	buffer[2] = (uint8_t) (addr >> 8);
+	buffer[3] = (uint8_t) (addr);
 	if(wait_busy(fd) < 0) {
 		fprintf(stderr,"PAGE PROGRAM could not be processed, could not obtain device busy flag\n");
 		free(buffer);
@@ -385,6 +375,7 @@ int page_program(int fd, uint32_t addr, uint8_t * data, size_t len) {
 		free(buffer);
 		return -1;
 	}
+
 	status = spi_xfer(fd, buffer,sizeof(buffer),NULL,0, WRITE);
 	if(status < 0) {
 		fprintf(stderr,"PAGE PROGRAM could not be processed\n");
@@ -396,7 +387,6 @@ int page_program(int fd, uint32_t addr, uint8_t * data, size_t len) {
 		free(buffer);
 		return -1;
 	}
-	printf("PAGE PROGRAM successful");
 	return 0;
 }
 
@@ -409,9 +399,9 @@ int block_64_eraser(int fd, uint32_t addr) {
 		return -1;
 	}
 	buffer[0] = (uint8_t) BLOCK_64_ERASE;
-	buffer[1] = (uint8_t) addr >> 16;
-	buffer[2] = (uint8_t) addr >> 8;
-	buffer[3] = (uint8_t) addr;
+	buffer[1] = (uint8_t) (addr >> 16);
+	buffer[2] = (uint8_t) (addr >> 8);
+	buffer[3] = (uint8_t) (addr);
 
 	//Error Handling
 	if((ADDR_24_MASK & addr) != 0) {
@@ -427,7 +417,6 @@ int block_64_eraser(int fd, uint32_t addr) {
 		fprintf(stderr,"BLOCK 64 ERASE could not be processed\n");
 		return -1;
 	}
-	printf("BLOCK 64 ERASE successful\n");
 	return 0;
 }
 
@@ -445,9 +434,9 @@ int block_32_eraser(int fd, uint32_t addr) {
 		return -1;
 	}
 	buffer[0] = (uint8_t) BLOCK_32_ERASE;
-	buffer[1] = (uint8_t) addr >> 16;
-	buffer[2] = (uint8_t) addr >> 8;
-	buffer[3] = (uint8_t) addr;
+	buffer[1] = (uint8_t) (addr >> 16);
+	buffer[2] = (uint8_t) (addr >> 8);
+	buffer[3] = (uint8_t) (addr);
 	status = spi_xfer(fd, buffer, 4, NULL, 0, WRITE);
 	if(status < 0) {
 		fprintf(stderr,"BLOCK 32 ERASE could not be processed\n");
@@ -457,7 +446,6 @@ int block_32_eraser(int fd, uint32_t addr) {
 		fprintf(stderr,"BLOC 32 ERASE could not be processed\n");
 		return -1;
 	}
-	printf("BLOCK 32 ERASE successful\n");
 	return 0;
 }
 
@@ -476,9 +464,9 @@ int sector_eraser(int fd, uint32_t addr) {
 		return -1;
 	}
 	buffer[0] = (uint8_t) SECTOR_ERASE;
-	buffer[1] = (uint8_t) addr >> 16;
-	buffer[2] = (uint8_t) addr >> 8;
-	buffer[3] = (uint8_t) addr;
+	buffer[1] = (uint8_t) (addr >> 16);
+	buffer[2] = (uint8_t) (addr >> 8);
+	buffer[3] = (uint8_t) (addr);
 	status = spi_xfer(fd, buffer, 4, NULL, 0, WRITE);
 	if(status < 0) {
 		fprintf(stderr,"SECTOR ERASE could not be processed\n");
@@ -488,7 +476,6 @@ int sector_eraser(int fd, uint32_t addr) {
 		fprintf(stderr,"SECTOR ERASE could not be processed\n");
 		return -1;
 	}
-	printf("SECTOR ERASE successful\n");
 	return 0;
 }
 
@@ -513,7 +500,7 @@ int test_memory(int fd) {
 			return -1;
 		}
 	}
-	printf("Memory Tested OK!");
+	printf("Memory Tested OK!\n");
 	free(rd);
 	return 0;
 }
@@ -522,6 +509,8 @@ static void print_usage(const char *prog)
 {
 	printf("Usage: %s [-DsbdlHOLC3] <file to program>\n", prog);
 	puts("  -D --device   device to use (default /dev/spidev1.1)\n"
+	                "  -c            chip erase instead of individual sectors\n"
+	                "  -i            print information about flash and exit\n"
 			"  -s --speed    max speed (Hz)\n"
 			"  -d --delay    delay (usec)\n"
 			"  -b --bpw      bits per word \n"
@@ -532,6 +521,67 @@ static void print_usage(const char *prog)
 			"  -C --cs-high  chip select active high\n"
 			"  -3 --3wire    SI/SO signals shared\n");
 	exit(1);
+}
+
+
+static
+int
+prog_flash_from_file(int spi_fd, int erase_sectors, const char *file_in)
+{
+	struct stat sb;
+	uint8_t buf[SECTOR_SIZE];
+	char *path;
+	int error;
+	int fd;
+	size_t file_sz;
+	ssize_t ssz;
+	uint32_t flash_addr = 0;
+	uint32_t int_off;
+
+	path = realpath(file_in, NULL);
+	if (path == NULL)
+		return -1;
+
+	error = stat(path, &sb);
+	if (error)
+		return error;
+
+	file_sz = (size_t)sb.st_size;
+
+	fd = open(path, O_RDONLY);
+	if (fd < 0)
+		return -1;
+
+	while (file_sz > 0) {
+		memset(buf, 0, SECTOR_SIZE);
+		ssz = read(fd, buf, SECTOR_SIZE);
+		if (ssz < 0)
+			return -1;
+
+		/* XXX: need LSB first <-> MSB first translation for FPGA?? */
+
+
+		if (erase_sectors) {
+			error = sector_eraser(spi_fd, flash_addr);
+			if (error)
+				return -1;
+		}
+
+		int_off = 0;
+		do {
+			assert(((flash_addr + int_off) & 0x00FFFF00) == (flash_addr + int_off));
+			error = page_program(spi_fd, flash_addr + int_off,
+			    &buf[int_off], PAGE_SIZE);
+			if (error)
+				return -1;
+
+			int_off += PAGE_SIZE;
+		} while (int_off != SECTOR_SIZE);
+		flash_addr += SECTOR_SIZE;
+	}
+
+	close(fd);
+	return 0;
 }
 
 
@@ -557,7 +607,7 @@ static void parse_opts(int argc, char *argv[])
 		};
 		int c;
 
-		c = getopt_long(argc, argv, "D:s:d:b:lHOLC3NR", lopts, NULL);
+		c = getopt_long(argc, argv, "D:ics:d:b:ltHOLC3NR", lopts, NULL);
 
 		if (c == -1)
 			break;
@@ -565,6 +615,12 @@ static void parse_opts(int argc, char *argv[])
 		case 'D':
 		device = optarg;
 		break;
+		case 'c':
+			cflag = 1;
+			break;
+		case 'i':
+			iflag = 1;
+			break;
 		case 's':
 			speed = atoi(optarg);
 			break;
@@ -576,6 +632,9 @@ static void parse_opts(int argc, char *argv[])
 			break;
 		case 'l':
 			mode |= SPI_LOOP;
+			break;
+		case 't':
+			tflag = 1;
 			break;
 		case 'H':
 			mode |= SPI_CPHA;
@@ -607,73 +666,128 @@ static void parse_opts(int argc, char *argv[])
 	argc -= optind;
 	argv += optind;
 
-	if (argc < 1)
+	if (argc < 1 && !iflag)
 		print_usage(prog_name);
 
 	file = argv[0];
 }
 
 int main(int argc, char *argv[]) {
-
+       	read_jedec_id jid;
+       	manufacturer_read mid;
+	uint64_t uid;
 
 	int ret = 0;
-	int fd;
+	int fd = -1;
 
 	parse_opts(argc, argv);
 
-	fd = open(device, O_RDWR);
-	if (fd < 0) {
-		perror("can't open device");
+	if (!tflag) {
+		fd = open(device, O_RDWR);
+		if (fd < 0) {
+			perror("can't open device");
+			exit(1);
+		}
+
+		//spi mode
+
+		ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
+		if (ret == -1) {
+			perror("can't set spi mode");
+			exit(1);
+		}
+		ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);
+		if (ret == -1) {
+			perror("can't get spi mode");
+			exit(1);
+		}
+
+		//bits per word
+
+		ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
+		if (ret == -1) {
+			perror("can't set bits per word");
+			exit(1);
+		}
+		ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
+		if (ret == -1) {
+			perror("can't get bits per word");
+			exit(1);
+		}
+
+#if 0
+		//max speed hz
+
+		ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
+		if (ret == -1) {
+			perror("can't set max speed hz");
+			exit(1);
+		}
+
+		ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
+		if (ret == -1) {
+			perror("can't get max speed hz");
+			exit(1);
+		}
+#endif
+
+		printf("spi mode: %d\n", mode);
+		printf("bits per word: %d\n", bits);
+#if 0
+		printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
+#endif
+	} else {
+		printf("Running in test mode - "
+		       "only interacting with model\n");
+		model_init();
+	}
+
+	if (iflag) {
+		ret = read_manufacturer_id(fd, &mid);
+		if (ret)
+			exit(1);
+		ret = read_jedecID(fd, &jid);
+		if (ret)
+			exit(1);
+		ret = read_unique_id(fd, &uid);
+		if (ret)
+			exit(1);
+
+		printf("Manufacturer ID:\t%#x\n", mid.manufacturer_id);
+		printf("Device ID:\t\t%#x\n", mid.device_id);
+		printf("Unique ID:\t\t0x%"PRIx64"\n", uid);
+		printf("\nJEDEC Information:\n");
+		printf("-------------------\n");
+		printf("Manufacturer ID:\t%#x\n", jid.manufacturer_id);
+		printf("Memory Type:\t\t%#x\n", jid.memory_type);
+		printf("Capacity:\t\t%#x\n", jid.capacity);
+		exit(0);
+		/* NOT REACHED */
+	}
+
+	/*
+	 * Run the memory "test" but don't do anything if
+	 * it fails. Odds are it's because it has a different
+	 * capacity.
+	 */
+	test_memory(fd);
+
+
+	if (cflag) {
+		/* Erase flash so we can write to it */
+		ret = chip_erase(fd);
+		if (ret != 0)
+			exit(1);
+	}
+
+	ret = prog_flash_from_file(fd, !cflag, file);
+	if (ret != 0) {
+		fprintf(stderr, "Flash programming failed\n");
 		exit(1);
 	}
 
-
-	//spi mode
-
-	ret = ioctl(fd, SPI_IOC_WR_MODE, &mode);
-	if (ret == -1) {
-		perror("can't set spi mode");
-		exit(1);
-	}
-	ret = ioctl(fd, SPI_IOC_RD_MODE, &mode);
-	if (ret == -1) {
-		perror("can't get spi mode");
-		exit(1);
-	}
-
-	//bits per word
-
-	ret = ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
-	if (ret == -1) {
-		perror("can't set bits per word");
-		exit(1);
-	}
-	ret = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
-	if (ret == -1) {
-		perror("can't get bits per word");
-		exit(1);
-	}
-
-	//max speed hz
-
-	ret = ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
-	if (ret == -1) {
-		perror("can't set max speed hz");
-		exit(1);
-	}
-
-	ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
-	if (ret == -1) {
-		perror("can't get max speed hz");
-		exit(1);
-	}
-
-	printf("spi mode: %d\n", mode);
-	printf("bits per word: %d\n", bits);
-	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
-
-
-	close(fd);
+	if (!tflag)
+		close(fd);
 
 	return ret;
 }

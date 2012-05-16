@@ -146,6 +146,30 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to SLAVE_FPGA_nCONFIG
 set_location_assignment PIN_F19 -to SLAVE_FPGA_nCE
 set_instance_assignment -name IO_STANDARD "2.5 V" -to SLAVE_FPGA_nCE
 
+
+#============================================================
+# ADC interface
+#============================================================
+set_location_assignment PIN_Y23 -to ADC_DATA[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_DATA[7]
+set_location_assignment PIN_Y24 -to ADC_DATA[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_DATA[6]
+set_location_assignment PIN_AA22 -to ADC_DATA[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_DATA[5]
+set_location_assignment PIN_AA23 -to ADC_DATA[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_DATA[4]
+set_location_assignment PIN_AA24 -to ADC_DATA[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_DATA[3]
+set_location_assignment PIN_AB23 -to ADC_DATA[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_DATA[2]
+set_location_assignment PIN_AB24 -to ADC_DATA[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_DATA[1]
+set_location_assignment PIN_AC24 -to ADC_DATA[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ADC_DATA[0]
+set_location_assignment PIN_H15 -to ADC_PWRDWN
+set_instance_assignment -name IO_STANDARD "2.5 V" -to ADC_PWRDWN
+
+
 #============================================================
 # USB 2.0 OTG
 #============================================================
@@ -591,6 +615,7 @@ set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
 set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
 set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL ON
 
+set_global_assignment -name VERILOG_FILE adc.v
 set_global_assignment -name SYSTEMVERILOG_FILE REPLL_CONTROL.sv
 set_global_assignment -name VERILOG_FILE REPLL.v
 set_global_assignment -name SYSTEMVERILOG_FILE PLL_INTERFACE.sv

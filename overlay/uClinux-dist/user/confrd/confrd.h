@@ -188,6 +188,8 @@ int go(parserinfo_t pi, int process);
 char *build_url(parserinfo_t pi, const char *req_path_fmt, ...);
 int init_remote(parserinfo_t pi);
 int submit_measurement_freq(parserinfo_t pi, double freq);
+int submit_measurement_adc(parserinfo_t pi);
+
 
 size_t req_sz(int req);
 size_t print_mem(uint8_t *buf, int sz, int *end);

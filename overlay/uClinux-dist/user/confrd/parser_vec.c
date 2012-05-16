@@ -14,6 +14,7 @@
 
 #include "confrd.h"
 #include "pll_settings.h"
+#include "adc_if.h"
 #include "fcounter_if.h"
 
 
@@ -128,6 +129,20 @@ parse_line_measure(char *s, void *priv)
 			return error;
 		}
 	} else if ((strcmp(tokens[0], "adc")) == 0) {
+		if ((error = adc_enable()) != 0) {
+			logger(LOGERR, "Error enabling ADC");
+			return error;
+		}
+
+		if ((error = adc_wait_done()) != 0) {
+			logger(LOGERR, "Error waiting for ADC");
+			return error;
+		}
+
+		if ((error = submit_measurement_adc(pi)) != 0) {
+			logger(LOGERR, "Error submiting ADC readings");
+			return error;
+		}
 	} else {
 		syntax_error("Unknown measurement command");
 		return -1;
@@ -171,7 +186,7 @@ parse_line_vectors(char *s, void *priv)
 			for (e = &(s[len]); *e != '\0' && iswhitespace(*e); e++)
 				;
 
-			return dc->lp(s, priv);
+			return dc->lp(e, priv);
 		}
 
 		if (dc->command == NULL) {

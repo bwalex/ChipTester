@@ -1,4 +1,5 @@
 #include <sys/types.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -12,12 +13,6 @@
 struct write_data {
 	char *data;
 	size_t maxsz;
-	int pos;
-};
-
-struct read_data {
-	const char *data;
-	size_t total_sz;
 	int pos;
 };
 
@@ -86,10 +81,9 @@ http_end(void)
 }
 
 
-static
 int
 req(const char *url, int method, const char *ctype,
-    const char *data, size_t data_len,
+    const char *data, size_t data_len, curl_readdata_t rd_fn,
     char *dest, size_t bufsz, size_t *sz)
 {
 	CURLcode status;
@@ -120,7 +114,8 @@ req(const char *url, int method, const char *ctype,
 		snprintf(buf, sizeof(buf), "Content-Length: %d", (int)data_len);
 		slist = curl_slist_append(slist, buf);
 
-		curl_easy_setopt(curl, CURLOPT_READFUNCTION, _readdata);
+		curl_easy_setopt(curl, CURLOPT_READFUNCTION,
+				 (rd_fn != NULL) ? rd_fn : _readdata);
 		curl_easy_setopt(curl, CURLOPT_READDATA, &rd);
 	}
 
@@ -194,7 +189,7 @@ req_json(const char *url, int method, json_t *j_in, json_t **j_out)
 	sz = strlen(data);
 	printf("DEBUG: Sending JSON (%d): %s\n\n", (int)sz, data);
 	error = req(url, method, "application/json", data,
-		    sz, recv_buf, sizeof(recv_buf),
+		    sz, NULL, recv_buf, sizeof(recv_buf),
 		    &bytes_recvd);
 
 	if (j_in)

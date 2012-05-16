@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.10.14)  15 MAY 2012 11:02
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.10.14)  16 MAY 2012 13:35
 entering extended mode
  %&-line parsing enabled.
 **6027_report_group.tex
@@ -3039,11 +3039,11 @@ Chapter 2.
 ------------------------------------------------------------------------------
  2 Hardware
 ------------------------------------------------------------------------------
-<./figures/hw_overview.png, id=436, 1027.84pt x 770.88pt>
+<./figures/hw_overview.png, id=435, 1027.84pt x 770.88pt>
 File: ./figures/hw_overview.png Graphic file (type png)
 
 <use ./figures/hw_overview.png> [3 <./figures/hw_overview.png (PNG copy)>]
-[4] <./figures/analog_1.png, id=449, 1489.565pt x 317.185pt>
+[4] <./figures/analog_1.png, id=448, 1489.565pt x 317.185pt>
 File: ./figures/analog_1.png Graphic file (type png)
 
 <use ./figures/analog_1.png> [5]
@@ -3143,49 +3143,93 @@ Chapter 5.
 ------------------------------------------------------------------------------
  5 Backend Software
 ------------------------------------------------------------------------------
-<./figures/back_end_overview.png, id=525, 664.4825pt x 274.02374pt>
+<./figures/back_end_overview.png, id=524, 664.4825pt x 274.02374pt>
 File: ./figures/back_end_overview.png Graphic file (type png)
 
-<use ./figures/back_end_overview.png>
-Overfull \hbox (114.11365pt too wide) in paragraph at lines 13--14
- [][] 
+<use ./figures/back_end_overview.png> [17
+
+
+
+ <./figures/back_end_overview.png>]
+<./figures/get.png, id=531, 440.64626pt x 247.92625pt>
+File: ./figures/get.png Graphic file (type png)
+ <use ./figures/get.png>
+<./figures/json_example.png, id=533, 334.24875pt x 181.67876pt>
+File: ./figures/json_example.png Graphic file (type png)
+
+<use ./figures/json_example.png>
+Underfull \hbox (badness 10000) in paragraph at lines 59--59
+[]\OT1/cmr/m/n/10.95 Stores in the ta-ble De-
  []
 
-[17
+
+Underfull \hbox (badness 10000) in paragraph at lines 59--59
+\OT1/cmr/m/n/10.95 sign[]Results as-so-ci-ated to
+ []
 
 
+Underfull \hbox (badness 10000) in paragraph at lines 60--60
+[]\OT1/cmr/m/n/10.95 /api/result/:result[]id/design/:design[]id
+ []
 
-] <./figures/get.png, id=531, 440.64626pt x 247.92625pt>
-File: ./figures/get.png Graphic file (type png)
 
-<use ./figures/get.png>
-<./figures/server_structure.png, id=532, 157.58875pt x 321.2pt>
+Underfull \hbox (badness 6910) in paragraph at lines 60--60
+\OT1/cmr/m/n/10.95 the de-sign[]result iden-ti-fied
+ []
+
+
+Underfull \hbox (badness 2126) in paragraph at lines 60--60
+\OT1/cmr/m/n/10.95 ma-tion re-lated to the fre-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 61--61
+[]\OT1/cmr/m/n/10.95 /api/result/:result[]id/design/:design[]id
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 62--62
+[]\OT1/cmr/m/n/10.95 /api/result/:result[]id/design/:design[]id
+ []
+
+
+Underfull \hbox (badness 3260) in paragraph at lines 62--62
+\OT1/cmr/m/n/10.95 iden-ti-fied with the id de-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 62--62
+\OT1/cmr/m/n/10.95 sign[]id (more in-for-ma-tion
+ []
+
+<./figures/server_structure.png, id=535, 157.58875pt x 321.2pt>
 File: ./figures/server_structure.png Graphic file (type png)
 
-<use ./figures/server_structure.png> [18 <./figures/back_end_overview.png>]
-[19 <./figures/get.png> <./figures/server_structure.png (PNG copy)>]
-<./figures/database_config.png, id=545, 325.215pt x 108.405pt>
+<use ./figures/server_structure.png> [18 <./figures/get.png>] [19 <./figures/js
+on_example.png (PNG copy)>]
+<./figures/database_config.png, id=547, 325.215pt x 108.405pt>
 File: ./figures/database_config.png Graphic file (type png)
 
-<use ./figures/database_config.png>
-<./figures/master_admin.png, id=548, 563.10374pt x 92.345pt>
+<use ./figures/database_config.png> [20 <./figures/server_structure.png (PNG co
+py)> <./figures/database_config.png (PNG copy)>]
+<./figures/master_admin.png, id=554, 563.10374pt x 92.345pt>
 File: ./figures/master_admin.png Graphic file (type png)
 
 <use ./figures/master_admin.png>
-Overfull \hbox (4.8537pt too wide) in paragraph at lines 91--92
+Overfull \hbox (4.8537pt too wide) in paragraph at lines 116--117
  [][] 
  []
 
-[20 <./figures/database_config.png (PNG copy)> <./figures/master_admin.png (PNG
- copy)>]
-Overfull \hbox (10.87451pt too wide) in paragraph at lines 135--140
+
+Overfull \hbox (10.87451pt too wide) in paragraph at lines 160--165
  [][] 
  []
 
-) [21] [22]
+[21 <./figures/master_admin.png (PNG copy)>]) [22]
 \openout2 = `chapters/technical_data.aux'.
 
- (./chapters/technical_data.tex
+
+(./chapters/technical_data.tex
 Chapter 6.
 ------------------------------------------------------------------------------
  6 Some other yet-unnamed section
@@ -3231,10 +3275,10 @@ LaTeX Font Warning: Size substitutions with differences
 
  ) 
 Here is how much of TeX's memory you used:
- 13970 strings out of 495061
- 207837 string characters out of 1182620
- 307071 words of memory out of 3000000
- 16669 multiletter control sequences out of 15000+50000
+ 13977 strings out of 495061
+ 208004 string characters out of 1182620
+ 307203 words of memory out of 3000000
+ 16674 multiletter control sequences out of 15000+50000
  19471 words of font info for 77 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
  48i,12n,45p,761b,400s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -3250,9 +3294,9 @@ ive/fonts/type1/public/amsfonts/cm/cmsl10.pfb></usr/share/texmf-texlive/fonts/t
 ype1/public/amsfonts/cm/cmsl12.pfb></usr/share/texmf-texlive/fonts/type1/public
 /amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/c
 m/cmti10.pfb>
-Output written on 6027_report_group.pdf (45 pages, 678236 bytes).
+Output written on 6027_report_group.pdf (45 pages, 688217 bytes).
 PDF statistics:
- 658 PDF objects out of 1000 (max. 8388607)
- 133 named destinations out of 1000 (max. 500000)
- 500 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 660 PDF objects out of 1000 (max. 8388607)
+ 134 named destinations out of 1000 (max. 500000)
+ 497 words of extra memory for PDF output out of 10000 (max. 10000000)
 
