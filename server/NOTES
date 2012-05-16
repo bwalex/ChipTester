@@ -1,0 +1,11 @@
+To start with a clean slate on the database end of things,
+% bundle exec rake dm:migrate
+
+
+To just upgrade the database for changes in database.rb,
+% bundle exec rake dm:upgrade
+
+
+To start the web server,
+% bundle exec unicorn -c unicorn.conf.rb
+
