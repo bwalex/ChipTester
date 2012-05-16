@@ -2,28 +2,969 @@
 ------------------------
 
 \section{Bootloader and Operating System}
-Alex \\
-   - u-boot \\
-   - uClinux (w\/ Linux 3.3) \\
+To take full advantage of the MMU, Linux was chosen as operating system running on the
+application processor. uCLinux was the distribution of choice since it is aimed at 
+embedded systems and optimum resource usage. A Linux 3.3-rc6 kernel was used.
+\\
+
+Since the Linux kernel can only boot from memory, a bootloader was required to 
+load the Linux kernel image from the non-volatile CFI Flash into SDRAM. The bootloader
+used is a current development version of U-Boot.
+\\
+
+\subsection{CFI Flash Layout}
+The CFI Flash was partitioned into several MTD partitions. Table \ref{table:partitions}
+shows a map
+of the MTD partitions and their respective size.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ | l | r | l | }
+ \hline
+   Address Range       & Size (kB) & Description \\
+ \hline
+   \texttt{0x00000000 - 0x0003ffff} & 256  & U-Boot \\
+ \hline
+   \texttt{0x00040000 - 0x0004ffff} & 64 & U-Boot configuration \\
+ \hline
+   \texttt{0x00050000 - 0x001fffff} & 1728 & Linux Kernel Image \\
+ \hline
+   \texttt{0x00200000 - 0x0077ffff} & 5632 & Linux Root Filesystem \\
+ \hline
+   \texttt{0x00780000 - 0x007fffff} & 512 & Misc \\
+ \hline
+\end{tabular}
+\caption{Partition Layout of CFI Flash Memory}
+\label{table:partitions}
+\end{table}
+
+The U-boot bootloader image is 
+located in the first 256 kB, of which around 170 kB are used by u-boot. The CPU
+reset vector points to this address, so that u-boot always is loaded on CPU reset.
+The configuration for U-boot that contains information on how to boot the Linux system
+is located at the next 64 kB. Only 318 bytes are currently used.
+\\
+
+The compressed Linux kernel image is located just after the u-boot configuration. The actual
+size currently used by the Linux kernel is around 1200 kB. This image is loaded into memory
+and decompressed by U-boot upon startup.
+\\
+
+The root filesystem of the Linux system is located in the largest partition. It is a JFFS2
+file system containing the complete uClinux userland. It currently occupies around 4000 kB.
+\\
+
+The last partition is currently unused.
 
 
+\newpage
+\subsection{Bootloader}
+The u-boot bootloader is located at the first 256 kB of the CFI Flash. The CPU's
+reset vector points to it, so that upon startup of the CPU, u-boot is executed.
+\\
+
+U-boot prompts the user to interrupt automatic boot during a 5 second countdown. If a 
+user interrupts this process by connecting via UART and pressing a key, the u-boot
+prompt appears. Using this prompt u-boot's configuration can be modified and stored.
+\\
+
+When booting automatically, U-Boot reads the configuration of how to boot from the
+u-boot configuration on the flash. U-Boot will first read and decompress the Linux
+kernel into memory and then pass control to it.
+\\
+
+A total of 3 small patches including bugfixes were submitted upstream to the U-Boot development
+community to address a number of issues. 2 of the 3 patches were committed. One of the patches
+fixed a bug in the memory allocation\footnote{http://lists.denx.de/pipermail/u-boot/2012-February/118453.html},
+another implemented some timer functions\footnote{http://patchwork.ozlabs.org/patch/142141/} and the last
+improved the logic around choosing JTAG UART or UART on the Nios II platform\footnote{http://patchwork.ozlabs.org/patch/142142/} but was not accepted.
+\\
+
+
+\subsection{OS}
+A development snapshot of the uClinux distribution and Linux 3.3.0-rc6 kernel is used as the
+application operating system. uClinux is a distribution aimed at embedded systems with a low
+footprint. It replaces the GNU glibc with the much smaller uClibc and several core unix tools
+with the minimalistic busybox toolsuite.
+\\
+
+In its current configuration, the kernel uses up around 1.2 MB of space, while the root filesystem
+weighs in at around 4MB with a JFFS2 filesystem. Both are compressed.
+\\
+
+The booted system used only 10 MB of physical memory, leaving almost 120 MB to running programs. No
+swap/paging space was configured, but since the MMU is enabled, program text pages are paged in
+on demand and backing physical memory pages are also only allocated on access.
+\\
+
+A patch fixing an issue with SD Card interfacing over SPI was submitted upstream to the Linux
+MMC team\footnote{http://comments.gmane.org/gmane.linux.kernel.mmc/12835}.
+\\
+
+Due to a bug in the linux kernel in the handling of variable block-size CFI Flash chips,
+some of the MTD partitions on the CFI Flash are forced to be read-only, even though they
+are aligned to valid sector boundaries.
+\\
+
+Another limitation of the Linux system as is is that it's not possible to use the on-board
+USB chip ISP1632 in USB device mode, so it's not possible to connect the board running Linux
+as a peripheral to a host machine.
+\\
+
+The boot log of the embedded system including both the u-boot bootloader and the Linux system
+can be seen in Figure \ref{listing:bootlog}.
+
+\begin{figure}[h!]
+\lstset{basicstyle=\tiny\ttfamily}
+\begin{lstlisting}
+U-Boot 2011.12-00465-ge37ae40-dirty (May 14 2012 - 20:20:10)
+
+CPU   : Nios-II
+SYSID : abcdef00, Tue May 15 16:25:13 2012
+BOARD : my_nios2
+
+Hit any key to stop autoboot:  0 
+## Booting kernel from Legacy Image at ea050000 ...
+   Image Name:   Linux-3.3.0-rc6
+   Image Type:   NIOS II Linux Kernel Image (gzip compressed)
+   Data Size:    1262781 Bytes = 1.2 MiB
+   Load Address: c0000000
+   Entry Point:  c0000000
+   Verifying Checksum ... OK
+   Uncompressing Kernel Image ... OK
+
+Linux version 3.3.0-rc6 (alex@alex-pc) (gcc version 4.1.2) #25 We49.47 BogoMIPS (lpj=98944)
+pid_max: default: 32768 minimum: 301
+Mount-cache hash table entries: 512
+gpiochip_add: registered GPIOs 246 to 246 on device: /sopc@0/bridge@0xb000000/gpio@0x220
+gpiochip_add: registered GPIOs 245 to 245 on device: /sopc@0/bridge@0xb000000/gpio@0x200
+gpiochip_add: registered GPIOs 244 to 244 on device: /sopc@0/bridge@0xb000000/gpio@0x210
+gpiochip_add: registered GPIOs 243 to 243 on device: /sopc@0/bridge@0xb000000/gpio@0x230
+JFFS2 version 2.2. (NAND)  2001-2006 Red Hat, Inc.
+msgmni has been set to 241
+Block layer SCSI generic (bsg) driver version 0.4 loaded (major 254)
+io scheduler noop registered
+io scheduler deadline registered (default)
+ttyAL0 at MMIO 0xd100000 (irq = 11) is a Altera UART
+console [ttyAL0] enabled, bootconsole disabled
+ttyJ0 at MMIO 0x80034b0 (irq = 2) is a Altera JTAG UART
+altera_sysid ba00000.sysid: System creation hash ABCDEF00 timestamp 2012-05-15 16:25:13
+Test Runner Module loaded
+trunner d000000.trunner: Test Runner device 0, irq 7
+DE2LCD Module loaded
+de2lcd b000010.de2lcd: DE2 LCD 0
+Frequency Counter Module loaded
+fcounter d200000.fcounter: Frequency Counter device 0, irq 12
+ADC Module loaded
+adc d300000.adc: ADC device 0, irq 13
+a000000.flash: Found 2 x8 devices at 0x0 in 16-bit bank. Manufacturer ID 0x00703a Chip ID 0x000001
+NOR chip too large to fit in mapping. Attempting to cope...
+Amd/Fujitsu Extended Query Table at 0x0040
+  Amd/Fujitsu Extended Query version 1.3.
+number of CFI chips: 1
+Reducing visibility of 16384KiB chip to 8192KiB
+5 ofpart partitions found on MTD device a000000.flash
+Creating 5 MTD partitions on "a000000.flash":
+0x000000000000-0x000000040000 : "u-boot"
+0x000000040000-0x000000050000 : "u-boot_cfg"
+mtd: partition "u-boot_cfg" doesn't end on an erase block -- force read-only
+0x000000050000-0x000000210000 : "kernel"
+mtd: partition "kernel" doesn't start on an erase block boundary -- force read-only
+0x000000200000-0x000000780000 : "rootfs"
+0x000000780000-0x000000800000 : "config"
+spi_altera ba10000.spi: base eba10000, irq -6
+spi_altera ba20000.spi: base eba20000, irq 8
+altera_tse-mdio: probed
+eth0: Altera TSE MAC at 0xe8003000 irq 4/3
+eth0: Reporting available PHYs:
+eth0: PHY with ID 0x1410cc2 at 0x10
+Clock not ready after 100ms
+Initializing USB Mass Storage driver...
+usbcore: registered new interface driver usb-storage
+USB Mass Storage support registered.
+mmc_spi spi32766.0: SD/MMC host mmc0, no DMA, no WP, no poweroff, cd polling
+TCP cubic registered
+NET: Registered protocol family 17
+Freeing unused kernel memory: 3292k freed (0xc0218000 - 0xc054f000)
+Preparing GPIO
+Starting syslogd
+Starting dhcpcd
+Starting crond
+Welcome to Team I's
+   _____ _     _    _______       _             
+  / ____| |   (_)  |__   __|     | |            
+ | |    | |__  _ _ __ | | ___ ___| |_  ___ _ __ 
+ | |    | '_ \| | '_ \| |/ _ | __| __|/ _ \ '__|
+ | |____| | | | | |_) | |  __|__ \ |_|  __/ |   
+  \_____|_| |_|_| .__/|_|\___|___/\__|\___|_|   
+                | |                             
+                |_|                      
+
+
+
+BusyBox v1.18.4 (2012-05-15 19:19:33 BST) hush - the humble shell
+Enter 'help' for a list of built-in commands.
+
+root:/> 
+\end{lstlisting}
+\caption{Boot log of system}
+\label{listing:bootlog}
+\end{figure}
+
+
+\subsection{Device Tree}
+The current generation of Linux kernels can use so-called device tree files to specify the address range,
+interrupts and several other options of available peripherals. A device tree file is simply a list
+of all the modules connected to the system and their configuration. It is possible to specify each module's
+type, memory address range, interrupts, etc. Figure \ref{listing:dts} shows an excerpt of a devicetree file showing the
+configuration for an altera SPI master, an SD card connected to it, and the custom test runner module.
+\\
+
+The memory mapped address range is specified using the \texttt{reg} keyword, the connected interrupt numbers
+are specified using \texttt{interrupts} and \texttt{interrupt-parent}. The \texttt{compatible} keyword is
+used to identify the device type so that a given driver with the same compatibility can attach to it.
+
+\begin{figure}[h!]
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+spi_0: spi@0xba10000 {
+  compatible = "ALTR,spi-11.1", "ALTR,spi-1.0";
+  reg = < 0x0BA10000 0x00000020 >;
+  interrupt-parent = < &cpu >;
+  interrupts = < 0 >;
+  #address-cells = < 1 >;
+  #size-cells = < 0 >;
+
+  mmc_spi@0 {
+    compatible = "mmc-spi-slot";
+    spi-max-frequency = < 10000000 >;
+    reg = < 0x00000000 >;
+    voltage-ranges = < 3300 3300 >;
+  }; //end mmc_spi@0
+}; //end spi@0xba10000 (spi_0)
+
+test_runner_0: trunner@0xd000000 {
+  compatible = "trunner,trunner-1.0";
+  reg = < 0x0D000000 0x00000100 >;
+  interrupt-parent = < &cpu >;
+  interrupts = < 7 >;
+}; //end trunner@0xd000000 (test_runner_0)
+\end{lstlisting}
+\caption{Example excerpt from a devicetree file}
+\label{listing:dts}
+\end{figure}
+
+
+
+\newpage
+\section{Build Infrastructure}
+As the project depends on several external resources such as the u-boot bootloader, Linux kernel
+and uClinux distribution, a build system was developed to make it easy to integrate all these
+parts into the main project.
+\\
+
+The complete build infrastructure consists only of standard unix Makefiles and shell scripts.
+\\
+
+All the external resources (uClinux, uClibc, Linux kernel, u-boot) are set up as git submodules.
+They are pulled in without any changes at a particular revision from their upstream sources.
+\\
+
+To allow for custom patches and integrating custom files, two mechanisms are included in the build
+system. One of them uses regular patches in the \texttt{patchq/} directory and applies them in
+order to each of the submodules. The other mechanism takes the directories in \texttt{overlay/}
+and overlays them on top of the submodules. This allows for a complete separation of the external
+resources and the custom patches and files. The external resource can be reset to its default state
+by yet another makefile target, which cleans out all non-versioned files. The patches and overlays
+can then be applied cleanly. This also makes it trivial to update or downgrade the external
+resource without the issues associated with patched files.
+
+
+\newpage
 \section{Drivers}
-Alex \\
-   - fcounter \\
-   - test\_runner (and arbiter) \\
-   - adc \\
-   - Character LCD driver \\
-   - sram\_access (not really driver, simply memory mapped) \\
+The SRAM is accessed directly from userland without a driver by simply memory-mapping the
+region corresponding to the SRAM into the virtual memory of the running application via the
+\texttt{mmap} system call.
+\\
 
+GPIOs are controlled via an interface in \texttt{/sys} that the Linux GPIO drivers expose. This
+interface permits setting, clearing and reading pins by reading and writing from what seem
+regular files.
+\\
+
+Four custom Linux drivers were developed for this project for the ADC, frequency counter, test
+runner/controller and LCD modules. All four drivers share a common skeleton.
+\\
+
+All of them use the platform driver framework and detect their devices based on the devicetree
+entries. The probe function remaps the IO range, sets up the interrupt (if needed) and
+creates a character device node (which gets exposed in \texttt{/dev}). This character device
+exposes the interface to the userland applications via a combination of \texttt{read},
+\texttt{write}, \texttt{poll} and \texttt{ioctl} system calls on these nodes.
+\\
+
+The drivers interact with the hardware by reading from/writing to specific memory addresses
+as specified in the register map for each device using the low level \texttt{ioread} and
+\texttt{iowrite} routines.
+\\
+
+The drivers of the devices using interrupts (frequency counter, ADC, test runner) register
+an interrupt handler which clears the interrupt register of the device by reading from it
+and wakes up all threads sleeping on a given wait queue. This allows userland programs
+to use the \texttt{poll} system call to wait for the device to complete its task without
+polling and instead sleeping on the waitqueue. As soon as the interrupt handler is called,
+the thread is woken up and execution continues.
+\\
+
+All device drivers use a \texttt{ioctl} interface to control the driver from userland.
+The frequency counter and lcd driver in addition also expose a \texttt{read} or \texttt{write}
+interface.
+
+\subsection{Test Runner and ADC Drivers}
+Both of these drivers are effectively the same with only minor differences such as the
+address of the registers to match the differing register maps of the devices, and different
+names of the created device nodes and the devicetree entries that they match.
+\\
+
+The test runner driver creates a device node \texttt{/dev/trunner0} while the adc
+driver creates the device node \texttt{/dev/adc0}. Interaction with both is strictly
+via \texttt{ioctl} and \texttt{poll} system calls only.
+\\
+
+The \texttt{poll} interface implemented is described above - \texttt{poll} will
+sleep on a waitqueue until an interrupt wakes it up.
+\\
+
+The \texttt{ioctl} interface comprises only three messages. The \texttt{ADC\_IOC\_ENABLE} and
+\texttt{TRUNNER\_IOC\_ENABLE} \texttt{ioctls} enable the peripheral by writing to the
+enable register of the device.
+\\
+
+The \texttt{ADC\_IOC\_GET\_DONE}, \texttt{TRUNNER\_IOC\_GET\_DONE},
+\texttt{ADC\_IOC\_GET\_MAGIC} and 
+\\
+\texttt{TRUNNER\_IOC\_GET\_MAGIC} read the done and
+ID (magic) registers of the devices, respectively.
+
+
+
+\subsection{Frequency counter driver}
+The frequency counter driver registers a character device node under
+\\
+\texttt{/dev/fcounter0}
+with a \texttt{poll}, \texttt{ioctl} and \texttt{read} system call interface.
+\\
+
+The behaviour of \texttt{poll} and the \texttt{FCOUNTER\_IOC\_ENABLE} and
+\\
+\texttt{FCOUNTER\_IOC\_GET\_MAGIC}
+\texttt{ioctls} is the same as for the test runner and ADC drivers.
+\\
+
+In addition to these, the frequency counter driver provides three additional \texttt{ioctls}.
+The \texttt{FCOUNTER\_IOC\_SET\_IPSEL} \texttt{ioctl} writes to the input select register,
+effectively choosing which of the input pins is multiplexed onto the frequency counting logic.
+The \texttt{FCOUNTER\_IOC\_SET\_CYCLES} \texttt{ioctl} write to the cycle timeout count register. This
+defines for how many cycles of the host clock the frequency counter will be counting edges on the
+input signal.
+\\
+
+The \texttt{FCOUNTER\_IOC\_GET\_COUNT} \texttt{ioctl} and the \texttt{read} system calls both
+read the counted edges register of the device. By knowing the host frequency and the ratio
+between this edge count and the cycle timeout count, the frequency of the input signal
+can be calculated.
+
+
+\subsection{DE2 LCD Driver}
+The DE2 LCD character driver registers a device node under \texttt{/dev/de2lcd0}.
+This driver exposes both a \texttt{ioctl} and a \texttt{write} system call interface.
+\\
+
+Writing to the device node using the \texttt{write} system call will write the provided
+text to the offset at which the \texttt{write} occurred. The LCD has 2 lines of 16 visible characters,
+but each line is actually 40 characters long. Hence a write can be a maximum of 80 characters long.
+\\
+
+The driver exposes several \texttt{ioctl} commands. The \texttt{DE2LCD\_IOC\_CLEAR ioctl}
+clears the LCD display of all characters. The \texttt{DE2LCD\_IOC\_CURSOR\_ON} and
+\\
+\texttt{DE2LCD\_IOC\_CURSOR\_OFF} commands turn the blinking cursor on and off, respectively.
+The final command, \texttt{DE2LCD\_IOC\_SET\_SHL} enables and disables shifting of the
+characters on the LCD. The parameter passed to this last command is the time between shifts
+in ms, or 0 to disable shifting. When a non-zero value is passed in, the driver registers
+a function to be called regularly by the kernel timers. This function shifts the display
+left each time it is called. When a zero value is passed in the timer is deactivated again.
+This effectively allows displaying all 40 characters on each line of the LCD instead of just
+the 16 visible ones.
+
+
+
+
+\newpage
+\section{Configuration Format}
+The configuration format used by the software is an easy to read, easy to write and very
+lenient format.
+\\
+
+Configuration is loaded from an SD Card. The SD Card should have a directory layout
+as shown in Figure \ref{listing:dir_layout}.
+The top-level \texttt{chiptester} file can be empty and only
+indicates to the system that this SD Card contains test vectors.
+\\
+
+The top level directory should include a subdirectory for each team. Each team needs
+to provide at least a \texttt{team.cfg} file in their subdirectory. They can also provide
+an arbitrary number of test vector files which need not follow any naming
+convention (e.g. \texttt{foo.bar} is also a valid vector file).
+
+\begin{figure}[h!]
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+.
+|- chiptester
+|-- team1
+|   |-- adder.vec
+|   |-- shifter.vec
+|   |-- team.cfg
+|-- team2
+|   |-- divider.vec
+|   |-- team.cfg
+|-- team3
+    |-- multiplier.vec
+    |-- team.cfg
+\end{lstlisting}
+\caption{Example directory layout}
+\label{listing:dir_layout}
+\end{figure}
+
+\subsection{team.cfg}
+The \texttt{team.cfg} file has four different keywords (team, email,
+academic\_year and base\_url, all except the team and the base\_url can be omitted).
+These keywords, their arguments and their use are explained in Table \ref{table:teamcfg_keywords}.
+
+\begin{figure}[h!]
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+team: 3
+email: foo@bar.com, baz@bar.net
+academic_year: 2011/12
+base_url: http://192.168.0.10:4567
+\end{lstlisting}
+\caption{Example team.cfg}
+\label{listing:teamcfg_example1}
+\end{figure}
+
+
+
+\begin{figure}[h!]
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+# This is a comment
+  team: # This is also a comment
+    3
+  email:
+    foo@bar.com, baz@bar.net
+
+academic_year : 2011/12
+base_url      : http://192.168.0.10:4567
+\end{lstlisting}
+\caption{Another example team.cfg}
+\label{listing:teamcfg_example2}
+\end{figure}
+
+
+A keyword can be preceded by any number of whitespaces (tabs or spaces). It must be followed
+by a colon, but it is valid to have an arbitrary number of whitespaces between the keyword
+and the colon. After the colon any number of whitespaces and newlines can follow before
+the keyword-specific content (argument). Another example shown in Figure \ref{listing:teamcfg_example2} shows most of these features
+in use. The parser is however case sensitive.
+\\
+
+All characters after a hash (\#) are treated as comments.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ | l | l | p{6cm} | }
+ \hline
+   Keyword       & Arguments & Description \\
+ \hline
+   \texttt{team} & $<$decimal number$>$ & The team number; saved in the database \\
+ \hline
+   \texttt{email} & $<$string$>$ & The email addresses, comma separated, to which to send the results of the test \\
+ \hline
+   \texttt{academic\_year} & $<$string$>$ & The academic year; saved in the database \\
+ \hline
+   \texttt{base\_url} & $<$string$>$ & The URL to the Chip Tester web server. This is used internally to send results to the backend and database \\
+ \hline
+\end{tabular}
+\caption{Valid team.cfg keywords, their arguments and meaning}
+\label{table:teamcfg_keywords}
+\end{table}
+
+\newpage
+\subsection{Test vector files}
+The parser used for the test vector files is the same as for the \texttt{team.cfg}.
+As a result, it shares the same leniency - keywords can be prefixed by whitespaces,
+the colon after a keyword can be prefixed by whitespace, the argument(s) after a
+keyword, colon, can follow after any number of whitespaces and newlines.
+\\
+
+Every line after a keyword that does not contain a keyword by itself is parsed
+using the same parser as the previous keyword. In other words, every line following
+a keyword is parsed by the same keyword specific parser unless a new keyword appears.
+\\
+
+A special kind of keyword can appear inside lines parsed by the \texttt{vectors} line
+parser. These keywords begin with a dot (.) and are not followed by a colon. These
+are parsed by a separate parser, but the default line parser is not changed, so that
+the line following them is still parsed by the \texttt{vectors} parser.
+\\
+
+Table \ref{table:vec_keywords} describes all normal keywords while table 
+\ref{table:dot_commands} describes all dot commands.
+Figure \ref{listing:testvec_example} shows an example test vector file.
+
+\begin{figure}[h!]
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+design: 1-bit shift left
+clock:     A23
+frequency: 1
+trigger:
+           Q23, Q22
+pindef:
+        A3, A2, A1, A0, Q3, Q2, Q1, Q0
+vectors:
+        0001 0010
+        0001 T 0010
+        0010 0100
+.measure adc
+        0011 0110
+        0100 0100
+        0100 1000
+.measure frequency Q1
+        0101 1010
+        0110 1100
+        0110 110X
+.measure frequency Q2
+        0111 1110
+        1000 0000
+        1000 1000
+        1001 0010
+        0100 W5 0111
+        0001 T 1010
+\end{lstlisting}
+\caption{Example test vector file}
+\label{listing:testvec_example}
+\end{figure}
+
+This example file contains test vectors
+for a design called ``1-bit shift left''. The design will be tested at 1 MHz, and
+this 1 MHz clock will be connected to pin A23. The triggered test vectors
+will complete when Q23 and Q22 are asserted. The pins used in the test vectors are
+A3, A2, A1 and A0 for the input test vectors, and Q3, Q2, Q1, Q0 for the results.
+\\
+
+Most test vectors are simple 1-cycle test cases where the result one cycle after applying
+the input should match the given output. It also contains two triggered test cases
+which complete whenever the trigger condition of both Q23 and Q22 being asserted is met, or
+alternatively, after the default timeout of 32 cycles. Another test checks that the
+output 5 clock cycles after applying the vector \texttt{0100} is \texttt{0111}.
+\\
+
+This file also contains three measure commands. The first activates the ADC module and
+stores the captured result to the backend. The following two measure the frequency on
+pins Q1 and Q2 respectively. The default timeout of $2^{24}$ cycles is used so that with
+the 100 MHz system clock the measurement completes in 0.16 seconds, giving a resolution
+down in the tens of Hz.
+
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ | l | l | p{7.5cm} | }
+ \hline
+   Keyword       & Arguments & Description \\
+ \hline
+   \texttt{design} & $<$string$>$ & A string describing the design to be tested (e.g. ``4-bit adder'') \\
+ \hline
+   \texttt{frequency} & $<$decimal number$>$ & The frequency at which the device is tested. Minimum is 1, maximum is 100. The unit is MHz. Default is 10 MHz. \\
+ \hline
+   \texttt{clock} & $<$pins$>$ & A list of (input) pins to which the clock signal is connected. \\
+ \hline
+   \texttt{trigger} & $<$pins$>$ & A list of (output) pins which need to be asserted (all of them) for a triggered test to complete without a timeout \\
+ \hline
+   \texttt{pindef} & $<$pins$>$ & An list of input and output pins for which vectors and expected results are provided in the vectors section \\
+ \hline
+   \multirow{3}{*} \texttt{vectors} & $<$binary digits or X$>$ & A list of binary digits making up a test vector and expected result. first digit will be applied or checked against the first pin in the \texttt{pindef} and so on. An X can be specified on an output pin, meaning that that pin is ignored when checking the result of that particular test vector \\
+    & or T[$<$number$>$]  & \texttt{T} specifies that this is a triggered test case which only completes after either the triggers specified with \texttt{trigger} are matched or a timeout, which by default is 32 cycles but can be overriden by providing a cycle number immediately after the T. \\
+    & or W$<$number$>$ & \texttt{W} specifies that this is a fixed latency test case, whose result will be checked after the number of cycles specified. If neither T nor W are specified, then the implicit default is equivalent to \texttt{W1} \\
+ \hline
+\end{tabular}
+\caption{Valid keywords, their arguments and meaning}
+\label{table:vec_keywords}
+\end{table}
+
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ | l | l | p{5cm} | }
+ \hline
+   Keyword       & Arguments & Description \\
+ \hline
+   \texttt{.measure adc} & (none) & The ADC measure command will enable the ADC module after the previous vector has finished and send the results of the capture to the server \\
+ \hline
+   \texttt{.measure frequency} & $<$pin number$>$ $<$timeout$>$ & This command enables the frequency counter on a given pin number (either just a decimal number, or a decimal number prefixed by Q) for a given number of cycles and stores the result to the server\\
+ \hline
+\end{tabular}
+\caption{Valid dot commands}
+\label{table:dot_commands}
+\end{table}
+
+
+\newpage
 \section{confrd}
-Alex \\
-   - parser, lcd, api access, hardware access, ...
+The confrd program is the main application running on the embedded Linux system. It
+is written in C for performance and memory footprint reasons.
+It parses configuration structures such as the one outlined in the previous section, parsing
+each file and controlling the peripherals such as the test runner, frequency counter and
+ADC module.
+
+\begin{figure}[h!]
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+ Usage: confrd [options] <configuration directory>
+Valid options are:
+ -p
+         Print out the data written to SRAM in a human readable form
+         on screen.
+ -s <file>
+         Write an SRAM initialization file containing the data generated
+         using the configuration file(s).
+ -v
+         Marks this as a virtual design. Only affects remote logging.
+ -w
+         Write to actual SRAM and start the test runner after reading
+         a file.
+\end{lstlisting}
+\caption{Usage message of the confrd program}
+\end{figure}
+
+
+The confrd program can also be compiled on a normal Linux host system. In this case its
+only use is to verify the syntax of configuration files. When the confrd program is
+invoked without the \texttt{-w} argument it goes through the provided directory
+structure and just parses all the files, verifying their syntax. If the \texttt{-p} flag
+is specified, then it will also print out a summary of everything it would store to SRAM for
+use with the tester module.
+\\
+
+The parser understands and implements the configuration formats specified in the previous
+section. It was designed with performance in mind, and, as a result, it can parse up to
+60000 lines per second on the 100 MHz Nios II system.
+\\
+
+In its normal operating mode, with the \texttt{-w} flag, the operation is as follows.
+The program will go through each subdirectory in the directory specified on the command
+line and look for a \texttt{team.cfg} file in each. First this \texttt{team.cfg} file
+is parsed, which contains the address of the Chip Tester backend. Using the information
+in this file and the URL to the backend, confrd will first create a result entry in
+the database by using the HTTP API. The id of the newly created object, as returned
+from the backend, is stored in memory. This id is used to identify subsequent queries
+for the same result.
+\\
+
+It will then parse each of the vector files in the same directory, one after another.
+For each of the vector files it will create a design result entry in the database via
+the HTTP API. The returned id is used to identify further HTTP requests storing the
+test vector and measurement results.
+\\
+
+Most keywords generate a request memory structure for use by the tester hardware
+which is written to a SDRAM memory location
+of the same size as the SRAM. In the previous configuration example, the following
+memory structures/requests would be generated:
+\begin{itemize}
+ \item The \texttt{team} line in the \texttt{team.cfg} generates a change target request
+ \item The \texttt{design} line does not generate any request - it only stores the design name to send it to the backend/database.
+ \item The \texttt{frequency} line generates a PLL Reconfiguration request. The factors (multiplication, division, post-loop counter) for a given frequency are taken from a header file
+which includes pre-calculated values for each integer frequency between 1 and 100 MHz. These factors are generated by the \texttt{pllfreq.rb} support tool described in a later section.
+ \item The \texttt{clock} line generates a DICMD request with the bitmask generated by the individual pins as payload, and the type set to \texttt{DICMD\_SETUP\_MUXES}.
+ \item The \texttt{trigger} line generates a DICMD request with the bitmask generated by the individual pins as payload, and the type set to \texttt{DICMD\_TRGMASK}.
+ \item The \texttt{pindef} line generates a change bitmask request
+ \item Each \texttt{vector} line generates a test vector request
+\end{itemize}
+
+
+Whenever the SRAM staging area is (almost) full, the file has been completely read, or
+a \texttt{measure} command appears, the SRAM staging area is written to actual SRAM, followed
+by a mem end request (to denote end of the test vectors), and the test module is activated.
+confrd then sleeps until the test hardware is done using the driver's \texttt{poll} interface.
+As soon as it is done, it resets
+the staging area and either continues parsing test vectors or executes the \texttt{measure}
+command, as appropriate.
+\\
+
+Since the DUT interface holds the last input vector until a new one is processed,
+this ensures that \texttt{measure} commands are executed with a known state on the input pins.
+\\
+
+Each time the tester, frequency counter or ADC modules complete, their result
+is sent to the backend/database via the HTTP API, identified by the design result id
+retrieved from the backend at the start of a vector file.
+\\
+
+Any syntax or other error that occurs after the \texttt{team.cfg} file has been parsed
+will be logged remotely to the backend. All errors and some status messages indicating
+the current progress are printed to the character LCD using the DE2 LCD Driver.
+\\
+
+The throughput of the complete process is determined by the upload speed. Both the
+file parsing and the actual testing on hardware are extremely fast, as is the SRAM
+access. Without uploading, 60000 tests complete in roughly 10 seconds. With uploading
+this extends to several minutes.
+\\
+
+For verification purposes of the test hardware, the confrd program has an additional flag
+\texttt{-s} which writes what it would normally write to SRAM into a memory initialization
+file that can be used in the \texttt{tester} testbench to initialize the SRAM model.
+This allows for verification of the \texttt{tester} module using actual test vectors
+as they are generated by the software.
+\\
+
+The confrd tool relies on two external libraries; libjansson to encode and decode
+JSON structures and libCURL to provide a convenient HTTP interface. Both of these libraries
+are used for the HTTP API accesses to the backend.
+
+
+% on the embedded system!!
+%  60000 lines -> 1.28/1.05/0.21
+% 120000 lines -> 4.31/3.40/0.84
+
+%PLL generator, etc
+
+\newpage
+\section{SPI Flash Programmer and Model}
+%XXX: missing Romel's content
+
+\subsection{SPI Flash Model}
+To verify the correct operation of the SPI Flash Programmer, a simple SPI Flash
+Model was written independently for use with the programmer. It implements...
+%XXX: missing Romel's content
 
 
 
-\section{SPI Flash Configuration}
-Romel
+\newpage
+\section{vconfig}
+The \texttt{vconfig.sh} script is executed via an \texttt{flock}ed cron job every 10 minutes.
+By using \texttt{flock} there will never be more than one instance running at a time, even if
+the execution takes longer than 10 minutes.
+\\
+
+The \texttt{vconfig.sh} script is used to download virtual design packages from the
+backend, program the slave FPGA and run a battery of tests.
+\\
+
+The script will look for an SD Card that contains a file called \texttt{vconfig.sh}. This
+file needs to contain just one line, giving the address of the Chip Tester backend from
+which it can download configurations. The format is as shown below. It differs from the
+regular configuration format used for the rest of the system as it is used directly from
+a shell script without any parsing - it is only ``sourced''.
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+BASE_URL="http://192.168.0.10:4567"
+\end{lstlisting}
+
+If this file is not present (for example because a different or no SD Card is inserted),
+\texttt{vconfig.sh} will not do anything.
+\\
+
+If however the file is present and the URL points to a valid ChipTester backend, it will
+try to download a virtual design via the HTTP API. If none is available for download it
+will exit immediately. Otherwise it will download the file to a temporary location in \texttt{/tmp}.
+\\
+
+Once the file is downloaded it will try to decompress trying all of the following archive formats:
+\begin{itemize}
+ \item ZIP archive
+ \item TARball without compression
+ \item TARball with gzip compression
+ \item TARball with bzip2 compression
+ \item TARball with LZMA compression 
+\end{itemize}
+
+If all attempts fail, the script will give up and log the error remotely to the backend using the
+external \texttt{rlog} tool mentioned in the next section.
+\\
+
+Next the syntax of the decompressed files is verified by running the \texttt{confrd} tool
+without the \texttt{-w} flag. If a syntax error occurs it will be logged remotely and the process
+will be aborted.
+\\
+
+After the initial validation of the downloaded files, the configuration of the slave FPGA
+begins. Using the GPIO interface (described in the previous Drivers section), the \texttt{nCE}
+and \texttt{nCONFIG} pins are tied low. Tying \texttt{nCONFIG} low will cause the slave FPGA
+to lose all its configuration and enter a reset state, tri-stating all its I/O pins.
+\\
+
+While the FPGA is in this reset state, the SPI Flash programmer \texttt{spi\_flash} is used
+to write the \texttt{fpga.rbf} contained in the configuration archive to the SPI Configuration
+Flash on the slave FPGA board. If the process fails, the error is logged remotely and the
+script exits.
+\\
+
+If the configuration was written successfully, the \texttt{nCONFIG} pin is asserted, causing
+the FPGA to begin reconfiguration from the newly written flash. After waiting 10 seconds
+for the FPGA to finish reconfiguration, the FPGA's \texttt{nSTATUS} pin is checked to determine
+whether an error occured during reconfiguration. If so, the error is logged and the operation
+is aborted.
+\\
+
+Otherwise the \texttt{confrd} program is invoked in its normal mode with the \texttt{-vw} parameter,
+causing it to perform all the tests in the provided test cases and logging the results remotely
+as explained in the previous section about confrd. The \texttt{-v} flag only changes a flag it sends
+to the backend when saving the results - it is only used to mark the result as having been performed
+on a ``virtual'' design.
 
 
-\section{Configuration File Format}
-Alex (get started)
+\newpage
+\section{Test and support programs and scripts}
+\subsection{de2lcd}
+The \texttt{de2lcd} program is a standalone program using the DE2 LCD driver to control
+the character LCD. It was used to test the driver and controller for the DE2 LCD, but
+can also be used as a standalone tool to write to the LCD. It is used from some scripts
+to write text to the LCD.
+
+
+\begin{figure}[h!]
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+Usage: de2lcd <options>
+Valid options are:
+ -c
+         Clear LCD.
+ -n
+         Enable blinking cursor.
+ -f
+         Disable blinking cursor.
+ -s <miliseconds>
+         Enable left shift every <miliseconds> ms
+ -t
+         Test.
+ -w <Text>
+         Writes <Text> starting at first character of LCD
+\end{lstlisting}
+\caption{Usage message of the de2lcd program}
+\end{figure}
+
+
+\subsection{fcounter}
+The \texttt{fcounter} program is a standalone program interfacing with the frequency
+counter module via the fcounter driver. It can show the id number of the device,
+set the number of timeout cycles (the number of host clock cycles over which the
+edges of the input signal are counted), select on which input line to measure the
+frequency and enable the frequency counter. After enabling it, it will only exit
+after the frequency counter is done. Once it is done, the number of counted edges
+can be printed.
+
+\begin{figure}[h!]
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+Usage: fcounter <options>
+Valid options are:
+ -m
+         Get magic number.
+ -e
+         Enable.
+ -a
+         Print edge count.
+ -c <cycles>
+         Set timeout <cycles>.
+ -s <sel>
+         Select <sel> line as input.
+\end{lstlisting}
+\caption{Usage message of the fcounter program}
+\end{figure}
+
+
+\subsection{rlog}
+The \texttt{rlog} program is a standalone program that takes the URL of the ChipTester
+backend and can log a string remotely to the backend. It is used from several scripts, such
+as the \texttt{vconfig.sh} script to log errors remotely. Additionally the log level can be
+specified. The level can be one of ``debug'', ``info'', ``warn'' or ``err''.
+\begin{figure}[h!]
+ \lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+Usage: rlog [-l <level>] -b <base_url> <message>
+\end{lstlisting}
+\caption{Usage message of the rlog program}
+\end{figure}
+
+
+\subsection{umount2}
+The \texttt{umount2} tool is a simple implementation around the \texttt{umount} system call.
+It was written because the \texttt{umount} tool integrated in busybox failed to unmount
+on the Linux 3.3 kernel used for this project. As it was felt that the effort to debug
+the problem with the \texttt{umount} in busybox would outweigh the effort of writing the tool
+from scratch, the latter aproach was chosen.
+\\
+
+\texttt{umount2} simply takes either the path of the device that is mounted or the path
+a device is mounted on and unmounts it.
+
+
+\subsection{automount.sh}
+The \texttt{automount.sh} tool is invoked by mdev (a busybox tool included in the uClinux
+distribution) whenever an SD Card is inserted and removed
+from the system. It simply mounts the sd card file system, and if the mounting is
+successful and the sd card contains a file named \texttt{chiptester} in its root, it
+will execute the \texttt{confrd} program to run the tests contained on the sd card.
+\\
+
+On removal of an SD Card, any running instance of the \texttt{confrd} program is killed
+and the filesystem unmounted using the aforementioned \texttt{umount2} tool.
+
+
+\subsection{rc}
+The \texttt{rc} script is the main script executed at startup. This script is based
+on a default script shipped with uClinux, but with a number of custom modifications.
+\\
+ 
+It sets the hostname, configures the network via DHCP and sets up temporary memory file
+systems for several paths such as \texttt{/tmp}, \texttt{/media} and \texttt{/var/log}. The
+script also starts the syslogd logging daemon and the cron daemon to execute periodic tasks.
+\\
+
+It also sets up the GPIO pins to be accessible, and also sets their direction (whether
+they are input or output pins).
+\\
+
+As a final step it uses the \texttt{de2lcd} program to write a greeting message to the LCD
+and also prints a greeting message to the (serial) console.
+
+
+\subsection{pllfreq.rb}
+The \texttt{pllfreq.rb} tool is a ruby program that, taking a base frequency (i.e. input
+frequency to an Altera Cyclone IV PLL), generates a C header file that contains values
+for the loop multiplier, divider and post-scale counters to achieve every integer
+output frequency between 1MHz and 100 MHz. The output header file is also annotated with the
+error between the intended frequency and the actual achieved frequency. The calculation
+is done while maintaing valid values for the multiplier and divider so that the VCO
+frequency stays in the valid range.
+\\
+
+The generated header file is used by the \texttt{confrd} tool to determine which vectors
+to pass to the test controller to set the desired frequency in the reconfigurable
+clock domain. Figure \ref{listing:pllfreq_h} shows a small excerpt from this file.
+
+\begin{figure}[h!]
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+       { .m = 32,       .n = 5, .c = 5 },   /* 64 MHz, err: 0.0 */
+       { .m = 26,       .n = 5, .c = 4 },   /* 65 MHz, err: 0.0 */
+       { .m = 33,       .n = 5, .c = 5 },   /* 66 MHz, err: 0.0 */
+       { .m = 47,       .n = 5, .c = 7 },   /* 67 MHz, err: 0.1428571428571388 */
+\end{lstlisting}
+\caption{Excerpt from the header file generated by the \texttt{pllfreq.rb} script}
+\label{listing:pllfreq_h}
+\end{figure}
