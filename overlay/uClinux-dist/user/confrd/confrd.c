@@ -103,9 +103,10 @@ init_remote(parserinfo_t pi)
 	json_t *j_out;
 	int error;
 
-	j_in = json_pack("{s:i, s:s, s:b}",
+	j_in = json_pack("{s:i, s:s, s:s, s:b}",
 			 "team", gd->team_no,
-			 "academic_year", gd->academic_year,
+			 "academic_year", (gd->academic_year != NULL) ? gd->academic_year : "",
+			 "email", (gd->email != NULL) ? gd->email : "",
 			 "virtual", vflag);
 	if (j_in == NULL) {
 		logger(LOGERR, "Error packing JSON for 'Result'");
@@ -149,7 +150,6 @@ _adc_readdata(void *ptr, size_t size, size_t nmemb, void *priv)
 	if (rd->total_sz < rdsize)
 		rdsize = rd->total_sz;
 
-	printf("DEBUG: _adc_readdata(%d)\n", (int)rdsize);
 	sram_read(rd->pos, ptr, rdsize); /* XXX: endianess? */
 	rd->pos += rdsize;
 	rd->total_sz -= rdsize;
@@ -178,7 +178,7 @@ submit_measurement_adc(parserinfo_t pi)
 
 
 int
-submit_measurement_freq(parserinfo_t pi, double freq)
+submit_measurement_freq(parserinfo_t pi, double freq, char* pin)
 {
 	int error;
 	json_t *j_in;
@@ -187,7 +187,7 @@ submit_measurement_freq(parserinfo_t pi, double freq)
 	url = build_url(pi, "api/result/%d/design/%d/measurement/frequency",
 			pi->gd->result_id, pi->design_result_id);
 
-	j_in = json_pack("{s:f}", "frequency", freq);
+	j_in = json_pack("{s:f,s:s}", "frequency", freq, "pin", pin);
 	if (j_in == NULL) {
 		logger(LOGERR, "Error packing JSON for frequency measurement");
 		return -1;
@@ -226,7 +226,7 @@ process_sram_results(parserinfo_t pi)
 				 "file_name", pi->file_name,
 				 "clock_freq", pi->pll_freq,
 				 "triggers",  h_output(pi->trigger_mask, sizeof(pi->trigger_mask)),
-				 "design_name", pi->design_name);
+				 "design_name", (pi->design_name != NULL) ? pi->design_name : "");
 		if (j_in == NULL) {
 			logger(LOGERR, "Error packing JSON for 'DesignResult'");
 			return -1;

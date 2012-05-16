@@ -84,7 +84,7 @@ parse_line_measure(char *s, void *priv)
 			tokens[1]++;
 
 		pin_no = strtol(tokens[1], &e, 10);
-		if (*e != '\0') {
+		if (*e != '\0' || pin_no > MAX_OUTPUT_PIN) {
 			syntax_error("frequency measurement requires a valid pin number");
 			return -1;
 		}
@@ -123,8 +123,7 @@ parse_line_measure(char *s, void *priv)
 		}
 
 		freq = (1.0 * cyc_count)/(1.0 * timeout) * FCOUNTER_SYS_FREQUENCY;
-		logger(LOGINFO, "Measured frequency: %lf MHz", freq);
-		if ((error = submit_measurement_freq(pi, freq)) != 0) {
+		if ((error = submit_measurement_freq(pi, freq, tokens[1])) != 0) {
 			logger(LOGERR, "Error submitting frequency measurement");
 			return error;
 		}

@@ -187,7 +187,7 @@ void *stage_alloc_chunk(parserinfo_t pi, size_t sz);
 int go(parserinfo_t pi, int process);
 char *build_url(parserinfo_t pi, const char *req_path_fmt, ...);
 int init_remote(parserinfo_t pi);
-int submit_measurement_freq(parserinfo_t pi, double freq);
+int submit_measurement_freq(parserinfo_t pi, double freq, char *pin);
 int submit_measurement_adc(parserinfo_t pi);
 
 

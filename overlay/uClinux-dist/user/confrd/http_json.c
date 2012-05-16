@@ -24,7 +24,6 @@ _writedata(char *ptr, size_t size, size_t nmemb, void *priv)
 	struct write_data *wd = priv;
 	size_t wrsize = size*nmemb;
 
-	printf("DEBUG: _writedata(%d)\n", (int)wrsize);
 	if (wd->pos + wrsize >= wd->maxsz - 1) {
 		fprintf(stderr, "out of buffer space\n");
 		/* Returning a value != size*nmemb signals error */
@@ -48,7 +47,6 @@ _readdata(void *ptr, size_t size, size_t nmemb, void *priv)
 	if (rd->total_sz < rdsize)
 		rdsize = rd->total_sz;
 
-	printf("DEBUG: _readdata(%d)\n", (int)rdsize);
 	memcpy(ptr, rd->data + rd->pos, rdsize);
 	rd->pos += rdsize;
 	rd->total_sz -= rdsize;
@@ -110,7 +108,6 @@ req(const char *url, int method, const char *ctype,
 		rd.total_sz = data_len;
 		rd.pos = 0;
 
-		printf("DEBUG: Content-Length: %d\n", (int)data_len);
 		snprintf(buf, sizeof(buf), "Content-Length: %d", (int)data_len);
 		slist = curl_slist_append(slist, buf);
 
@@ -142,9 +139,7 @@ req(const char *url, int method, const char *ctype,
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist);
 	}
 
-	printf("DEBUG: pre-perform\n");
 	status = curl_easy_perform(curl);
-	printf("DEBUG: post-perform\n");
 
 	if (slist != NULL)
 		curl_slist_free_all(slist);
@@ -187,7 +182,6 @@ req_json(const char *url, int method, json_t *j_in, json_t **j_out)
 	}
 
 	sz = strlen(data);
-	printf("DEBUG: Sending JSON (%d): %s\n\n", (int)sz, data);
 	error = req(url, method, "application/json", data,
 		    sz, NULL, recv_buf, sizeof(recv_buf),
 		    &bytes_recvd);
