@@ -44,7 +44,7 @@ get '/admin_database' do
 end
 #Overview 
 get '/' do
-   @results = Result.all
+   @results = Result.all(:order => [ :created_at.desc ])
    erb :overview
 end
 
@@ -107,7 +107,7 @@ end
 
 #Log Entries view
 get '/LogEntries' do
-  @logs = LogEntry.all
+  @logs = LogEntry.all(:order => [ :created_at.desc ])
   erb :log_entry
 end
 

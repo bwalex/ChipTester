@@ -4,11 +4,13 @@
 		<div class="entry">
 		<table class="fullwidth">
 		<tr>
+			<th>Number</th>
 			<th>Pin</th>
 			<th>Frequency</th>
 		</tr>
 		<% @freqs.each_index do |idx| meas = @freqs[idx] %> 
 		<tr class="<%= (idx.modulo(2) != 0)?'even':'odd' %>">
+                        <td><%= idx+1 %></td>
 			<td><code><%= meas.pin %></code></td>
 			<td><code><%= format("%.4f", meas.frequency) %> MHz</code></td>
 		</tr>
