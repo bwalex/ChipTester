@@ -359,7 +359,129 @@ WR\_FIFOS & IDLE &  \\
 \label{tab:states_transitions}
 \end{table}
 
+\subsection{check}
 
+The ``check'' module compares the test result from ``dut\_if'' (through ``rfifo'') and the reference result from ``stim'' (through ``cfifo'') and decides whether the test is passed or failed. The information is then stored in metadata. The test result vector is also written into the memory by this module. As previously introduced, the test result vector and the reference result vector are firstly processed by the bitmask and don't-care bits before comparing.
+
+
+
+
+
+\subsubsection{dut if}
+
+The ``dut\_if'' module is the interface between the VLSI system and the design under test (DUT). It uses the data from ``stim'' to generate the test vector and send it to the DUT. After certain conditions are satisfied, the result is valid from the DUT, which is then sent to the check through ``rfifo''.
+
+The test vector is merged with clock pins before being sent to the DUT. The clock is from the reconfigurable clock domain. This process is, however, not necessary in every test. It depends on whether the design contains a clock input and whether the user defines it in the input data. A clock gating is also done in this part for optimizing power consumption.
+In deciding whether the result is valid, the ``dut\_if'' supports two modes:
+
+\begin{enumerate}
+ \item With a predefined clock cycle number (in metadata), the dut\_if sets up a counter to wait until the clock cycles are reached. Then the result is considered valid. If the clock cycle number is 0, the result is taken within the same clock cycle, which corresponds to a combinational logic circuit. Otherwise, the DUT should be a sequential design with a fixed clock cycle to output the valid result.
+
+ \item With a set of pins which is defined as the trigger (e.g. a ``done'' or ``ready'' signal). The result is considered valid when the triggers change. This corresponds to asynchronous handshake behaviour. This is implemented by the trigger mask.
+\end{enumerate}
+
+Those different modes of operation are set by the user in the metadata, depending on specific designs.
+
+The speed of the ``dut\_if'' is boosted by pipelining technique, including fetch, execute and writeback stages. The fetch stage checks whether the ``sfifo'' is empty and decide if the process should go to the next stage. The execute stage handles the testing process from sending the test vector to receiving the result vector. After a execute stage, the writeback stage is in place to write the data (result vector, metadata) to the memory. The pipelining enables the ``dut\_if'' to process the different stages of three tasks at the same time.
+
+\subsubsection{PLL INTERFACE}
+
+The reconfigurable clock domain uses the Altera IP cores ALTPLL and ALTPLL\_RECONFIG to realize the dynamically reconfigurable clock. The ALTPLL generates stable clock. The input clock frequency is divided and multiplied by the internal counters, resulting in a variable output frequency. The parameters are initialized by a scan chain. Reinitializing the PLL with a new scan chain is possible and can change the output frequency with different parameters. However the scan chain contains too much information that is not expected to change during our process (counters that are not changed, current, phase information, etc.). ALTPLL\_RECONFIG module can change specific parameters based on a complete scan chain and reinitialize the ALTPLL.
+
+The ALTPLL\_RECONFIG module requires input to be in serial and specific timing requirements. The process is coordinated by REPLL\_CONTROL, responding to an input trigger, transferring the parallel input into serial, and offering a stable signal when the reconfiguration is done. All these modules are enveloped in PLL\_INTERFACE.
+
+The counters used here are M (feedback multiplier counter), N (pre-divider counter) and C (post-divider counter) counters. The output frequency = input frequency * M/(N*C). Currently the established minimum output frequency is $0.005\times$ the input clock frequency, which is $100MHz$ of the DE2 board by default. The maximum can reach $10\times$ the input clock, and theoretically can be increased. However, further testing is not done since $1GHz$ is already big enough for our hardware. Should further testing require lower frequency ($<500KHz$ ), another cascaded PLL\_INTERFACE module could be implemented as a possible solution.
+
+The formats of the data for different requests used in this part of the design are listed below.
+
+% Test Vector:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{test_vector}
+ \caption{Test Vector.}
+ \label{fig:test_vector}
+\end{figure}
+
+
+
+
+
+
+% Change target:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{change_target}
+ \caption{Change Target.}
+ \label{fig:change_target}
+\end{figure}
+
+
+
+
+% Change bitmask:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{change_bitmask}
+ \caption{Change Bitmask.}
+ \label{fig:change_bitmask}
+\end{figure}
+
+
+
+% Send dicmd:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{send_dicmd}
+ \caption{Send dicmd.}
+ \label{fig:send_dicmd}
+\end{figure}
+
+
+
+% PLL reconfiguration:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{pll_reconfig}
+ \caption{PLL Reconfiguration.}
+ \label{fig:pll_reconfig}
+\end{figure}
+
+
+% Mem end:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{mem_end}
+ \caption{Mem End.}
+ \label{fig:mem_end}
+\end{figure}
+
+
+
+% Metadata:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{metadata}
+ \caption{Metadata.}
+ \label{fig:metadata}
+\end{figure}
+
+
+
+% Metadata 2:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{metadata_2}
+ \caption{Metadata 2.}
+ \label{fig:metadata_2}
+\end{figure}
 
 
 \section{SRAM Arbiter (sram\_arb\_sync.v)}

@@ -134,7 +134,14 @@ Slave FPGA is the core chip of the virtual design board. It can be used for prog
 
 Cyclone III ($EP3C25E144$) belongs to Cyclone III device family. With densities ranging from about $5,000$ to $200,000$ logic elements (LEs) and $0.5Mb$ to $8M$b of memory for less than $\sfrac{1}{4}V$ of static power consumption, Cyclone III devices makes it easier to meet the power budget \citep{Altera:2011:cyclone3handbook}.
 
-The reason for choosing Cyclone III is their lowest power, high functionality with the lowest cost. 144 pins are enough for this design. I/O pins on the Cyclone III are grouped together into I/O banks, and each bank has a separate power bus. There are eight I/O banks, as shown in \hl{Figure 1} \citep{Altera:2011:cyclone3handbook}. All single-ended I/O standards are supported in all banks except HSTL-12 Class II which is only supported in column banks. The same case can be found in all differential I/O standards.
+The reason for choosing Cyclone III is their lowest power, high functionality with the lowest cost. 144 pins are enough for this design. I/O pins on the Cyclone III are grouped together into I/O banks, and each bank has a separate power bus. There are eight I/O banks, as shown in figure \ref{fig:b2_f1} \citep{Altera:2011:cyclone3handbook}. All single-ended I/O standards are supported in all banks except HSTL-12 Class II which is only supported in column banks. The same case can be found in all differential I/O standards.
+
+\begin{figure}
+ \centering
+ \includegraphics[width=0.9\textwidth]{figure1}
+ \caption{I/O banks in Cyclone III FPGA.}
+ \label{fig:b2_f1}
+\end{figure}
 
 Each I/O banks of Cyclone III has a VREF bus to accommodate voltage-referenced I/O standards. Connect the VREF pin of each group to the appropriate voltage. In this design three voltage levels, which $VCCIO=3.3V$, $VCCINT= 1.2V$ and $VCCA=2.5V$, are necessary. Proper bypassing and decoupling technique for the power pins is very important for reliable design operation. In this case, additional decoupling capacitance is needed. The VCCINT, VCCIO and ground pins should add as many as $0.2\mu F$ power-supply decoupling capacitors as possible. So $0.01\mu F$ capacitor for VCCIO and $0.1\mu F$ for VCCINT seems to be appropriate. Note that all the capacitors should be place close enough to the power pins.
 
@@ -160,8 +167,14 @@ There are four pins on the serial configuration devices:
  \item Active-low chip select (nCS)
 \end{itemize}
 
-Connect these four pins to Cyclone III device pins, as shown in \hl{Figure 2.}
+Connect these four pins to Cyclone III device pins, as shown in figure \ref{fig:b2_f2}
 
+\begin{figure}
+ \centering
+ \includegraphics[width=0.9\textwidth]{figure2}
+ \caption{Connections between Serial Configuration Device and Cyclone III FPGA.}
+ \label{fig:b2_f2}
+\end{figure}
 
 A $25\Omega$ series resistor must connect a between serial configuration device and the Cyclone III device at the near end of the serial configuration device for DATA [0] when configure the Cyclone III device in the AS mode. The $25\Omega$ resistor works to minimize the driver impedance mismatch with the board trace and reduce the overshoot seen at the Cyclone III device input pin DATA [0].
 
@@ -189,12 +202,24 @@ The SPI is a simple four-pin synchronous interface protocol which enables a mast
 \end{itemize}
 
 
-\hl{Figure 3} displays a simple block diagram of the connection between FPGA and SPI flash, as well as the HSMC header and JTAG programming the SPI flash from a host PC.
+Figure \ref{fig:b2_f3} displays a simple block diagram of the connection between FPGA and SPI flash, as well as the HSMC header and JTAG programming the SPI flash from a host PC.
+
+\begin{figure}
+ \centering
+ \includegraphics[width=0.9\textwidth]{figure3}
+ \caption{AS interface.}
+ \label{fig:b2_f3}
+\end{figure}
 
 
-\hl{Figure 4} displays the details of the connection between SPI flash and FPGA. According to the introduction of Cyclone III, we can acquire the whole routing of FPGA, SPI flash and the HSMC header (A Samtec ASP header will be introduced later).
+Figure \ref{fig:b2_f4} displays the details of the connection between SPI flash and FPGA. According to the introduction of Cyclone III, we can acquire the whole routing of FPGA, SPI flash and the HSMC header (A Samtec ASP header will be introduced later).
 
-
+\begin{figure}
+ \centering
+ \includegraphics[width=0.9\textwidth]{figure4}
+ \caption{The connection between SPI flash and FPGA in detail.}
+ \label{fig:b2_f4}
+\end{figure}
 
 The TMS, TDI, TDO and TCK pins of Cyclone III device are used to operating in the IEEE Std. 1149.1 BST. The TDO pin is powered by VCCIO (3.3V). TDI and TMS are powered by VCCA (2.5V).
 
@@ -215,13 +240,28 @@ The B2 board needs at least three different voltage levels, as mentioned before,
 \paragraph{1.2V Voltage Regulator \texorpdfstring{$LD1117$}{LD1117}}
 The $LD111712$ is a low drop voltage regulator able to provide up to $800mA$ of output current, available in adjustable version (). The device is supplied in DPAK surface mount package optimize the thermal characteristics even offering a relevant space saving effect. A very common $10\Omega$ minimum capacitor is needed for stability \citep{STMicro:2012:LD1117xx}.
 
-\hl{Figure 5} is the application circuit for $1.2V$ output.
+Figure \ref{fig:b2_f5} is the application circuit for $1.2V$ output.
+
+\begin{figure}
+ \centering
+ \includegraphics[width=0.9\textwidth]{figure5}
+ \caption{Application circuit for 1.2V output.}
+ \label{fig:b2_f5}
+\end{figure}
+
 
 
 \paragraph{2.5V Voltage Regulator \texorpdfstring{$TPS78225$}{TPS78225}}
 The $TPS78228$ is a low dropout linear voltage regulator designed by TI. The enable pin (EN) is compatible with standard CMOS logic while the low drop output is stable with any capacitor greater than 1. The device requires minimal board space for miniaturized packaging and potentially small output capacitor \citep{TI:2008:TPS782}.
 
-The enable pin is active high and is compatible with standard and low-voltage CMOS levels. Therefore if the shutdown capacitor is not necessary, enable pin can connect to the IN pin as shown on \hl{Figure 6}.
+The enable pin is active high and is compatible with standard and low-voltage CMOS levels. Therefore if the shutdown capacitor is not necessary, enable pin can connect to the $IN$ pin as shown on figure \ref{fig:b2_f6}.
+
+\begin{figure}
+ \centering
+ \includegraphics[width=0.9\textwidth]{figure6}
+ \caption{Connection between enable and IN pins.}
+ \label{fig:b2_f6}
+\end{figure}
 
 Both current for voltage regulators are linear. They maintain when the toggle rate is changed. For example, $0.352A$ at $1.2V$ are still $0.352A$ at $3.3V$.
 
@@ -230,31 +270,37 @@ Both current for voltage regulators are linear. They maintain when the toggle ra
 
 The Altera High Speed Mezzanine Card (HSMC) specification defines the electrical and mechanical properties of the HSMC adapter interface for FPGA-based motherboards. The HSMC connector is based on the Samtec $0.5mm$ pitch, surface-mount QTH/QSH family of connectors \citep{Altera:2009:HSMCspec}. Two versions can are used in FPGA board. $ASP-122953-01$ Socket for the host boards and $ASP-122952-01$ Header for Mezzanine Cards (slave boards).
 
-\hl{Figure 7} is the diagram for HSMC header. The clock-data-recovery differential signals in Bank 1 are the highest frequency signals. Signals between the HSMC connector and the host board FPGA device are intended to be D/C coupled. The JTAG, a system management bus (SMBus), and clock signals are also dedicated in Bank 1. In banks 2 and Bank 3, there are main CMOS/LVDS interface signals, including LVDS/COMS clocks, as well as both $12V$ and $3.3V$ power pins.
+Figure \ref{fig:b2_f7} is the diagram for HSMC header. The clock-data-recovery differential signals in Bank 1 are the highest frequency signals. Signals between the HSMC connector and the host board FPGA device are intended to be D/C coupled. The JTAG, a system management bus (SMBus), and clock signals are also dedicated in Bank 1. In banks 2 and Bank 3, there are main CMOS/LVDS interface signals, including LVDS/COMS clocks, as well as both $12V$ and $3.3V$ power pins.
+
+\begin{figure}
+ \centering
+ \includegraphics[width=0.3\textwidth]{figure7}
+ \caption{HSMC header diagram.}
+ \label{fig:b2_f7}
+\end{figure}
 
 The host board is any board with an FPGA connected to one or more HSMC interface. In this project it is DE2-115 developed board. The interconnect I/O pins available on the HSMC connector can have all possible I/O standard and logic features that can be supported by the host FPGA since FPGAs are configurable devices. However basically they are limited by the wire types on the board.
 
 
 The HSMC connectors provided the interface between host and slave boards. The ``header'' part ($ASP-122952-01$) on slave board plugs into the ``socket'' part on the host board. The host board provides $+12V$ DC and $+3.3V$ DC power to the slave board via the HSMC connector. In addition to power and clock signals, the host board provides access to JTAG, high speed serial I/O, and single-ended or differential I/O via the HSMC connector.
 
-The HSMC connector has a total of $172$ pins, including $121$ signal pins ($120$ signal pins + $1$ PSNTn pin), $39$ power pins, and $12$ ground pins. The ground pins are much larger than the power pins and are located between the two rows of signal and power pins. \hl{Figure 8} is the modules for HSMC connectors.
+The HSMC connector has a total of $172$ pins, including $121$ signal pins ($120$ signal pins + $1$ PSNTn pin), $39$ power pins, and $12$ ground pins. The ground pins are much larger than the power pins and are located between the two rows of signal and power pins. Figure \ref{fig:b2_f8} is the modules for HSMC connectors.
+
+\begin{figure}
+ \centering
+ \includegraphics[width=0.9\textwidth]{figure8}
+ \caption{HSMC connectors modules.}
+ \label{fig:b2_f8}
+\end{figure}
 
 The $ASP-122952-01$ header provides $160$ total pins and $12$ ground plane connection pins down the center. Bank 1 has $40$ pins with every third pin removed. Bank 2 and 3 have $60$ pins each as no pins are removed. Host boards provide transceivers to Bank 1 which is not used in this project. Single-ended signals are provided to Bank 2 and 3. Typically, the single-ended signals are capable of differential signalling such as LVDS.
 
-The JTAG signals are intended to connect to dedicated JTAG pins on the host FPGA and be part of the JTAG chain. The JTAG signals TCK, TMS and TDI are intended to be output from host board while JTAG TDO should be the input to host board as \hl{Figure 4} before.
+The JTAG signals are intended to connect to dedicated JTAG pins on the host FPGA and be part of the JTAG chain. The JTAG signals TCK, TMS and TDI are intended to be output from host board while JTAG TDO should be the input to host board as figure \ref{fig:b2_f4} before.
 
 Tables \ref{tab:b1_hsmc_pinout} and \ref{tab:b2_hsmc_pinout} in the appendix show the pin-outs for the HSMC header on B1 and B2 boards, respectively.
 
 
 \section{Chip Tester (Verilog Module)}
-% Joey  (and a bit Alex) \\
-%    mention: reconfigurable clock domain, synchronizing DC FIFOs \\
-%    - test controller \\
-%      - mem\_if \\
-%      - stim \\
-%      - check \\
-%    - dut\_if (and its pipeline) \\
-%    - reconfigurable PLL \\
 
 
 \subsection{Reconfigurable Clock Domain}
@@ -394,59 +440,94 @@ The counters used here are M (feedback multiplier counter), N (pre-divider count
 
 The formats of the data for different requests used in this part of the design are listed below.
 
+% Test Vector:
 
-Test vector:
-
-\begin{table}[ht]
-\centering
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
-\hline
-0 & & & & & & & 8 & & & & & & & 16 & & & & & & & & & & & & & & & 31 \\
-\hline
-
-\end{tabular}
-\caption{Main States Transitions Table.}
-\label{tab:stafddftes_transitions}
-\end{table}
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{test_vector}
+ \caption{Test Vector.}
+ \label{fig:test_vector}
+\end{figure}
 
 
 
 
 
 
+% Change target:
 
-
-Change target:
-
-
-
-
-
-Change bitmask:
-
-
-
-
-Send dicmd:
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{change_target}
+ \caption{Change Target.}
+ \label{fig:change_target}
+\end{figure}
 
 
 
 
-PLL reconfiguration:
+% Change bitmask:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{change_bitmask}
+ \caption{Change Bitmask.}
+ \label{fig:change_bitmask}
+\end{figure}
 
 
 
-Mem end:
+% Send dicmd:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{send_dicmd}
+ \caption{Send dicmd.}
+ \label{fig:send_dicmd}
+\end{figure}
 
 
 
+% PLL reconfiguration:
 
-Metadata:
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{pll_reconfig}
+ \caption{PLL Reconfiguration.}
+ \label{fig:pll_reconfig}
+\end{figure}
+
+
+% Mem end:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{mem_end}
+ \caption{Mem End.}
+ \label{fig:mem_end}
+\end{figure}
 
 
 
+% Metadata:
 
-Metadata 2:
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{metadata}
+ \caption{Metadata.}
+ \label{fig:metadata}
+\end{figure}
+
+
+
+% Metadata 2:
+
+\begin{figure}[h!]
+ \centering
+ \includegraphics[width=0.9\textwidth]{metadata_2}
+ \caption{Metadata 2.}
+ \label{fig:metadata_2}
+\end{figure}
 
 
 \section{SRAM Arbiter (sram\_arb\_sync.v)}
