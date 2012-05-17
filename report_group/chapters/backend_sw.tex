@@ -275,4 +275,29 @@ This configuration can be adapted to any email account. In the folder {\bf views
 %%ASK about the format of the config files and add it here
 
 \section{User Interface}
-Pavlos
+% Pavlos
+
+In order to provide an interface between the Superchip Tester, the database and the user, a webpage has been set up to provide the required functionality. The website provides access to the results database, but also allows the user to upload configuration files for the device.
+
+The design of the webpage is based on a website template found on \href{http://www.freecsstemplates.org/}{CSS Templates}, altered to provide a look and functionality suitable for interface to the chip tester.
+
+The webpage is laid out in a user-friendly and simple manner, with a navigation bar at the top of the page through which the user can browse the pages of the chip tester interface. The four entries in the navigation bar are \textit{Overview}, \textit{Admin}, \textit{Log Entries} and \textit{Upload Files}. In the main part of the screen, the content of the current view is displayed.
+
+\begin{figure}[ht]
+ \centering
+ \includegraphics[width=0.95\textwidth]{web_if_overview}
+ \caption{The ChipTester webpage showing an overview of the database.}
+ \label{fig:web_if_overview}
+\end{figure}
+
+In figure \ref{fig:web_if_overview}, a screenshot of the website showing the first navigation option, \textit{Overview}. This view takes the user to an overview of the database where the superchip test results are stored. The table displays information on completed tests such as the number of the team, information regarding when the test was run and the relevant academic year and the result of the test.
+
+Clicking on the result of an entry takes the user to a more detailed view of that specific run. In this view the user can also see the measured frequency of the oscillator of the design and the name of the design. If the design has failed the test, clicking on the failed result of the test takes the user to another view, where they can monitor the failed test in more detail. This page provides information on the failed test, to help identify the reason of the failure. In specific, the user can see information about the test run, including the input vector to the design and a comparison between the expected and the actual result.
+
+The second option of the navigation bar, \textit{Admin} prompts the user to enter their administrator credentials and takes them to the administrator view page. From this page, an administrator can reset the database, e-mail the results to a specified e-mail address, go to a detailed view of the database or add a new administrator to the system.
+
+\hl{more stuff about manage database}
+
+Choosing the third option on the navigation bar, \textit{Log Entries}, \hl{take the user to yet another webpage that I can't explain what it does}.
+
+The last option of the navigation bar, \textit{Upload Files} allows the user to upload a configuration file to the server. The user is asked to enter their e-mail and their team number and a file to upload.
