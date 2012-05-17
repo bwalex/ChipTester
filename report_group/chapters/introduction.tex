@@ -35,17 +35,17 @@ Cyclone IV FPGA. The following hardware relevant to this project is provided on
 the DE2-115 board:
 
 \begin{itemize}
- \item Altera Cyclone® IV EP4CE115 FPGA device 
- \item USB Blaster (on board) for programming; both JTAG and Active Serial (AS) programming modes are supported 
+ \item Altera Cyclone® IV EP4CE115 FPGA device
+ \item USB Blaster (on board) for programming; both JTAG and Active Serial (AS) programming modes are supported
  \item 2MB SRAM (organized as 1M x 16 bits)
  \item 128MB SDRAM
  \item 8MB CFI Flash memory
  \item SD Card socket
  \item 50MHz oscillator
- \item 2 Gigabit Ethernet PHY with RJ45 connectors 
- \item RS-232 transceiver and 9-pin connector 
- \item One 40-pin Expansion Header with diode protection 
- \item One High Speed Mezzanine Card (HSMC) connector 
+ \item 2 Gigabit Ethernet PHY with RJ45 connectors
+ \item RS-232 transceiver and 9-pin connector
+ \item One 40-pin Expansion Header with diode protection
+ \item One High Speed Mezzanine Card (HSMC) connector
  \item 16x2 Character LCD display
 \end{itemize}
 
@@ -53,5 +53,37 @@ the DE2-115 board:
 
 
 \section{System Overview}
-Pavlos (get started) \\
-see slides
+
+The Superchip tester designed within this project aims to provide a functional and user friendly testbench for the University of Southampton Superchips. To provide the required functionality, with a user-friendly interface and stable operation, the designed system can be considered into the following parts:
+
+\begin{itemize}
+ \item the main FPGA board (Altera DE2),
+ \item the DUT board (Superchip),
+ \item the secondary virtual design board (with programmable FPGA),
+ \item the database server (also providing backend software and interface).
+\end{itemize}
+
+A graphical illustration of the overview of the system can be seen in figure \ref{fig:intro_sys_overview}.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.9\textwidth]{sys_overview}
+\caption{Overview of the ChipTester system designed for the ELEC6027 VLSI Group Design Project, Team I.}
+\label{fig:intro_sys_overview}
+\end{figure}
+
+The DE2 main board hosts the SoPC core that provides the main functionality of the designed system and the harness to the device under test. The SoPC implements the chip testing functionality that is the main function of the project, implementing vector testing for the digital part of the DUT as well as frequency measurement of the oscillator on the DUT.
+
+The two external boards are connected to the FPGA and are tested in the same manner for correct function. The primary DUT board hosts the physical Superchip to be tested and monitored, while the secondary FPGA board contains a re-programmable soft implementation of the design on the board FPGA, to provide inspection of the pre-fabrication behaviour of the design. This way, both the design itself, as well as the physical implementation can be tested more thoroughly.
+
+The main DE2 board communicates with a backend server that holds a results database. The database is updated from the FPGA with test results, and also provides the user with the option to upload their digital designs to be transferred to the secondary board \hl{right?}. The server also provides an interface to the user, displaying the results of the database and allowing its management, and also sending e-mails with the test results.
+
+
+
+
+
+
+
+
+
+

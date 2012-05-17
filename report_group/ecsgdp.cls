@@ -187,7 +187,7 @@
       {\large the award of \par \degreename \par}
       \vfill
       {\normalsize Supervisor: \supname \par}
-      {\normalsize Examiner: \examname \par}
+%       {\normalsize Examiner: \examname \par}
       \vfill
       \hspace{6mm}\parbox[t][51mm][s]{89mm}{
         \center

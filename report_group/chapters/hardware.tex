@@ -216,36 +216,6 @@ The JTAG signals are intended to connect to dedicated JTAG pins on the host FPGA
 Tables \ref{tab:b1_hsmc_pinout} and \ref{tab:b2_hsmc_pinout} in the appendix show the pin-outs for the HSMC header on B1 and B2 boards, respectively.
 
 
-
-
-
-
-
-
-
-
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-% \section{PCB (virtual design board)}
-% Nano (and Joey)
-%
-% mention: reason behind choice of components, etc (e.g. 100 MS/s ADC,
-% because we use a 100MHz main clock on FPGA, also enough for sampling 10
-% MHz signals, etc.; Altera FPGA because uni uses Altera mainly)
-%
-% mention: filter design (3rd order passive Butterworth - I can provide
-% you with the transfer function and so on; filter was "designed" using
-% Elsie (a software you can download) and tested/characterised in Multisim)
-%
-% \section{HSMC board-to-board interface}
-% Nano (and Joey)
-%
-% mention: signals used on HSMC connector for each of the boards
-%
-% don't go into details as in, JTAG\_TMS on pin 1, JTAG\_TDO on pin 2,
-% etc; rather: we have a JTAG interface, a clock, 24 pins for this, 24
-% pins for that, SPI interface, ...
-
-
 \section{Chip Tester (Verilog Module)}
 Joey  (and a bit Alex) \\
    mention: reconfigurable clock domain, synchronizing DC FIFOs \\
@@ -258,4 +228,9 @@ Joey  (and a bit Alex) \\
 
 
 \section{SRAM Arbiter (sram\_arb\_sync.v)}
-Pavlos
+
+The SRAM arbiter allocates acces of the SRAM to the modules connected to the Avalon MM interface that require read/write access to the SRAM, namely the ADC, the SOPC core and the TestRunner \hl{right?}.
+
+Depending on a master selection signal, the arbiter selects one of the aforementioned modules and provides it with access to the SRAM. The arbiter also interfaces the read, write and enable signals between the two sides (SRAM and modules connected to the Avalon MM).
+
+Upon reset, the arbiter nulls all registers and disconnects all wires. Otherwise, the arbiter connects the selected module to the SRAM.

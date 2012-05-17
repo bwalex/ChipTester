@@ -97,9 +97,9 @@ The buffer and ADC are separately powered from the other parts of the board. The
 
 Slave FPGA is the core chip of the virtual design board. It can be used for programing designs when they are going to be tested. An Altera Cyclone III FPGA will be implemented as the slave FPGA.
 
-Cyclone III ($EP3C25E144$) belongs to Cyclone III device family. With densities ranging from about $5,000$ to $200,000$ logic elements (LEs) and $0.5Mb$ to $8Mb$ of memory for less than $\sfrac{1}{4}V$ of static power consumption, Cyclone III devices makes it easier to meet the power budget.\hl{[1](Cyclone III device handbook, Volume 1)}
+Cyclone III ($EP3C25E144$) belongs to Cyclone III device family. With densities ranging from about $5,000$ to $200,000$ logic elements (LEs) and $0.5Mb$ to $8Mb$ of memory for less than $\sfrac{1}{4}V$ of static power consumption, Cyclone III devices makes it easier to meet the power budget \citep{Altera:2011:cyclone3handbook}.
 
-The reason for choosing Cyclone III is their lowest power, high functionality with the lowest cost. $144$ pins are enough for this design. I/O pins on the Cyclone III are grouped together into I/O banks, and each bank has a separate power bus. There are eight I/O banks, as shown in \hl{Figure 1}. \hl{(Cyclone III device handbook, Volume 1)} All single-ended I/O standards are supported in all banks except HSTL-12 Class II which is only supported in column banks. The same case can be found in all differential I/O standards.
+The reason for choosing Cyclone III is their lowest power, high functionality with the lowest cost. $144$ pins are enough for this design. I/O pins on the Cyclone III are grouped together into I/O banks, and each bank has a separate power bus. There are eight I/O banks, as shown in \hl{Figure 1} \citep{Altera:2011:cyclone3handbook}. All single-ended I/O standards are supported in all banks except HSTL-12 Class II which is only supported in column banks. The same case can be found in all differential I/O standards.
 
 
 Each I/O banks of Cyclone III has a VREF bus to accommodate voltage-referenced I/O standards. Connect the VREF pin of each group to the appropriate voltage. In this design three voltage levels, which $VCCIO=3.3V$, $VCCINT= 1.2V$ and $VCCA=2.5V$, are necessary. Proper bypassing and decoupling technique for the power pins is very important for reliable design operation. In this case, additional decoupling capacitance is needed. The VCCINT, VCCIO and ground pins should add as many as $0.2\mu F$ power-supply decoupling capacitors as possible. So $0.01 \mu F$ capacitor for VCCIO and $0.1 \mu F$ for VCCINT seems to be appropriate. Note that all the capacitors should be place close enough to the power pins.
@@ -114,7 +114,7 @@ The clock source for initialization is either a $10MHz$ (typical) internal oscil
 
 The configuration mode is selected by driving the MSEL pins either low or high. The MSEL pins can be powered by VCCIO and GND. For AS mode, MSEL [1] should be pulled up by connecting to VCCIO. MSEL [0] and MSEL [2] are pulled down by connecting to GND. The MSEL pins have $9$ internal pull-down resistors that are always active.
 
-The maximum active master frequency for Cyclone III is $0MHz$ typically and device only work with serial configuration devices that support up to $40MHz$.
+The maximum active master frequency for Cyclone III is $30MHz$ typically and device only work with serial configuration devices that support up to $40MHz$.
 
 In AS mode, Cyclone III reads the configuration data providing by serial configuration (A Spansion SPI Flash is going to be introduced later) via a serial interface. The serial configuration device controls the configuration interface.
 
@@ -129,7 +129,7 @@ There are four pins on the serial configuration devices:
 Connect these four pins to Cyclone III device pins, as shown in \hl{Figure 2.}
 
 
-A 25 series resistor must connect a between serial configuration device and the Cyclone III device at the near end of the serial configuration device for DATA [0] when configure the Cyclone III device in the AS mode. The $25\Omega$ resistor works to minimize the driver impedance mismatch with the board trace and reduce the overshoot seen at the Cyclone III device input pin DATA [0].
+A $25\Omega$ series resistor must connect a between serial configuration device and the Cyclone III device at the near end of the serial configuration device for DATA [0] when configure the Cyclone III device in the AS mode. The $25\Omega$ resistor works to minimize the driver impedance mismatch with the board trace and reduce the overshoot seen at the Cyclone III device input pin DATA [0].
 
 The maximum trace length between Cyclone III device and the serial configuration device, in another words, the CLK, DATA [0], NCSO and ADSO pins, must less than $10in$. In the B1 PCB designing, only $8mm$ is used.
 
@@ -143,7 +143,7 @@ By driving the nCSO output pin low, which connect to nCS pin of the configuratio
 
 \subsubsection{Serial Configuration Device}
 
-Cyclone III FPGAs are programmable logic devices used for basic logic functions, chip-to-chip connectivity, signal processing, and embedded processing. They can be programmed and configured by a microprocessor, JTAG port, or directly bay a serial PROM or flash. Spansion SPI (Serial Peripheral Interface) flash $S25FL064K$ can configure the FPGA easily at power-up.\hl{[2] (SPANSION, Connecting Spansion SPI Serial Flash to Configure Altera FPGAs, revision 4, November 16, 2011)}.
+Cyclone III FPGAs are programmable logic devices used for basic logic functions, chip-to-chip connectivity, signal processing, and embedded processing. They can be programmed and configured by a microprocessor, JTAG port, or directly bay a serial PROM or flash. Spansion SPI (Serial Peripheral Interface) flash $S25FL064K$ can configure the FPGA easily at power-up \citep{Spansion:2011:appnote}.
 
 The three stages of the configuration cycle are power-on reset, configuration, and initialization. When the FPGA enters power-on rest (POR), it drives the nSTATUS signal low to indicate it is busy, drives the CONF\_DONE signal low to indicate the configuration has not been completed, and tri-states all I/O pins. All pins will be released after POR.
 
@@ -175,7 +175,7 @@ The header for JTAG and the header for SPI Flash In-system is use the same HSMC 
 
 \subsubsection{External Oscillator}
 
-As mentioned in the Cyclone III part, an external oscillator is needed as the clock source to provide certain frequency for the FPGA. A $50MHz$ oscillator of TXC will be implemented. The typical clock frequency for Cyclone III device is $30HMz$ and the maximum is $40MHz$. The TXC DEL04 oscillator is a sealed clock crystal oscillator unit with high precision characteristic covering up to wide frequency range ($1MHz$ to $170 MHz$), which is appropriate for the FPGA. The supply voltage range is $1.8V \tilde 5V$. [\hl{3] (TXC, Oscillators 7 X 5 mm SMD CMOS CXO 7W SERIES, datasheet)}
+As mentioned in the Cyclone III part, an external oscillator is needed as the clock source to provide certain frequency for the FPGA. A $50MHz$ oscillator of TXC will be implemented. The typical clock frequency for Cyclone III device is $30HMz$ and the maximum is $40MHz$. The TXC DEL04 oscillator is a sealed clock crystal oscillator unit with high precision characteristic covering up to wide frequency range ($1MHz$ to $170 MHz$), which is appropriate for the FPGA. The supply voltage range is $1.8V \sim 5V$ \citep{TXC:osc_datasheet}.
 
 
 
@@ -183,21 +183,21 @@ As mentioned in the Cyclone III part, an external oscillator is needed as the cl
 
 The $B2$ board needs at least three different voltage levels, as mentioned before, $VCCIO=3.3V$, $VCCINT= 1.2V$ and $VCCA=2.5V$. The external power source is provided by the main FPGA DE2-115 board at $3.3V$. Hence two voltage regulators are used to transfer $3.3V$ into $1.2V$ and $2.5V$.
 
-\paragraph{$1.2V$ Voltage Regulator $LD1117$}
-The $LD111712$ is a low drop voltage regulator able to provide up to $800mA$ of output current, available in adjustable version (). The device is supplied in DPAK surface mount package optimize the thermal characteristics even offering a relevant space saving effect. A very common $10$ minimum capacitor is needed for stability.\hl{ [4] (ST, LD1117xx datasheet, Adjustable and fixed low drop positive voltage regulator, revision 31, 13-Feb-2012)}
+\paragraph{1.2V Voltage Regulator \texorpdfstring{$LD1117$}{LD1117}}
+The $LD111712$ is a low drop voltage regulator able to provide up to $800mA$ of output current, available in adjustable version (). The device is supplied in DPAK surface mount package optimize the thermal characteristics even offering a relevant space saving effect. A very common $10$ minimum capacitor is needed for stability \citep{STMicro:2012:LD1117xx}.
 
 \hl{Figure 5} is the application circuit for $1.2V$ output.
 
 
 
-\paragraph{$2.5V$ Voltage Regulator $TPS78225$}
-The $TPS78228$ is a low dropout linear voltage regulator designed by TI. The enable pin (EN) is compatible with standard CMOS logic while the low drop output is stable with any capacitor greater than 1. The device requires minimal board space for miniaturized packaging and potentially small output capacitor.\hl{[5] (TI, TPS782 datasheet, 150mA, Ultra-low Quiescent Current, Low-Dropout Linear Regulator, 2008.9)}
+\paragraph{2.5V Voltage Regulator \texorpdfstring{$TPS78225$}{TPS78225}}
+The $TPS78228$ is a low dropout linear voltage regulator designed by TI. The enable pin (EN) is compatible with standard CMOS logic while the low drop output is stable with any capacitor greater than 1. The device requires minimal board space for miniaturized packaging and potentially small output capacitor \citep{TI:2008:TPS782}.
 
 The enable pin is active high and is compatible with standard and low-voltage CMOS levels. Therefore if the shutdown capacitor is not necessary, enable pin can connect to the IN pin as shown on \hl{Figure 6}.
 
 
 \subsubsection{HSMC Header}
-The Altera High Speed Mezzanine Card (HSMC) specification defines the electrical and mechanical properties of the HSMC adapter inter face for FPGA-based motherboards. The HSMC connector is based on the Samtec $0.5mm$ pitch, surface-mount $QTH/QSH$ family of connectors.\hl{ [6] (ALTERA, High Speed Mezzanine Card specification, revision 17, 2009.6)}. Two versions can are used in FPGA board. $ASP-122953-01$ Socket for the host boards and $ASP-122952-01$ Header for Mezzanine Cards (slave boards).
+The Altera High Speed Mezzanine Card (HSMC) specification defines the electrical and mechanical properties of the HSMC adapter inter face for FPGA-based motherboards. The HSMC connector is based on the Samtec $0.5mm$ pitch, surface-mount $QTH/QSH$ family of connectors \citep{Altera:2009:HSMCspec}. Two versions can are used in FPGA board. $ASP-122953-01$ Socket for the host boards and $ASP-122952-01$ Header for Mezzanine Cards (slave boards).
 
 \hl{Figure 7} is the diagram for HSMC header. The clock-data-recovery differential signals in Bank 1 are the highest frequency signals. Signals between the HSMC connector and the host board FPGA device are intended to be D/C coupled. The JTAG, a system management bus (SMBus), and clock signals are also dedicated in Bank 1. In banks 2 and Bank 3, there are main CMOS/LVDS interface signals, including LVDS/COMS clocks, as well as both $12V$ and $3.3V$ power pins.
 
@@ -213,37 +213,7 @@ The $ASP-122952-01$ header provides $160$ total pins and $12$ ground plane conne
 
 The JTAG signals are intended to connect to dedicated JTAG pins on the host FPGA and be part of the JTAG chain. The JTAG signals TCK, TMS and TDI are intended to be output from host board while JTAG TDO should be the input to host board as \hl{Figure 4} before.
 
-
-
-
-
-
-
-
-
-
-
-
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\section{PCB (virtual design board)}
-Nano (and Joey)
-
-mention: reason behind choice of components, etc (e.g. 100 MS/s ADC,
-because we use a 100MHz main clock on FPGA, also enough for sampling 10
-MHz signals, etc.; Altera FPGA because uni uses Altera mainly)
-
-mention: filter design (3rd order passive Butterworth - I can provide
-you with the transfer function and so on; filter was "designed" using
-Elsie (a software you can download) and tested/characterised in Multisim)
-
-\section{HSMC board-to-board interface}
-Nano (and Joey)
-
-mention: signals used on HSMC connector for each of the boards
-
-don't go into details as in, JTAG\_TMS on pin 1, JTAG\_TDO on pin 2,
-etc; rather: we have a JTAG interface, a clock, 24 pins for this, 24
-pins for that, SPI interface, ...
+Tables \ref{tab:b1_hsmc_pinout} and \ref{tab:b2_hsmc_pinout} in the appendix show the pin-outs for the HSMC header on B1 and B2 boards, respectively.
 
 
 \section{Chip Tester (Verilog Module)}
@@ -259,3 +229,22 @@ Joey  (and a bit Alex) \\
 
 \section{SRAM Arbiter (sram\_arb\_sync.v)}
 Pavlos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

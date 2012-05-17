@@ -295,13 +295,13 @@ and shown in Table \ref{table:adc_memorymap}.
 
 \newpage
 \section{Frequency counter}
-% Pavlos
 
 \subsection{Overview and Specification}
 
 The frequency counter module of the Superchip tester is connected to the oscillator found in the superchip designs, to measure its output frequency.
 
-According to specification for the academic year $2011-12$, the ring oscillators found in the teams' superchip designs have a basic frequency of $1MHz$ and an offset frequency of the teams' ID number multiplied by $250kHz$ \citep{Southampton:2011:spec}. For $16$ teams, the frequency range would be $1250kHz - 5000kHz$.
+According to specification for the academic year $2011-12$, the ring oscillators found in the teams' superchip designs have a basic frequency of $1MHz$ and an offset frequency of the teams' ID number multiplied by $250kHz$ \citep{Southampton:2011:spec}. For $16$ teams, the frequency range would be $1250kHz - 5000kHz$. The designed frequency counter can successfully measure this frequency range, with a worst-case resolution of $200kHz$ for a $5MHz$ input; and a fesolution of $10kHz$ for $1MHz$ input, for a single measurement. The resolution of the samples can be improved by increasing the number of sampling periods.
+
 
 \subsection{Functionality}
 
