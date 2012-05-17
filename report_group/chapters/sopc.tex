@@ -295,35 +295,120 @@ and shown in Table \ref{table:adc_memorymap}.
 
 \newpage
 \section{Frequency counter}
+The frequency counter peripheral provides a simple memory-mapped interface to
+measure the frequency on an input signal. Figure \ref{figure:fcounter_blackbox}
+shows a black box view of the module.
 
-\subsection{Overview and Specification}
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=0.4\textwidth]{fcounter_periph}
+\caption{Black box overview of the frequency counter module}
+\label{figure:fcounter_blackbox}
+\end{center}
+\end{figure}
 
-The frequency counter module of the Superchip tester is connected to the oscillator found in the superchip designs, to measure its output frequency.
+The frequency counter consists
+of three modules, a $N-to-1$ multiplexer, the measurement module and a control module.
 
-According to specification for the academic year $2011-12$, the ring oscillators found in the teams' superchip designs have a basic frequency of $1MHz$ and an offset frequency of the teams' ID number multiplied by $250kHz$ \citep{Southampton:2011:spec}. For $16$ teams, the frequency range would be $1250kHz - 5000kHz$. The designed frequency counter can successfully measure this frequency range, with a worst-case resolution of $200kHz$ for a $5MHz$ input; and a fesolution of $10kHz$ for $1MHz$ input, for a single measurement. The resolution of the samples can be improved by increasing the number of sampling periods.
+The input bus is normally connected to the 24 outputs of the chip under test. The
+multiplexer multiplexes the input bus onto a single internal signal using a select signal
+which is reconfigurable via software. This allows for measurement of clock frequency
+on any of the Superchip outputs without any hardware modifications.
 
+In order to avoid metastability, since the input signal is effectively crossing a
+clock domain, the design contains a synchroniser stage, to synchronise the input signal
+with the FPGA clock.
 
-\subsection{Functionality}
+During operation, the frequency counter will count the number of rising edges on the
+input signal over a configurable number of cycles of the system clock.
 
-Since the clock of the FPGA is significantly faster than the oscillator frequency, the frequency counter designed for this project counts the number of the oscillator signal edges over a given number of FPGA clock cycles. The frequency counter consists of three modules, a $24-to-1$ multiplexer, the measurement module and a control module. When the frequency counter is enabled, the processor provides it with the required number of clock cycles. The counter starts counting the rising edges of the input signal and after it stops counting, once the specified number of clock cycles has been reached, it raises an interrupt signal for the data to be read from the processor. While the active-low $nReset$ signal is enabled, the counter ceases all function and all registers and outputs are nulled.
+The number of cycles over which
+the edges on the input signal are measured is configurable via software to any value up
+to $2^{32}$ cycles. After reset this value is $2^{23}$ cycles.
 
-\paragraph{Multiplexer}
-The purpose of the multiplexer is to connect the measurement module to the correct pin of the chip under test, to achieve better reconfigurability. In order to provide compatibility of the design with chips whose oscillator output can be different, the multiplexer is connected to all design outputs and only connects the one specified by the processor to the measurement module.
+Once the module has gone through the required clock cycles, it stops counting input signal
+edges and an $count\_overflow$ flag is raised which results in an interrupt being raised
+from the control module.
 
-\paragraph{Measurement Module}
-The measurement module of the frequency counter provides the main functionality of the design, measuring the number of input signal periods over a specified time. This module is provided with the target number of clock cycles and the input signal (to be measured). In order to maintain signal integrity, since the input signal is effectively crossing a clock domain, the design contains a synchroniser stage, to synchronise the input signal with the FPGA clock. When the module is enabled, the edge counter increments its value on every rising edge of the input signal. Once the module has gone through the required clock cycles, it stops counting input signal periods and an $count\_overflow$ flag is raised.
+By knowing both the number of system clock cycles over which measurement took place
+and the number of edges of the input clock to be measured that occured over the same
+period, it is possible to determine the ratio of the system frequency to the input
+frequency. Since the system frequency is known, the input frequency can be determined.
 
 
 \paragraph{Control Module}
-The frequency counter control module handles the communication and the input setup data from the processor, as well as the the output data from the measurement module. It provides an Avalon Memory Mapped slave interface for communication with the NIOS II processor as well as an Avalon Interrupt signal interface ($IRQ$) and a $busy$ signal.
+The frequency counter control module handles the communication and the input setup
+data from the processor, as well as the the output data from the measurement module.
+It provides an Avalon Memory Mapped slave interface for communication with the
+NIOS II processor as well as an Avalon Interrupt sender interface (\texttt{IRQ}).
 
-Before starting the frequency measurement procedure the NIOS core writes data to the frequency counter, to specify parameters such as the duration of the measurement. When the $write$ signal in the Avalon interface is active, the register specified on the address bus is written with the data on the data bus.
+Table \ref{table:fcounter_memorymap} shows the relative memory map of the frequency
+counter module.
 
-The internal $enable$ signal to start the process is activated by the controller when a dedicated register is written with a unity value and kept high for a single clock cycle. As long as the frequency counter is enabled and counts periods of the input wave, the controller keeps the $busy$ signal high to inform the NIOS II core that it is processing.
 
-The data stored on the registers of the controller are kept steady and provided to the other modules of the frequency counter. Once the measurement module is done and the $done$ flag is enabled, the controller stores the count value to the relevant register and raises the $irq$ signal to the processor.
+\begin{table}[h!]
+\centering
+\begin{tabular}{ | l | l | }
+ \hline
+   Address       & Description \\
+ \hline
+   \texttt{0x00} & Input select Register \\
+ \hline
+   \texttt{0x02} & Edge count Register \\
+ \hline
+   \texttt{0x03} & Cycle (timeout) count Register \\
+ \hline
+   \texttt{0x04} & IRQ Register \\
+ \hline
+   \texttt{0x05} & ID Register \\
+ \hline
+   \texttt{0x0A} & Enable Register \\
+ \hline
+\end{tabular}
+\caption{Relative memory map of the frequency counter module}
+\label{table:fcounter_memorymap}
+\end{table}
 
-Following an interrupt request, the processor starts reading values from the registers of the frequency counter module. When the $read$ signal in the Avalon interface is active, the module outputs the data on the register specified on the address bus to the processor. Meanwhile, when data is read from the registers, the $readdatavalid$ signal is high as well. When the data contained in the registers is read after a calculation procedure and an interrupt request to the processor, the $irq$ signal is cleared.
+
+
+The Cycle (timeout) count register determines the number of system
+clock cycles over which the frequency is measured.
+
+The ID register contains a constant used by the driver to verify the functioning
+of the module.
+
+The input select register is wired to the select input of the input multiplexer. This
+register determines which input line is measured.
+
+The edge count register is the output of the frequency counter. It contains the number
+of input clock edges counted during the measurement interval. This register is valid
+after an interrupt has been raised.
+
+A write to the enable register initiates the counting operation.
+
+The IRQ register is set to 1 when the counting operation completes. Reading from
+the IRQ register will clear it. The interrupt line \texttt{IRQ} is held high
+while the IRQ register is not cleared, notifying the CPU of the completed operation.
+
+
+\paragraph{Resolution and Performance}
+The module was designed to be able to measure frequencies according to specification
+for the academic year $2011-12$ D2 Superchip' ring oscillators.
+These oscillators have a basic frequency of $1MHz$ and an offset frequency of the teams' ID number
+multiplied by $250kHz$ \citep{Southampton:2011:spec}. For $16$ teams, the frequency
+range would be $1250kHz - 5000kHz$.
+
+Using the 100 MHz system clock, the designed frequency counter can successfully measure frequencies up to
+50 MHz. The resolution and the lower end of the frequency spectrum is determined by the configurable
+number of system clock cycles over which the measurement takes place. This value however also impacts
+the measurement time.
+
+The default value of $2^{23}$ cycles results in a measurement time of approximately $85 ms$ and a resolution
+in the tens of Hz. The best achievable resolution is achieved with measurement over $2^{32}$ cycles, or
+43 seconds. The achievable resolution is then in the tens of mHz.
+
+
+
 
 
 \newpage
@@ -374,3 +459,58 @@ come from the clock crossing adapters to cross from the 100 MHz to the 10 MHz cl
 \caption{Resource consumption by SoPC module (only the largest modules are shown), and total (including all modules). Note that the total logic cell usage is not a sum of the combinational and register logic cells, since some logic cells contain both combinational logic and registers. The total number of logic cells used by the SoPC is 17,453}
 \label{table:linuxsys_resusage}
 \end{table}
+
+
+
+
+\section{ADC (belongs into Hardware, not here)}
+The ADC module is used to control the external ADC and store its samples into SRAM.
+Figure \ref{figure:adc_blackbox} shows a black box view of the module.
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=0.4\textwidth]{adc_periph}
+\caption{Black box overview of the ADC module}
+\label{figure:adc_blackbox}
+\end{center}
+\end{figure}
+
+The module is enabled by asserting the \texttt{enable} signal for one clock cycle. When
+the module completes the sampling, it asserts the \texttt{done} signal until it is enabled
+again.
+
+The \texttt{enable} and \texttt{done} signals are connected to the ADC interface
+in the SoPC, as described in the SoPC section.
+
+
+Figure \ref{figure:state_adc} shows a simplified state diagram of the ADC module's state
+machine. The module starts up in the \texttt{END} state. While in this state, the
+ADC powerdown signal remains asserted, putting the ADC chip into low power mode. In this
+state the ADC clock enable signal is deasserted, so that the clock to the ADC is gated.
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\textwidth]{state_adc}
+\caption{Simple state diagram of the ADC module}
+\label{figure:state_adc}
+\end{center}
+\end{figure}
+
+When the external \texttt{enable} signal is asserted, the module transitions into the
+\texttt{IDLE} state, where it stays until the SRAM arbiter deasserts the \texttt{mem\_waitrequest}
+signal. As soon as the SRAM is ready, the module transitions into the \texttt{POWERUP} state
+which ensures that the ADC has enough time after deasserting the powerdown signal to
+get back into normal operating mode.
+
+After the ADC has fully powered up, the module transitions between the \texttt{SAMPLE1} and
+\texttt{SAMPLE2} states, taking a sample during each and storing it into the upper and lower
+bytes of a 16-bit register, respectively.
+
+During the \texttt{SAMPLE2} state, this 16 bit register is written out to SRAM via the
+Avalon MM interface to the SRAM arbiter.
+
+As soon as the SRAM is full the module transitions back into the \texttt{END} state, in which
+the \texttt{done} signal is asserted notifying the ADC interface in the SoPC that the ADC
+module has finished sampling and the ADC is powered down.
+
+
+
