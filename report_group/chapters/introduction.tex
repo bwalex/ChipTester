@@ -79,8 +79,9 @@ A graphical illustration of the overview of the system can be seen in figure \re
 \end{figure}
 
 
-The DE2 main board hosts the SoPC core that provides the main functionality of
-the designed system and the harness to the device under test. The SoPC and harness implement
+The DE2 main board hosts the System on Programmable chip (SoPC) core and the harness to
+the device under test that provide the main functionality of
+the designed system. The SoPC and harness implement
 the chip testing functionality that is the main function of the project, implementing
 vector testing for the digital part of the DUT as well as frequency measurement of
 the oscillator on the DUT, ADC capture and slave FPGA reprogramming.
@@ -106,7 +107,7 @@ display them to the user via a user-friendly web interface. The web interface,
 in addition to displaying results, also allows the users to upload a design and configuration
 archive that is used to program slave FPGA with an arbitrary design and test it.
 
-The backend is also able to send out email summaries of test results as soon as they
+The backend is able to send out email summaries of test results as soon as they
 come in from the main DE2 board.
 
 An administration interface allowing for database management is also provided.
