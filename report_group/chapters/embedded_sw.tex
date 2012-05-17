@@ -744,61 +744,80 @@ are used for the HTTP API accesses to the backend.
 
 \newpage
 \section{SPI Flash Programmer and Model}
-The Spansion S25FL064K0SMFI011 memory flash present in the second FPGA has to be programmed through 
-SPI, to program the memory the \texttt{spi\_flash.c} uses  the SPI kernel framework present in Linux 
-since kernel version 2.6.27. 
+The SPI Flash Programmer software is able to program the Spansion SPI Flash Memory
+on the secondary FPGA board via the the SPI framework present in Linux 
+since kernel version 2.6.27.
 
-The commands that the flash can perform (to see the full set of commands 
-please refer to the data-sheet of the flash memory) that were implemented in the \texttt{spi\_flash.c} 
-are presented in the table \ref{tab:spi_commands}.
+\begin{figure}[h!]
+\lstset{basicstyle=\scriptsize\ttfamily}
+\begin{lstlisting}
+Usage: ./spi_flash [-DsbdlHOLC3] <file to program>
+  -D --device   device to use (default /dev/spidev1.1)
+  -c            chip erase instead of individual sectors
+  -i            print information about flash and exit
+  -t            perform the operation(s) on the flash model
+  -s --speed    max speed (Hz)
+  -d --delay    delay (usec)
+  -b --bpw      bits per word 
+  -l --loop     loopback
+  -H --cpha     clock phase
+  -O --cpol     clock polarity
+  -L --lsb      least significant bit first
+  -C --cs-high  chip select active high
+  -3 --3wire    SI/SO signals shared
+\end{lstlisting}
+\caption{Usage message of the spi\_flash program}
+\end{figure}
 
-\begin{table}[h!]\scriptsize
+The utility provides three operating modes:
+
+\begin{itemize}
+ \item Using the \texttt{-i} flag, the program only prints information about the device such as manufacturer id, unique id and capacity and exits.
+ \item Without the \texttt{-i} flag the utility writes the file specified on the command line to the SPI flash by either erasing the complete chip or individual sectors as they are being written.
+ \item With the \texttt{-t} flag, all the operations occur on the flash model (described in the next section) instead of on the actual hardware.
+\end{itemize}
+
+To achieve these operations, the spi\_flash utility implements support for the SPI Flash commands listed in Table \ref{tab:spi_commands}.
+
+\begin{table}[h!]
 \centering
-    \begin{tabular}{ | l | l | p{6cm} |}
+    \begin{tabular}{ | l | p{12cm} |}
     \hline
-    Byte & code & Description \\ \hline
-    0x06 & write\_enable(int fd) & Write Enable Instruction, it is used every time a write or erased instruction 
+    Byte & Description \\ \hline
+    0x06 & Write Enable Instruction, it is used every time a write or erase instruction 
     is performed. It sets the WRITE ENABLE LATCH (WEL) in the status register to 1\\ \hline
-    0x04 & write\_disable(int fd) & Disables the write enable. Sets the WRITE ENABLE LATCH (WEL) in the status register to 0.\\ \hline
-    0x50 &  write\_enable\_sreg(int fd) & It enables the write for the volatile bits in the status register.\\ \hline
-    0x05 & read\_sreg1(int fd, uint8\_t *sreg1) &  It allows the 8-bit Status Registers 1 to be read and stores the 
-    content in the address pointed by \texttt{*sreg1}. \\ \hline
-    0x35 & read\_sreg2(int fd, uint8\_t *sreg2) &  It allows the 8-bit Status Registers 2 to be read and stores the 
-    content in the address pointed by \texttt{*sreg2}.\\ \hline
-    0x01 & write\_sreg(int fd, uint8\_t sreg1, uint8\_t sreg2) & After a Write enable for status register has been issued the Write Status register can
-    write to the non volatile bits from the  status register 1 and 2. The bytes \texttt{sreg1} and \texttt{sreg2} are written then to the respective registers.\\ \hline
-    0xC7 & chip\_erase(int fd) & It sets all the memory within the device to the read state of all 0xFF\\ \hline
-    0x03 & read\_data(int fd, uint32\_t addr, size\_t len, uint8\_t *buffer) & It reads the amount of data \texttt{len} starting from the address \texttt{addr} 
-    and stores it in the address pointed by \texttt{ *buffer }\\ \hline
-    0x9F & read\_jedecID(int fd, read\_jedec\_id *jedec\_data)It reads the JEDEC assigned Manufacturer ID byte and two Device ID
-    bytes, Memory Type and Capacity and stores it the structired pointed by \texttt{*jedec\_data}\\ \hline
-    0x4B & read\_unique\_id(int fd, uint64\_t *unique\_id)& The Read Unique ID Number instruction accesses a factory-set read-only 64-bit number that is unique to
-    each S25FL064K device and stores it in the address pointed by \texttt{*unique\_id}.\\ \hline
-    0x90 & read\_manufacturer\_id(int fd, manufacturer\_read *mf\_data) & It returns the Manufacturer JEDEC ID and the specific device ID which is stored 
-    within the \texttt{mf\_data} structure.\\ \hline
-    0x02 & page\_program(int fd, uint32\_t addr, uint8\_t *data, size\_t len) & The page program instruction programs the memory starting fom the address
-    \texttt{addr} with the data pointed by \texttt{*data}. \\ \hline
-    0xD8 & block\_64\_eraser(int fd, uint32\_t addr) & It erases a block of 64kb starting from the address \texttt{addr}\\ \hline
-    0x52 & block\_32\_eraser(int fd, uint32\_t addr) & It erases a block of 32kb starting from the address \texttt{addr}\\ \hline
-    0x20 & sector\_eraser(int fd, uint32\_t addr) & It erases a block of 4kb starting from the address \texttt{addr}\\ \hline
+    0x04 & Disables the write enable. Sets the WRITE ENABLE LATCH (WEL) in the status register to 0.\\ \hline
+    0x50 & Enables the write for the volatile bits in the status register.\\ \hline
+    0x05 &  Reads the first status register word \\ \hline
+    0x35 &  Reads the second status register word\\ \hline
+    0xC7  & Performs a chip erase It sets all the memory within the device to the read state of all 0xFF\\ \hline
+    0x03 & Reads from the Flash memory\\ \hline
+    0x9F & Reads the JEDEC assigned Manufacturer ID byte and two Device ID
+    bytes, Memory Type and Capacity \\ \hline
+    0x4B & The Read Unique ID Number instruction accesses a factory-set read-only 64-bit number that is unique to
+    each device\\ \hline
+    0x90 & Reads the Manufacturer JEDEC ID and the specific device ID\\ \hline
+    0x02 & The page program instruction programs a page (256 bytes) of memory \\ \hline
+    0xD8 & Erases a  64kB block\\ \hline
+    0x52 & Erases a 32kB block\\ \hline
+    0x20 & Erases a 4kB sector \\ \hline
     \end{tabular}
     \caption{SPI commands}
     \label{tab:spi_commands}
 \end{table}
 
-Using this commands to communicate with the flash through the SPI, the function 
-\begin{lstlisting}
-static int prog_flash_from_file(int spi_fd, int erase_sectors, const char *file_in)
-\end{lstlisting}
-is used to program the flash, on the second FPGA, reading from a file (provided by the user when uploading files to the system).
 
 \subsection{SPI Flash Model}
+To verify the correct operation of the SPI Flash Programmer, an SPI Flash
+Model was written independently for use with the programmer. It implements the same commands as shown in the 
+table \ref{tab:spi_commands}.
 
-To verify the correct operation of the SPI Flash Programmer, a simple SPI Flash
-Model was written independently for use with the programmer. It implements the same commands shown in the 
-table \ref{tab:spi_commands} and the SPI flash programmer communicates to it as if it were a real flash plugged in. This model
-was written in order to provide verification for the SPI Flash Programmer without having the real flash connected, therefore lowering the debug times
-when the real board arrives.
+When in test mode, the spi flash programmer communicates exclusively with the model
+instead of the actual kernel SPI framework.
+
+This model was written in order to provide verification for the SPI Flash Programmer
+without having the real flash connected.
+
 
 \newpage
 \section{vconfig}
