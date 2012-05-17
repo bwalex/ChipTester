@@ -2,7 +2,7 @@
 ------------------------
 
 \section{Overview}
-  In order to store and show the results sent from the {\bf FPGA} in a database a web server was developed; this server provides the user an interface where they can 
+  In order to store and show the results sent from the {\bf FPGA} in a database a web server was developed; this server provides the user an interface where they can
 see and manage the results, upload designs and configuration files to the {\bf chip tester} and administrate the database where the results have been stored. Basically
 the web server ``serves'' the content to the user through the Internet to a web page, where the users (administrators or students) can check the results of their designs
 or manage the results stored in the database. The users load their designs into the web server and then whenever the FPGA sends a ``download configuration files request''
@@ -19,13 +19,13 @@ a test has been done.
 
  Nowadays almost every programming language provides libraries to develop web servers; for this application we required a robust, easy to use, programming language. Java, Python, PhP, Ruby,
 Perl are the most common languages used to develop servers. We decided to use Ruby with its{\bf web framework} Sinatra because Ruby is a general-purpose object-oriented programming language easy to learn
-and powerful, Sinatra is a Domain Specific Language (DSL) for quickly creating web applications in ruby. 
+and powerful, Sinatra is a Domain Specific Language (DSL) for quickly creating web applications in ruby.
 
 WEBrick is an HTTP server built as part of Ruby 1.8 and it is the default HTTP server when
-developing an application in ruby, not to mention the core of the application itself, nevertheless, WEBbrick has a major drawback: It does a reverse DNS lookup for every incoming HTTP request on 
-the IP address that makes the request. This means that if the FPGA has no entry for a reverse DNS the server has to wait until the lookup times out (the default timeout in WEBbrick is 5 seconds). 
+developing an application in ruby, not to mention the core of the application itself, nevertheless, WEBbrick has a major drawback: It does a reverse DNS lookup for every incoming HTTP request on
+the IP address that makes the request. This means that if the FPGA has no entry for a reverse DNS the server has to wait until the lookup times out (the default timeout in WEBbrick is 5 seconds).
 This feature can be ``easily'' changed modifying some native code in the WEBbrick library, nevertheless, it has to be changed whenever the environment is set up again. The solution to this problem is to
-use Unicorn, Unicorn is an HTTP server that has been designed to be fast and easily configurable, therefore it has the reverse DNS lookup disabled by default and performs the calls from the FPGA in milliseconds.  
+use Unicorn, Unicorn is an HTTP server that has been designed to be fast and easily configurable, therefore it has the reverse DNS lookup disabled by default and performs the calls from the FPGA in milliseconds.
 
 \section{Server}
 
@@ -36,15 +36,15 @@ use Unicorn, Unicorn is an HTTP server that has been designed to be fast and eas
 \label{fig:server_structure}
 \end{figure}
 
-  Inside the folder called {\bf server} are all the files regarding to our back-end application. In the folder {\bf public} are the stylesheets for the web page styling, and the images 
+  Inside the folder called {\bf server} are all the files regarding to our back-end application. In the folder {\bf public} are the stylesheets for the web page styling, and the images
 displayed in the page, in {\bf uploads} are all the files uploaded in the server by the users, in {\bf utils} are some utility scripts written in ruby such as secure password generation,
-{\bf views} contains all the views in the page that the different users can have access to and in the folder {\bf adc\_data} are all the measurements taken by the adc in the tester and uploaded 
+{\bf views} contains all the views in the page that the different users can have access to and in the folder {\bf adc\_data} are all the measurements taken by the adc in the tester and uploaded
 on the server by the FPGA.
 
 \subsection{Database}
 
-  Datamapper is an ORM (Object-Relational Mapping) that maps objects written in ruby to any supported database, thus giving freedom to the administrators of the system to use any database system (such as 
-MySQL, SQLite, Postgres,\ldots) to choose the database the administrator simply has to change the configuration parameters in the file {\bf config.yml} (found in the server folder) as shown in the 
+  Datamapper is an ORM (Object-Relational Mapping) that maps objects written in ruby to any supported database, thus giving freedom to the administrators of the system to use any database system (such as
+MySQL, SQLite, Postgres,\ldots) to choose the database the administrator simply has to change the configuration parameters in the file {\bf config.yml} (found in the server folder) as shown in the
 figure \ref{fig:database_config} where the administrator has set up the database system with MySql.
 
 \begin{figure}[htb]
@@ -77,9 +77,9 @@ more administrators to the system and 1 means that can only manage the database)
     \label{tab:admin_table}
 \end{table}
 
-The initial administrator and master Administrator is configured in the archive config.yml as shown in the figure \ref{fig:admin_config}. For security reasons the password of 
+The initial administrator and master Administrator is configured in the archive config.yml as shown in the figure \ref{fig:admin_config}. For security reasons the password of
 the initial administrator must be encrypted using the script {\bf pass.rb} located in server/utils. Whenever the server is run by the first time, or the database
-has been created again this user will be mapped into the database, granting always access to the administrator. 
+has been created again this user will be mapped into the database, granting always access to the administrator.
 
 \begin{figure}[htb]
 \centering
@@ -116,7 +116,7 @@ if there has been an error in the vector file uploaded to test the results, the 
     \label{tab:log_entry_table}
 \end{table}
 
-The result table \ref{tab:Result_table} has an overview of the design uploaded into the FPGA. This table is displayed to the user in the overview view. 
+The result table \ref{tab:Result_table} has an overview of the design uploaded into the FPGA. This table is displayed to the user in the overview view.
 
 \begin{table}[h!]
 \centering
@@ -142,7 +142,7 @@ The table Design Results \ref{tab:design_result_table} belongs to the Results ta
     \label{tab:design_result_table}
 \end{table}
 
-The table Test Vector Result \ref{tab:Test_vector_result_table} belongs to the table Design Result and it has more detailed information (for example the expected inputs vectors and the obtained results) inherent to the design tested on the FPGA. 
+The table Test Vector Result \ref{tab:Test_vector_result_table} belongs to the table Design Result and it has more detailed information (for example the expected inputs vectors and the obtained results) inherent to the design tested on the FPGA.
 
 \begin{table}[h!]
 \centering
@@ -165,7 +165,7 @@ The table Test Vector Result \ref{tab:Test_vector_result_table} belongs to the t
 \end{table}
 
 The Frequency Measurement table \ref{tab:Frequency_measurement_table} belongs to the Design result table and has data related to the measurement of the frequency of the digital
-oscillator on the chip. The frequency field is a float with the value of the measured frequency and the pin field is the defined pin used to measure the frequency. 
+oscillator on the chip. The frequency field is a float with the value of the measured frequency and the pin field is the defined pin used to measure the frequency.
 
 \begin{table}[h!]
 \centering
@@ -178,7 +178,7 @@ oscillator on the chip. The frequency field is a float with the value of the mea
     \label{tab:Frequency_measurement_table}
 \end{table}
 
-The ADC Measurement table \ref{tab:ADC_measurement_table} belongs to the Design result table and has data related to the sampling of the digital signal coming from the digital oscillator 
+The ADC Measurement table \ref{tab:ADC_measurement_table} belongs to the Design result table and has data related to the sampling of the digital signal coming from the digital oscillator
 on the chip.
 
 \begin{table}[h!]
@@ -195,9 +195,9 @@ on the chip.
 
 \section{API}
 
-The way the FPGA communicates to the server is through the Hypertext Transfer Protocol (HTTP). In the client-server model HTTP works as a request-response protocol. The FPGA and the user web browser act as clients, while the application running 
-on the computer hosting the web site is the server. The FPGA and web browser submit HTTP request messages to the server. The server stores content, provides resources such as configuration files, sends emails, manages the database on behalf of the clients. 
-HTTP defines 9 methods indicating the action to be performed on a resource: HEAD, GET, POST, PUT, DELETE, TRACE, OPTION, CONNECT and PATCH. To develop this application we have used only three of this methods {\bf GET} which retrieves information from the server, 
+The way the FPGA communicates to the server is through the Hypertext Transfer Protocol (HTTP). In the client-server model HTTP works as a request-response protocol. The FPGA and the user web browser act as clients, while the application running
+on the computer hosting the web site is the server. The FPGA and web browser submit HTTP request messages to the server. The server stores content, provides resources such as configuration files, sends emails, manages the database on behalf of the clients.
+HTTP defines 9 methods indicating the action to be performed on a resource: HEAD, GET, POST, PUT, DELETE, TRACE, OPTION, CONNECT and PATCH. To develop this application we have used only three of this methods {\bf GET} which retrieves information from the server,
 {\bf POST} which sends data to the server as part of the request and {\bf DELETE} which deletes resources. The figure \ref{fig:get_example} shows an example of the get method, both in the server and in the browser.
 
 \begin{figure}[htb]
@@ -208,7 +208,7 @@ HTTP defines 9 methods indicating the action to be performed on a resource: HEAD
 \end{figure}
 
 In order to communicate from the FPGA to the server a data exchange language is needed; the most popular data exchange language is ``XML'', nevertheless, adding the xml parsing libraries in the $\mu$Clinux
-would slow down the parsing data process due to the complexity of the xml libraries. JSON, is a lightweight data exchange library supported in C (for the FPGA) and ruby (for the Server) therefore it was perfect 
+would slow down the parsing data process due to the complexity of the xml libraries. JSON, is a lightweight data exchange library supported in C (for the FPGA) and ruby (for the Server) therefore it was perfect
 for our application. The figure \ref{fig:Json_message} shows an example of a message in the JSON format that would be sent from the FPGA to the server.
 
 \begin{figure}[htb]
@@ -219,7 +219,7 @@ for our application. The figure \ref{fig:Json_message} shows an example of a mes
 \end{figure}
 
 The table \ref{tab:api_server_fpga} shows the ``URL'' the FPGA uses to connect to the server, and a brief description of what each command does in the server. :result\_id, :design\_id,
-and :name are parameters attached in the ``URL'' that ruby uses as information. 
+and :name are parameters attached in the ``URL'' that ruby uses as information.
 
 \begin{table}[h!]
 \centering
@@ -242,13 +242,13 @@ and :name are parameters attached in the ``URL'' that ruby uses as information.
 \subsection{Security}
 
 Whenever in an application is stored any user password security must be added. For instance a user could have the same password for our application than for their email, thus, if an attacker gains control over our database and the passwords are unprotected the consequences would be
-terrible. The solution to harden the security in the application is to create a digital ``fingerprint'' or hash of the password and store it in the database because this process is not reversible (in other words you cannot go back from hash to password). 
-Ruby offers a library to manage secure passwords storage called BCrypt, usually hashing algorithms are designed to be quick, therefore, attackers can generate more possible passwords in less time (as computing power increases more and more). Nevertheless, Bcrypt has been designed to 
-be computational costly. 
+terrible. The solution to harden the security in the application is to create a digital ``fingerprint'' or hash of the password and store it in the database because this process is not reversible (in other words you cannot go back from hash to password).
+Ruby offers a library to manage secure passwords storage called BCrypt, usually hashing algorithms are designed to be quick, therefore, attackers can generate more possible passwords in less time (as computing power increases more and more). Nevertheless, Bcrypt has been designed to
+be computational costly.
 
-The figure \ref{fig:initial_pass} shows the use of the script found in the folder {\bf /utils} ``pass.rb'' to encrypt the initial passsword of the database. As can be seen the two encrypted passwords are different, this is because everytime Bcrypts encrypts a password adds some random data 
+The figure \ref{fig:initial_pass} shows the use of the script found in the folder {\bf /utils} ``pass.rb'' to encrypt the initial passsword of the database. As can be seen the two encrypted passwords are different, this is because everytime Bcrypts encrypts a password adds some random data
 (called salts) wich increase the protection of the password against attackers. Also note that both encrypted passwords start with ``\$2a\$10\$...'' where ``2a'' is the version of the hashing algorithm used to create the hash and ``10'' is the cost factor used to generate the password. This cost factor
-was designed to cope with ``Moore's Law'' due to the fact that computers get faster and faster so an atacker can attempt to decipher the password in less time with more powerful hardware. So, increasing the cost factor also increases the time the hash takes to generate,   
+was designed to cope with ``Moore's Law'' due to the fact that computers get faster and faster so an atacker can attempt to decipher the password in less time with more powerful hardware. So, increasing the cost factor also increases the time the hash takes to generate,
 
 \begin{figure}[htb]
 \centering
