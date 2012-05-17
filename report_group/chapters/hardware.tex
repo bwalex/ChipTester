@@ -114,7 +114,7 @@ The clock source for initialization is either a $10MHz$ (typical) internal oscil
 
 The configuration mode is selected by driving the MSEL pins either low or high. The MSEL pins can be powered by VCCIO and GND. For AS mode, MSEL [1] should be pulled up by connecting to VCCIO. MSEL [0] and MSEL [2] are pulled down by connecting to GND. The MSEL pins have $9$ internal pull-down resistors that are always active.
 
-The maximum active master frequency for Cyclone III is $0MHz$ typically and device only work with serial configuration devices that support up to $40MHz$.
+The maximum active master frequency for Cyclone III is $30MHz$ typically and device only work with serial configuration devices that support up to $40MHz$.
 
 In AS mode, Cyclone III reads the configuration data providing by serial configuration (A Spansion SPI Flash is going to be introduced later) via a serial interface. The serial configuration device controls the configuration interface.
 
@@ -183,14 +183,14 @@ As mentioned in the Cyclone III part, an external oscillator is needed as the cl
 
 The $B2$ board needs at least three different voltage levels, as mentioned before, $VCCIO=3.3V$, $VCCINT= 1.2V$ and $VCCA=2.5V$. The external power source is provided by the main FPGA DE2-115 board at $3.3V$. Hence two voltage regulators are used to transfer $3.3V$ into $1.2V$ and $2.5V$.
 
-\paragraph{1.2V Voltage Regulator $LD1117$}
+\paragraph{1.2V Voltage Regulator \texorpdfstring{$LD1117$}{LD1117}}
 The $LD111712$ is a low drop voltage regulator able to provide up to $800mA$ of output current, available in adjustable version (). The device is supplied in DPAK surface mount package optimize the thermal characteristics even offering a relevant space saving effect. A very common $10$ minimum capacitor is needed for stability \citep{STMicro:2012:LD1117xx}.
 
 \hl{Figure 5} is the application circuit for $1.2V$ output.
 
 
 
-\paragraph{2.5V Voltage Regulator $TPS78225$}
+\paragraph{2.5V Voltage Regulator \texorpdfstring{$TPS78225$}{TPS78225}}
 The $TPS78228$ is a low dropout linear voltage regulator designed by TI. The enable pin (EN) is compatible with standard CMOS logic while the low drop output is stable with any capacitor greater than 1. The device requires minimal board space for miniaturized packaging and potentially small output capacitor \citep{TI:2008:TPS782}.
 
 The enable pin is active high and is compatible with standard and low-voltage CMOS levels. Therefore if the shutdown capacitor is not necessary, enable pin can connect to the IN pin as shown on \hl{Figure 6}.
@@ -225,25 +225,25 @@ Tables \ref{tab:b1_hsmc_pinout} and \ref{tab:b2_hsmc_pinout} in the appendix sho
 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\section{PCB (virtual design board)}
-Nano (and Joey)
-
-mention: reason behind choice of components, etc (e.g. 100 MS/s ADC,
-because we use a 100MHz main clock on FPGA, also enough for sampling 10
-MHz signals, etc.; Altera FPGA because uni uses Altera mainly)
-
-mention: filter design (3rd order passive Butterworth - I can provide
-you with the transfer function and so on; filter was "designed" using
-Elsie (a software you can download) and tested/characterised in Multisim)
-
-\section{HSMC board-to-board interface}
-Nano (and Joey)
-
-mention: signals used on HSMC connector for each of the boards
-
-don't go into details as in, JTAG\_TMS on pin 1, JTAG\_TDO on pin 2,
-etc; rather: we have a JTAG interface, a clock, 24 pins for this, 24
-pins for that, SPI interface, ...
+% \section{PCB (virtual design board)}
+% Nano (and Joey)
+%
+% mention: reason behind choice of components, etc (e.g. 100 MS/s ADC,
+% because we use a 100MHz main clock on FPGA, also enough for sampling 10
+% MHz signals, etc.; Altera FPGA because uni uses Altera mainly)
+%
+% mention: filter design (3rd order passive Butterworth - I can provide
+% you with the transfer function and so on; filter was "designed" using
+% Elsie (a software you can download) and tested/characterised in Multisim)
+%
+% \section{HSMC board-to-board interface}
+% Nano (and Joey)
+%
+% mention: signals used on HSMC connector for each of the boards
+%
+% don't go into details as in, JTAG\_TMS on pin 1, JTAG\_TDO on pin 2,
+% etc; rather: we have a JTAG interface, a clock, 24 pins for this, 24
+% pins for that, SPI interface, ...
 
 
 \section{Chip Tester (Verilog Module)}

@@ -18,7 +18,33 @@ Alex \\
 % Pavlos \\
 %      mention: synchronizer
 
-The frequency counter is good.
+\subsection{Overview and Specification}
+
+The frequency counter module of the Superchip tester is connected to the oscillator found in the superchip designs, to measure its output frequency.
+
+According to specification for the academic year $2011-12$, the ring oscillators found in the teams' superchip designs have a basic frequency of $1MHz$ and an offset frequency of the teams' ID number multiplied by $250kHz$ \citep{Southampton:2011:spec}. For $16$ teams, the frequency range would be $1250kHz - 5000kHz$.
+
+\subsection{Functionality}
+
+Since the clock of the FPGA is significantly faster than the oscillator frequency, the frequency counter designed for this project counts the number of the oscillator signal edges over a given number of FPGA clock cycles. The frequency counter consists of three modules, a $24-to-1$ multiplexer, the measurement module and a control module. When the frequency counter is enabled, the processor provides it with the required number of clock cycles. The counter starts counting the rising edges of the input signal and after it stops counting, once the specified number of clock cycles has been reached, it raises an interrupt signal for the data to be read from the processor. While the active-low $nReset$ signal is enabled, the counter ceases all function and all registers and outputs are nulled.
+
+\paragraph{Multiplexer}
+The purpose of the multiplexer is to connect the measurement module to the correct pin of the chip under test, to achieve better reconfigurability. In order to provide compatibility of the design with chips whose oscillator output can be different, the multiplexer is connected to all design outputs and only connects the one specified by the processor to the measurement module.
+
+\paragraph{Measurement Module}
+The measurement module of the frequency counter provides the main functionality of the design, measuring the number of input signal periods over a specified time. This module is provided with the target number of clock cycles and the input signal (to be measured). In order to maintain signal integrity, since the input signal is effectively crossing a clock domain, the design contains a synchroniser stage, to synchronise the input signal with the FPGA clock. When the module is enabled, the edge counter increments its value on every rising edge of the input signal. Once the module has gone through the required clock cycles, it stops counting input signal periods and an $count\_overflow$ flag is raised.
+
+
+\paragraph{Control Module}
+The frequency counter control module handles the communication and the input setup data from the processor, as well as the the output data from the measurement module. It provides an Avalon Memory Mapped slave interface for communication with the NIOS II processor as well as an Avalon Interrupt signal interface ($IRQ$) and a $busy$ signal.
+
+Before starting the frequency measurement procedure the NIOS core writes data to the frequency counter, to specify parameters such as the duration of the measurement. When the $write$ signal in the Avalon interface is active, the register specified on the address bus is written with the data on the data bus.
+
+The internal $enable$ signal to start the process is activated by the controller when a dedicated register is written with a unity value and kept high for a single clock cycle. As long as the frequency counter is enabled and counts periods of the input wave, the controller keeps the $busy$ signal high to inform the NIOS II core that it is processing.
+
+The data stored on the registers of the controller are kept steady and provided to the other modules of the frequency counter. Once the measurement module is done and the $done$ flag is enabled, the controller stores the count value to the relevant register and raises the $irq$ signal to the processor.
+
+Following an interrupt request, the processor starts reading values from the registers of the frequency counter module. When the $read$ signal in the Avalon interface is active, the module outputs the data on the register specified on the address bus to the processor. Meanwhile, when data is read from the registers, the $readdatavalid$ signal is high as well. When the data contained in the registers is read after a calculation procedure and an interrupt request to the processor, the $irq$ signal is cleared.
 
 
 \section{ADC}
