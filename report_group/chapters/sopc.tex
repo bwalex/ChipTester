@@ -2,36 +2,6 @@
 ------------------------
 
 
-\section{Avalon Memory Mapped Interface}
-The Avalon Memory Mapped (Avalon MM) interface is used throughout the project to interconnect
-blocks with memory elements and the SoPC interconnect. An example Avalon MM waveform
-is shown in Figure \ref{figure:avalonmm}.
-\begin{figure}[h!]
-\begin{center}
-\includegraphics[width=0.95\textwidth]{avalonmm}
-\caption{Example waveforms of an Avalon MM bus}
-\label{figure:avalonmm}
-\end{center}
-\end{figure}
-
-
-The master can issue both reads and writes, which a slave then replies to. A read
-is initiated by setting the desired address and byte enables and asserting the \texttt{read}
-signal. The master can continue issuing reads to different addresses as long as the \texttt{waitrequest}
-signal stays low. If the Avalon MM slave asserts the \texttt{waitrequest} signal, the master needs
-to hold the current signals for as long as the \texttt{waitrequest} signal is asserted.
-The Avalon MM slave will reply to the read by asserting the \texttt{readdataready} signal
-and providing the requested read data on the \texttt{readdata} bus.
-
-Similarly writes are initiated by the Avalon MM master by setting the desired address, byte enables,
-data to write and asserting the \texttt{write} signal. The master can assume that the write completed
-without waiting any further unless the \texttt{waitrequest} signal is asserted, in which case,
-similarly to the reads, the master needs to hold the signals steady until \texttt{waitrequest} is deasserted.
-
-% XXX: some simulation waveforms?
-
-
-\newpage
 \section{Overview}
 A decision was made to use a hybrid software and hardware approach to tackle the problem
 so as to simplify the required hardware. To achieve this, a system on programmable chip

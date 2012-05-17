@@ -112,7 +112,11 @@ come in from the main DE2 board.
 
 An administration interface allowing for database management is also provided.
 
-
+Testing of the Chip under test is done by inserting an SD Card with test vectors.
+These test vectors are then processed on the SoPC and translated into test vectors
+which the test harness applies to the CUT. The results are then read back by
+the SoPC and the results are sent to the backend. The test vectors and their results
+are loaded into and retrieved from the SRAM on the board.
 
 
 
