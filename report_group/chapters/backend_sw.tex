@@ -6,7 +6,8 @@
 see and manage the results, upload designs and configuration files to the {\bf chip tester} and administrate the database where the results have been stored. Basically
 the web server ``serves'' the content to the user through the Internet to a web page, where the users (administrators or students) can check the results of their designs
 or manage the results stored in the database. The users load their designs into the web server and then whenever the FPGA sends a ``download configuration files request''
-to the server, it will send the files to the FPGA (if available).
+to the server, it sends the files to the FPGA (if available), also the server provides the {\bf FPGA} the methods for storing in the database all the results obtained after
+a test has been done.
 
 \begin{figure}[htb]
 \centering
@@ -17,10 +18,179 @@ to the server, it will send the files to the FPGA (if available).
 
 
  Nowadays almost every programming language provides libraries to develop web servers; for this application we required a robust, easy to use, programming language. Java, Python, PhP, Ruby,
-Perl are the most common languages used to develop servers. We decided to use Ruby with its{\bf web framework} Sinatra. Ruby is a general-purpose object-oriented programming language easy to learn
-and powerful, Sinatra is a Domain Specific Language (DSL) for quickly creating web applications in ruby.
+Perl are the most common languages used to develop servers. We decided to use Ruby with its{\bf web framework} Sinatra because Ruby is a general-purpose object-oriented programming language easy to learn
+and powerful, Sinatra is a Domain Specific Language (DSL) for quickly creating web applications in ruby. 
 
-UNICORN INSTEAD OF WEBBRICK, WHY?
+WEBrick is an HTTP server built as part of Ruby 1.8 and it is the default HTTP server when
+developing an application in ruby, not to mention the core of the application itself, nevertheless, WEBbrick has a major drawback: It does a reverse DNS lookup for every incoming HTTP request on 
+the IP address that makes the request. This means that if the FPGA has no entry for a reverse DNS the server has to wait until the lookup times out (the default timeout in WEBbrick is 5 seconds). 
+This feature can be ``easily'' changed modifying some native code in the WEBbrick library, nevertheless, it has to be changed whenever the environment is set up again. The solution to this problem is to
+use Unicorn, Unicorn is an HTTP server that has been designed to be fast and easily configurable, therefore it has the reverse DNS lookup disabled by default and performs the calls from the FPGA in milliseconds.  
+
+\section{Server}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[scale = 0.5]{server_structure.png}
+\caption{Folder structure of the server}
+\label{fig:server_structure}
+\end{figure}
+
+  Inside the folder called {\bf server} are all the files regarding to our back-end application. In the folder {\bf public} are the stylesheets for the web page styling, and the images 
+displayed in the page, in {\bf uploads} are all the files uploaded in the server by the users, in {\bf utils} are some utility scripts written in ruby such as secure password generation,
+{\bf views} contains all the views in the page that the different users can have access to and in the folder {\bf adc\_data} are all the measurements taken by the adc in the tester and uploaded 
+on the server by the FPGA.
+
+\subsection{Database}
+
+  Datamapper is an ORM (Object-Relational Mapping) that maps objects written in ruby to any supported database, thus giving freedom to the administrators of the system to use any database system (such as 
+MySQL, SQLite, Postgres,\ldots) to choose the database the administrator simply has to change the configuration parameters in the file {\bf config.yml} (found in the server folder) as shown in the 
+figure \ref{fig:database_config} where the administrator has set up the database system with MySql.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[scale = 0.6]{database_config.png}
+\caption{Database system selection using the config.yml file}
+\label{fig:database_config}
+\end{figure}
+
+The figure shows an example of the class Admin written in ruby, this class is mapped into the database by datamapper (the fields created by the ORM in the database are shown in the table \ref{tab:admin_table}.
+\begin{figure}[htb]
+\centering
+\includegraphics[scale = 0.8]{orm_admin.png}
+\caption{Class admin that will be mapped by the ORM (Datamapper) into the database}
+\label{fig:admin_orm}
+\end{figure}
+
+The Tables in the database are presented below. In the table Admin \ref{tab:admin_table} are stored the administrators of the database. The email field is the email used to log in,
+the Permission field is the level of authority that each administrator has. It can be either 0 or 1 (where 0 means that it can add
+more administrators to the system and 1 means that can only manage the database) and the password\_hash field is a hash related to the user password (more in the server security section)
+
+\begin{table}[h!]
+\centering
+    \begin{tabular}{ | l | l | l |}
+    \hline
+    Email & Permission & Password\_hash  \\ \hline
+    String & Integer & BCryptHash \\ \hline
+    \end{tabular}
+    \caption{Admin table in the database}
+    \label{tab:admin_table}
+\end{table}
+
+The initial administrator and master Administrator is configured in the archive config.yml as shown in the figure \ref{fig:admin_config}. For security reasons the password of 
+the initial administrator must be encrypted using the script {\bf pass.rb} located in server/utils. Whenever the server is run by the first time, or the database
+has been created again this user will be mapped into the database, granting always access to the administrator. 
+
+\begin{figure}[htb]
+\centering
+\includegraphics[scale = 0.75]{master_admin.png}
+\caption{Initial Master Admin selection using the config.yml file}
+\label{fig:admin_config}
+\end{figure}
+
+The File Upload table \ref{tab:file_upload_table} in the database stores the configuration files that has been uploaded to the server by the students, the file name is a hash of the contents of the uploaded file,
+this is to prevent students from uploading the same design.
+
+\begin{table}[h!]
+\centering
+    \begin{tabular}{ | l | l | l | l | l | l | l |}
+    \hline
+    Id & Email & Team & File\_name & Is\_valid & Created\_at & Updated\_at  \\ \hline
+    Serial & String & Integer & String & Boolean & Date & Date \\ \hline
+    \end{tabular}
+    \caption{File Upload table in the database}
+    \label{tab:file_upload_table}
+\end{table}
+
+The Log entry table \ref{tab:log_entry_table} stores all the logs sent from the FPGA to the server, this table is displayed to the user in the web page. The type of messages that can be stored are ``Debug'', ``Info'', ``Warning'' and ``Error'',
+if there has been an error in the vector file uploaded to test the results, the line where the error was found is stored, giving information to the students about their mistake.
+
+\begin{table}[h!]
+\centering
+    \begin{tabular}{ | l | l | l | l | l | l | l |}
+    \hline
+    Id & Type & Message & File & Line & Created\_at & Updated\_at  \\ \hline
+    Serial & Integer & String & String & Integer & Date & Date \\ \hline
+    \end{tabular}
+    \caption{Log Entry table in the database}
+    \label{tab:log_entry_table}
+\end{table}
+
+The result table \ref{tab:Result_table} has an overview of the design uploaded into the FPGA. This table is displayed to the user in the overview view. 
+
+\begin{table}[h!]
+\centering
+    \begin{tabular}{ | l | l | l | l | l | l | l | l |}
+    \hline
+    Id & Team & Academic Year & Email & Created\_at & Updated\_at & Virtual & Email sent \\ \hline
+    Serial & Integer & String & String & Date & Date & Boolean & Boolean\\ \hline
+    \end{tabular}
+    \caption{Result table in the database}
+    \label{tab:Result_table}
+\end{table}
+
+The table Design Results \ref{tab:design_result_table} belongs to the Results table and it has specific information related to the test done in the design.
+
+\begin{table}[h!]
+\centering
+    \begin{tabular}{ | l | l | l | l | l | l | l |}
+    \hline
+    Id & Created\_at & Updated\_at & Triggers & File\_name & Clock\_Frequency & Design\_name  \\ \hline
+    Id & Date & Date & String & String & String & String \\ \hline
+    \end{tabular}
+    \caption{Design Result table in the database}
+    \label{tab:design_result_table}
+\end{table}
+
+The table Test Vector Result \ref{tab:Test_vector_result_table} belongs to the table Design Result and it has more detailed information (for example the expected inputs vectors and the obtained results) inherent to the design tested on the FPGA. 
+
+\begin{table}[h!]
+\centering
+    \begin{tabular}{ | l | l | l | l | l | l | }
+    \hline
+    Id & Type & Input\_vector & Expected\_result & Actual\_result & Cycle\_count\\ \hline
+    Serial & Integer & String & String & String & Integer \\ \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[h!]
+\centering
+    \begin{tabular}{ | l | l | l | l | l |}
+	\hline
+       Trigger\_timeout & Has\_run & Fail & Created\_at & Updated\_at\\ \hline
+       Boolean & Boolean & Boolean & Date & Date\\ \hline
+    \end{tabular}
+    \caption{Test Vector Result table in the database}
+    \label{tab:Test_vector_result_table}
+\end{table}
+
+The Frequency Measurement table \ref{tab:Frequency_measurement_table} belongs to the Design result table and has data related to the measurement of the frequency of the digital
+oscillator on the chip. The frequency field is a float with the value of the measured frequency and the pin field is the defined pin used to measure the frequency. 
+
+\begin{table}[h!]
+\centering
+    \begin{tabular}{| l | l | l | l | l |}
+	\hline
+       Id & Frequency & Pin & Created\_at & Updated\_at\\ \hline
+       Serial & Float & String & Date & Date\\ \hline
+    \end{tabular}
+    \caption{Frequency Measurement table in the database}
+    \label{tab:Frequency_measurement_table}
+\end{table}
+
+The ADC Measurement table \ref{tab:ADC_measurement_table} belongs to the Design result table and has data related to the sampling of the digital signal coming from the digital oscillator 
+on the chip.
+
+\begin{table}[h!]
+\centering
+    \begin{tabular}{| l | l | l | l |}
+	\hline
+       Id & Created at & Updated at \\ \hline
+       Serial & Date & Date\\ \hline
+    \end{tabular}
+    \caption{ADC Measurement table in the database}
+    \label{tab:ADC_measurement_table}
+\end{table}
 
 
 \section{API}
@@ -48,11 +218,12 @@ for our application. The figure \ref{fig:Json_message} shows an example of a mes
 \label{fig:Json_message}
 \end{figure}
 
-The table \ref{tab:api_server_fpga} shows the ``URL'' the FPGA uses to connect to the server, and a brief description of what each command does in the server. 
+The table \ref{tab:api_server_fpga} shows the ``URL'' the FPGA uses to connect to the server, and a brief description of what each command does in the server. :result\_id, :design\_id,
+and :name are parameters attached in the ``URL'' that ruby uses as information. 
 
-\begin{table}
+\begin{table}[h!]
 \centering
-    \begin{tabular}{ | l | p{7.5cm} | p{5cm}|}
+    \begin{tabular}{ | l | p{7cm} | p{5cm}|}
     \hline
     Type & Link & Command   \\ \hline
     post & /api/result & Stores the results sent from the fpga in the table Results in the database\\ \hline
@@ -60,151 +231,48 @@ The table \ref{tab:api_server_fpga} shows the ``URL'' the FPGA uses to connect t
     post & /api/result/:result\_id/design/:design\_id	/measurement/frequency & Stores in the table FrequencyMeasurement associated to the design\_result identified with the id design\_id (information related to the frequency of the oscillator in the design)\\ \hline
     post & /api/result/:result\_id/design/:design\_id	/measurement/adc & Stores in the table AdcMeasurement associated to the design\_result identified with the id design\_id (information related to the sampled oscillator in the design)  \\ \hline
     post & /api/result/:result\_id/design/:design\_id	/vector & Stores in the table Test\_vector associated to the design\_result identified with the id design\_id (more information about the results of the test)\\ \hline
+    post & /api/done/:result\_id & It sends the email to the students when everything is done\\ \hline
     get & /api/vdesign & Download a configuration file into the fpga\\ \hline
+    delete & /api/received/:name & Informs the Server that the file has been received properly and can be erased.\\ \hline
     \end{tabular}
-    \caption{API for the communication between the fpga and the server}
+    \caption{API for the communication between the FPGA and the server}
     \label{tab:api_server_fpga}
 \end{table}
 
-
-\section{``Server'' (Sinatra stuff, database, etc)}
-
-\begin{figure}[htb]
-\centering
-\includegraphics[scale = 0.5]{server_structure.png}
-\caption{Folder structure of the server}
-\label{fig:server_structure}
-\end{figure}
-
-  Inside the folder called {\bf server} are all the files regarding to our back-end application. In the folder {\bf public} are the stylesheets for the web page styling, and the images 
-displayed in the page, in {\bf uploads} are all the files uploaded in the server by the users, in {\bf utils} are some utility scripts written in ruby such as secure password generation,
-{\bf views} contains all the views in the page that the different users can have access to.
-
-\subsection{Database}
-
-  Datamapper is an ORM (Object-Relational Mapping) that maps objects written in ruby to any supported database, thus giving freedom to the administrators of the system to use any database system (such as 
-MySQL, SQLite, Postgres,\ldots) to choose the database the administrator simply has to change the configuration parameters in the file {\bf config.yml} (found in the server folder) as shown in the 
-figure \ref{fig:database_config} where the administrator has set up the database system with MySql.
-
-\begin{figure}[htb]
-\centering
-\includegraphics[scale = 0.6]{database_config.png}
-\caption{Database system selection using the config.yml file}
-\label{fig:database_config}
-\end{figure}
-
-In the table Admin \ref{tab:admin_table} is stored the administrators of the database. The email field is the email used t log in,
-the Permission field is the level of authority that each administrator has. It can be either 0 or 1 (where 0 means that it can add
-more administrators to the system) and the password\_hash field is a hash related to the user password (more in the server security section)
-\begin{table}
-\centering
-    \begin{tabular}{ | l | l | l |}
-    \hline
-    Email & Permission & Password\_hash  \\ \hline
-    String & Integer & BCryptHash \\ \hline
-    \end{tabular}
-    \caption{Admin table in the database}
-    \label{tab:admin_table}
-\end{table}
-
-The initial administrator is configured in the archive config.yml as shown in the figure \ref{fig:admin_config}. For security reasons the password of 
-the initial administrator must be encrypted using the script {\bf pass.rb} located in server/utils. Whenever the server is run by the first time, or the database
-has been created again this user will be mapped into the database, granting always access to the administrator. 
-
-\begin{figure}[htb]
-\centering
-\includegraphics[scale = 0.75]{master_admin.png}
-\caption{Initial Master Admin selection using the config.yml file}
-\label{fig:admin_config}
-\end{figure}
-
-The File Upload table \ref{tab:file_upload_table} in the database stores the configuration files that has been uploaded to the server by the students.
-
-\begin{table}
-\centering
-    \begin{tabular}{ | l | l | l | l | l | l | l |}
-    \hline
-    Id & Email & Team & File\_name & Is\_valid & Created\_at & Updated\_at  \\ \hline
-    Serial & String & Integer & String & Boolean & Date & Date \\ \hline
-    \end{tabular}
-    \caption{File Upload table in the database}
-    \label{tab:file_upload_table}
-\end{table}
-
-The Log entry table stores all the logs sent from the FPGA to the server, this table is displayed to the user in the web page.
-\begin{table}
-\centering
-    \begin{tabular}{ | l | l | l | l | l | l | l |}
-    \hline
-    Id & Type & Message & File & Line & Created\_at & Updated\_at  \\ \hline
-    Serial & Integer & String & String & Integer & Date & Date \\ \hline
-    \end{tabular}
-    \caption{Log Entry table in the database}
-    \label{tab:log_entry_table}
-\end{table}
-
-The result table has 
-\begin{table}
-\centering
-    \begin{tabular}{ | l | l | l | l | l | l |}
-    \hline
-    Id & Team & Academic Year & Created\_at & Updated\_at & Virtual  \\ \hline
-    Serial & Integer & String & Date & Date & Boolean \\ \hline
-    \end{tabular}
-    \caption{Result table in the database}
-    \label{tab:Result_table}
-\end{table}
-
-\begin{table}
-\centering
-    \begin{tabular}{ | l | l | l | l | l | l | l |}
-    \hline
-    Id & Created\_at & Updated\_at & Triggers & File\_name & Clock\_Frequency & Design\_name  \\ \hline
-    Id & Date & Date & String & String & String & String \\ \hline
-    \end{tabular}
-    \caption{Design Result table in the database}
-    \label{tab:design_result_table}
-\end{table}
-\begin{center}
-
-    \begin{tabular}{ | l | l | l | l | l | l | }
-    \hline
-    Id & Type & Input\_vector & Expected\_result & Actual\_result & Cycle\_count\\ \hline
-    Serial & Integer & String & String & String & Integer \\ \hline
-    \end{tabular}
-\end{center}
-
-\begin{table}
-\centering
-    \begin{tabular}{ | l | l | l | l | l |}
-	\hline
-       Trigger\_timeout & Has\_run & Fail & Created\_at & Updated\_at\\ \hline
-       Boolean & Boolean & Boolean & Date & Date\\ \hline
-    \end{tabular}
-    \caption{Test Vector Result table in the database}
-    \label{tab:Test_vector_result_table}
-\end{table}
-
-\begin{table}
-\centering
-    \begin{tabular}{| l | l | l | l |}
-	\hline
-       Id & Frequency & Created\_at & Updated\_at\\ \hline
-       Serial & Float & Date & Date\\ \hline
-    \end{tabular}
-    \caption{Frequency Measurement table in the database}
-    \label{tab:Frequency_measurement_table}
-\end{table}
-
 \subsection{Security}
-BCRYPT
-\subsection{Views}
+
+Whenever in an application is stored any user password security must be added. For instance a user could have the same password for our application than for their email, thus, if an attacker gains control over our database and the passwords are unprotected the consequences would be
+terrible. The solution to harden the security in the application is to create a digital ``fingerprint'' or hash of the password and store it in the database because this process is not reversible (in other words you cannot go back from hash to password). 
+Ruby offers a library to manage secure passwords storage called BCrypt, usually hashing algorithms are designed to be quick, therefore, attackers can generate more possible passwords in less time (as computing power increases more and more). Nevertheless, Bcrypt has been designed to 
+be computational costly. 
+
+The figure \ref{fig:initial_pass} shows the use of the script found in the folder {\bf /utils} ``pass.rb'' to encrypt the initial passsword of the database. As can be seen the two encrypted passwords are different, this is because everytime Bcrypts encrypts a password adds some random data 
+(called salts) wich increase the protection of the password against attackers. Also note that both encrypted passwords start with ``\$2a\$10\$...'' where ``2a'' is the version of the hashing algorithm used to create the hash and ``10'' is the cost factor used to generate the password. This cost factor
+was designed to cope with ``Moore's Law'' due to the fact that computers get faster and faster so an atacker can attempt to decipher the password in less time with more powerful hardware. So, increasing the cost factor also increases the time the hash takes to generate,   
+
+\begin{figure}[htb]
+\centering
+\includegraphics[scale = 0.6]{encrypted_pass.png}
+\caption{Encryption of the initial admin password}
+\label{fig:initial_pass}
+\end{figure}
+
 
 \section{E-Mails}
-Romel
+
+Once the FPGA has finished testing the chip and sent the results to the server, it sends a request to the server to send the results by email. The configuration of the mail account is shown in the figure \ref{fig:email_server}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[scale = 0.6]{email_config.png}
+\caption{Configuration for sending out emails from the server}
+\label{fig:email_server}
+\end{figure}
+
+This configuration can be adapted to any email account. In the folder {\bf views} is a file called ``email\_body.erb''. This file has the template body of the email to be sent and it can be changed easily whenever the contents of the email must be changed.
 
 \section{Remote Reconfiguration}
-Romel
+%%ASK about the format of the config files and add it here
 
 \section{User Interface}
 Pavlos
