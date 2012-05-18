@@ -44,7 +44,7 @@ An ethernet interface is provided via the Altera Triple-Speed Ethernet (TSE) MAC
 CPU interfaces to the TSE MAC via two Scatter-Gather DMA controller to maximize throughput. The
 MAC uses an RGMII interface to connect to the on-board Ethernet PHY. The RX clock to the MAC
 initially used a 0 degree phase shift. This resulted in a large number of dropped packages and
-hence TCP rentransmissions. Increasing the phase shift to 90 degrees significantly improved
+hence TCP retransmissions. Increasing the phase shift to 90 degrees significantly improved
 the receive performance. Another large improvement in transmit and receive reliability and
 throughput was achieved by disabling the statistics counters in the MAC.
 
@@ -297,7 +297,7 @@ the edges on the input signal are measured is configurable via software to any v
 to $2^{32}$ cycles. After reset this value is $2^{23}$ cycles.
 
 Once the module has gone through the required clock cycles, it stops counting input signal
-edges and an $count\_overflow$ flag is raised which results in an interrupt being raised
+edges and a $count\_overflow$ flag is raised which results in an interrupt being raised
 from the control module.
 
 By knowing both the number of system clock cycles over which measurement took place
