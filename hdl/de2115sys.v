@@ -39,12 +39,23 @@ module de2115sys(
   // ADC
   input  [ 7:0] ADC_DATA,
   output        ADC_PWRDWN,
+  output        ADC_ENCODE,
+
+  // DUT
+  output [ 3:0] SITE_SEL,
+  output [23:0] A,
+  input  [23:0] Q,
 
   // Slave FPGA direct interface
   input         SLAVE_FPGA_CONF_DONE,
   input         SLAVE_FPGA_nSTATUS,
   output        SLAVE_FPGA_nCE,
   output        SLAVE_FPGA_nCONFIG,
+
+  output        SLAVE_FPGA_SPI_MOSI,
+  input         SLAVE_FPGA_SPI_MISO,
+  output        SLAVE_FPGA_SPI_SCLK,
+  output        SLAVE_FPGA_SPI_nCS,
   
   //////////// I2C for EEPROM //////////
   output        EEP_I2C_SCLK,
@@ -175,6 +186,15 @@ module de2115sys(
 
   wire          sigtap_clk;
 
+  wire          SLAVE_FPGA_SPI_MOSI_int;
+  wire          SLAVE_FPGA_SPI_SCLK_int;
+  wire          SLAVE_FPGA_SPI_nCS_int;
+
+  assign ADC_ENCODE = clock_100;
+
+  assign SLAVE_FPGA_SPI_MOSI = (SLAVE_FPGA_nCONFIG) ? 1'bz : SLAVE_FPGA_SPI_MOSI_int;
+  assign SLAVE_FPGA_SPI_SCLK = (SLAVE_FPGA_nCONFIG) ? 1'bz : SLAVE_FPGA_SPI_SCLK_int;
+  assign SLAVE_FPGA_SPI_nCS  = (SLAVE_FPGA_nCONFIG) ? 1'bz : SLAVE_FPGA_SPI_nCS_int;
 
   assign temp_test  = {tr_miso[23:3], dyn_clock, clock_10, tr_miso[0]};
 
@@ -349,9 +369,9 @@ module de2115sys(
     .writedata           (tr_sram_writedata),
     .waitrequest         (tr_sram_waitrequest),
 
-    .target_sel          (tr_target_sel),
-    .mosi                (tr_mosi),
-    .miso                (tr_miso)
+    .target_sel          (SITE_SEL),
+    .mosi                (tr_mosi /* A */),
+    .miso                (Q)
   );
 
 
@@ -447,10 +467,10 @@ module de2115sys(
     .spi_0_external_SCLK                    (SD_CLK),
     .spi_0_external_SS_n                    (SD_DAT3),
 
-//  .spi_1_external_MISO                    (SLAVE_FPGA_SPI_MISO),
-//  .spi_1_external_MOSI                    (SLAVE_FPGA_SPI_MOSI),
-//  .spi_1_external_SCLK                    (SLAVE_FPGA_SPI_SCLK),
-//  .spi_1_external_SS_n                    (SLAVE_FPGA_SPI_nSS),
+    .spi_1_external_MISO                    (SLAVE_FPGA_SPI_MISO),
+    .spi_1_external_MOSI                    (SLAVE_FPGA_SPI_MOSI_int),
+    .spi_1_external_SCLK                    (SLAVE_FPGA_SPI_SCLK_int),
+    .spi_1_external_SS_n                    (SLAVE_FPGA_SPI_nCS_int),
 
     .uart_0_external_rxd                    (UART_RXD),
     .uart_0_external_txd                    (UART_TXD),
