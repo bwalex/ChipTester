@@ -1,0 +1,73 @@
+\section{\texorpdfstring{\href{mailto:bz1g11@ecs.soton.ac.uk}{Bo Zhou}} {Bo Zhou}}
+
+
+\subsection{Group Formation and Operation}
+
+Our 5-people group is very well organized. We keep track with each other’s works through online version control service GitHub and by frequent emails. We maintain a weekly meeting on Mondays and have additional meetings whenever we think it is necessary. We have different modules and plans for the semester, but every group member works actively and very hard on the project. Different individuals face different bottleneck on our own parts at different time. But we did our best endeavours to keep the whole project advance synchronized in every aspect, and the result was satisfying.
+
+We did not have an election; however, we all agree that Alex is the group leader after our first official meeting for his idea on the whole architecture of the system and his knowledge on the aspects the project might concern. My role is the hardware designer for the external components together with Xiaolong and the Verilog modules working together with Alex. Romel and Pavlos are mainly the software designers for the backend, webpage and the archive, but they have also participated in the hardware parts. There was not any problem in the communicating or responsibilities of our group during the whole project. Once a member requires the assist or work from another, we all do our best to help each other for the best of our project.
+
+Some points may be taken from this part considering the email method we use is not real time response. Sometimes we need to wait for one or two days until we get reply from each other, but most of the time the email is fast enough when we check it frequently.
+
+Grade your group	9/10
+
+
+
+\subsection{Work Breakdown}
+
+Our team is strong in the programming and designing the digital system. We had designed neat and elegant codes. Our PCB part may be delayed, but it is a consequence of many other factors. We only had access to the Cadence Allegro 16.3 tools for PCB designing. No one has used it before and there were not many relative tutorial resources. There were also lagging in the component supplying and the PCB manufacturing that we had not expected and could not control. Due to the fact that we have mastered the tool within a month and designed and checked two PCBs within 3 days, I would not say our PCB designing is a weakness.
+
+If I have to pick a weakness, the availability of every member at the same time is not very good. But that is because our team is consisted of two SoC masters, two EMECS students and one PhD student; hence everyone has very different schedules. It is objective factor that we cannot change, but only try to get over with. It does slow us down in reality when some of us are not available to work on the project while the others are not available later. But everyone tried our best to keep the project advancing. And we always agree on what we have decided and the progress.
+
+At the first several meetings when we were designing the system architecture, we divided the tasks based on everyone’s preference and the equality of workload distribution. Since it is hard to gauge the work between software, digital system and PCB designing, it is hard to decide who has done the least work. However, in my opinion Alex has done more than other team members, which I think everyone of the group will agree. But everyone agrees with the task allocation, and everyone worked very hard to finish the task. As a result all the tasks allocated are completed.
+
+Grade your group’s work breakdown		8/10
+
+
+
+\subsection{Planning and Progress}
+
+As introduced in the main report, the system is consisted of digital system, software part, the NIOS SoPC and the PCB. This architecture is the result of several group discussions. I personally suggested the schematic for B1 including the power switch array and the primitive digital system architecture, but the rest of the team added very big improvements to it. I also suggested using the Altera ALTPLL\_RECONFIG for implementing the reconfigurable clock.
+
+We have completed all of the main parts of our design, and the ADC as an add-on. In our original plans there were several optional parts such as the temperature sensor and more user friendly GUI during the testing process. However due to their relatively weak significance to the purpose of the design and the time and resource limit, we made compromise, deciding not to finish these parts.
+
+Grade your group’s planning \& progress	7/10
+
+
+
+\subsection{Your Own Contribution}
+
+Considering the aspects of the project for which you had responsibility, justify the decisions you made, and assess how effective your contributions were.
+
+I wrote the VHDL and Verilog models of the virtual design of the D2 together with Xiaolong. We did it in VHDL first, but since the Altera software does not support compiling both Verilog/SystemVerilog and VHDL in a single design, we rewrote the design in Verilog.
+
+In the tester part, I designed the dynamically reconfigurable PLL, the trigger mask part and the don’t-care bits, and integrated them with the checker and stimulus. Some works are discussed with Alex since he designed the checker and stimulus at first.
+
+In the PCB design part, I designed the schematic and PCB of the B1 board, including looking for the components, designing the circuit and planning the layout.
+
+Grade your own contribution		7/10
+
+
+\subsection{Reflective Evaluation}
+
+The lessons I have learnt through this project is to keep hierarchical and organized designs and to parameterize design variables, making it easy for upgrading. It is also important to keep track of designs (files, sketches) at different stages. During the project we used Github to save our files and share the progress, which is quite helpful in terms of individual work, as well as group communication.
+
+However, during the PCB designing, a misunderstanding did happen between me, Xiaolong and Alex. After Xiaolong and I had finished the first version of the PCBs, Alex checked with the DE2 board and told us due to the connectors’ direction, the designed PCBs cannot be physically mounted on the DE2 board. As a result we need to relocate the connector and redo the PCB layout again. Alex knew the difference, but Xiaolong and I who were designing the PCBs were aware of the difference. Since we assumed the two boards are connected by cables, instead of physically mounted on the board. But we finished the second version of PCBs before the time that we were supposed to hand them over to the manufacturer; and Alex was very supportive during the process. So considering the project it was not an issue that anyone should be blamed for. Everyone was doing our job very well. On the contrary, everyone performed very professionally facing sudden changes of plans and fixed deadline. But it should be noted that a better communication between us, or in more professional terms, customer and designer, is necessary before commencing the designing, to avoid such matters.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

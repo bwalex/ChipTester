@@ -94,8 +94,15 @@ is used.
 With three poles, the attenuation is $-60 \sfrac{dB}{decade}$ on signals higher than the cut-off frequency.
 The filter topology used here is balanced ladder topology.
 The automatic design tool Elsie was used for designing the parameters of the RCI circuit. The cut-off frequency is $40MHz$.
-%XXX: bode plot of the filter!!!
 
+As shown in the bode plot of figure \ref{fig:bode}, the filter will have a strong attenuation on frequencies greater than $50MHz$, which is the maximum input frequency for the ADC (100MSPS sampling rate).
+
+\begin{figure}
+ \centering
+ \includegraphics[width=0.95\textwidth]{bode}
+ \caption{Analog Part Overview.}
+ \label{fig:bode}
+\end{figure}
 
 
 \paragraph{Separate Power Supplies}
