@@ -28,7 +28,7 @@ The superchip under test has the following specific features:
  \item $68$-pin JLCC package (with 2 unused pins).
 \end{itemize}
 
-The chip is interfaced with the PCB by a 68WAY PLCC/JLCC socket. The power is
+The chip is interfaced with the PCB by a 68WAY PLCC/JLCC socket. Power is
 supplied by the $3.3V$ VDD from the DE2 board. The GND is also connected to the DE2 GND.
 
 The shared I/Os are connected to the powered design site, and disconnected from the other
@@ -52,8 +52,8 @@ The decoder used is $74HC4514$, a $4-to-16$ line decoder with latch. The input a
 
 \paragraph{Switch Array}
 
-The switch array consists of four $TPS2095$ quad power-distribution switches
- One could simply use a CMOS transistor to realize a switch. However, with thermal sense,
+The switch array consists of four $TPS2095$ quad power-distribution switches.
+One could simply use a CMOS transistor to realize a switch. However, with thermal sense,
 current limit and charge pump, the $TPS2095$ switches are more reliable, stable, smooth
 (minimum switching current surges) and relatively compact in scale.
 The operation of a switch is simple: when EN pin is asserted, the OUT pin offers
@@ -80,10 +80,10 @@ for single-ended input signals between 0 and 3.5V to be fed into the ADC which h
 The $8-bit$, $100MSPS$ ADC is used to sample the analog signal. The encode clock is
 the clock from the DE2 board ($100MHz$ by default).
 
-A power-down function select is also connected to the FPGA for shutting down the ADC when it’s not in use.
+A power-down function select is also connected to the FPGA for shutting down the ADC when it is not in use.
 The ADC signal wires should be placed far away from the other wires for minimum interference;
 and they should also be placed parallel to each other to have similar length for better signal integrity.
-However, since the pin density is too high of the HSMC connector we used, it is inevitable that the ADC wires
+However, since the pin density of the HSMC connector used is high, it is inevitable that the ADC wires
 are close to the other signal lines. The ADC is placed on the other side of the PCB board for a better result.
 
 
@@ -110,7 +110,7 @@ The supply voltage of these two LDP ranges from $2.6V$ to $12V$. Their load curr
 \newpage
 \subsection{B2 (Virtual design board)}
 
-When started designing the B2 board for slave FPGA, the Altera PowerPlay Early Power Estimator was
+When we started designing the B2 board for slave FPGA, the Altera PowerPlay Early Power Estimator was
 used for early power estimation calculations.
 
 An almost full usage of the slave FPGA, $90\%$ of all of logic blocks/cells,
@@ -133,9 +133,9 @@ The power consumption result for $12.5\%$ toggle rate:
  \item P\_static: $0.123W$
  \item Total: $\approx0.574 W$
 \end{itemize}
-For $30\%$ toggle rate the main change is the change in Logic power consumption, therefore consumption of Logic is $0.565 W$ and the in total is now $0.905 W$.
+For $30\%$ toggle rate the main change is the change in Logic power consumption, therefore the consumption of Logic is $0.565 W$ and the Total is now $0.905 W$.
 
-Translate these into power supply current requirements. For $12.5\%$ toggle rate:
+Translating these into power supply current requirements, for $12.5\%$ toggle rate:
 \begin{itemize}
  \item Icc (int) ($1.2V$) $0.352A$
  \item Icc (A) ($2.5V$) $0.036A$
@@ -143,11 +143,11 @@ Translate these into power supply current requirements. For $12.5\%$ toggle rate
  \item Icc (IO) ($3.3V$) $0.013A$
 \end{itemize}
 
-For $30\%$ toggle rate main change is Icc (int) changes to $0.627A$.
+For $30\%$ toggle rate the main change is Icc (int), changes to $0.627A$.
 
 The current consumption the main board provides is $1.5A$ in $3.3V$ power supply
-when $50\%$ usage of the FPGA, which is sufficient for both cases since only $20\%$
-usage occupied in this project.
+with a $50\%$ usage of the FPGA, which is sufficient for both cases since only $20\%$
+is occupied in this project.
 
 
 \subsubsection{Slave FPGA}
@@ -155,12 +155,12 @@ The slave FPGA is the core chip of the virtual design board. It can be configure
 with HDL descriptions of the circuits to be tested.
 An Altera Cyclone III FPGA will be chosen as the slave FPGA.
 
-The reason for choosing Cyclone III is their low power, high functionality with the low cost. By choosing
+The reason for choosing Cyclone III is their low power, high functionality and low cost. By choosing
 an Altera FPGA, the design flow will be similar to other FPGA systems used within the department.
 
 A 144-pin EQFP package was chosen as it is easier to assemble than BGA packages and offers enough I/O
 for use with the chip tester. I/O pins on the Cyclone III are grouped together into I/O banks,
-and each bank has a separate power bus. 
+and each bank has a separate power bus.
 
 There are eight I/O banks, as shown in figure \ref{fig:b2_f1} \citep{Altera:2011:cyclone3handbook}.
 All single-ended I/O standards are supported in all banks except HSTL-12 Class II which is only supported in column banks.
@@ -174,12 +174,12 @@ The same case can be found in all differential I/O standards.
 \end{figure}
 
 In this design three voltage levels, which $VCCIO=3.3V$, $VCCINT= 1.2V$ and $VCCA=2.5V$, are necessary. These are provided
-by low dropout linear regulators. Linear regulators offer better noise performance and require less external components.
+by low dropout linear regulators. Linear regulators offer better noise performance and require fewer external components.
 
 Proper bypassing and decoupling techniques for the power pins is very important for reliable design operation.
 In this case, additional decoupling capacitors were used on as many power pins as was possible to fit on the board.
 
-In regard of the Cyclone III configuration, the Cyclone II device uses SRAM cells to
+In regard of the Cyclone III configuration, the \hl{Cyclone II} device uses SRAM cells to
 store configuration data. Since SRAM is volatile, an external configuration memory is required.
 In AS mode, Cyclone III reads the configuration data from an external SPI flash. The SPI
 flash is described in a later subsection.
@@ -210,12 +210,12 @@ These four pins are connected to Cyclone III device pins as shown in Figure \ref
  \label{fig:b2_f2}
 \end{figure}
 
-A $25\Omega$ series resistor must connect a between serial configuration device and
+A $25\Omega$ series resistor must be connected between the serial configuration device and
 the Cyclone III device at the near end of the serial configuration device for \texttt{DATA[0]}
 when configuring the Cyclone III device in the AS mode.
 
 The $25\Omega$ resistor works to minimize the driver impedance mismatch with the board trace
-and reduce the overshoot seen at the Cyclone III device input pin \texttt{DATA[0]}.
+and reduce the overshoot seen on the Cyclone III device input pin \texttt{DATA[0]}.
 
 The maximum trace length between Cyclone III device and the serial configuration device must be less than $10in$. In the B2 PCB designing, only $8mm$ is used.
 
@@ -232,7 +232,7 @@ After all the configuration bits are received, Cyclone III releases the open-dra
 
 \subsubsection{Serial Configuration}
 
-Cyclone III FPGAs are programmable logic devices used for basic logic functions, 
+Cyclone III FPGAs are programmable logic devices used for basic logic functions,
 chip-to-chip connectivity, signal processing, and embedded processing. They can
 be programmed and configured by a microprocessor, JTAG port, or directly by a
 serial PROM or flash.
@@ -284,8 +284,8 @@ scan chain on the B2 board is chained via the HSMC connector to the JTAG scan ch
 
 \subsubsection{External Oscillator}
 
-As mentioned in the Cyclone III part, an external oscillator is needed as the clock source to provide certain frequency for the FPGA.
-The TXC DEL04 oscillator is a sealed clock crystal oscillator unit with high precision characteristic, which is appropriate for the FPGA.
+As mentioned in the Cyclone III part, an external oscillator is needed as the clock source to provide a certain frequency for the FPGA.
+The TXC DEL04 oscillator is a sealed clock crystal oscillator unit with high precision characteristics, which is appropriate for the FPGA.
 The supply voltage range is $1.8V-5V$ \citep{TXC:osc_datasheet}.
 
 
@@ -310,9 +310,9 @@ Figure \ref{fig:b2_f5} is the application circuit for $1.2V$ output.
 
 \paragraph{2.5V Voltage Regulator \texorpdfstring{$TPS78225$}{TPS78225}}
 The $TPS78228$ is a low dropout linear voltage regulator manufactured by TI.
-The device requires minimal board space for miniaturized packaging and potentially small output capacitor \citep{TI:2008:TPS782}.
+The device requires minimal board space for miniaturized packaging and potentially a small output capacitor \citep{TI:2008:TPS782}.
 
-The enable pin is active high and is compatible with standard and low-voltage CMOS levels. Therefore if the shutdown capacitor is not necessary, enable pin can connect to the $IN$ pin as shown on figure \ref{fig:b2_f6}.
+The enable pin is active high and is compatible with standard and low-voltage CMOS levels. Therefore if the shutdown capacitor is not necessary, the enable pin can connect to the $IN$ pin as shown on figure \ref{fig:b2_f6}.
 
 \begin{figure}
  \centering
@@ -329,8 +329,8 @@ The HSMC connector is based on the Samtec $0.5mm$ pitch, surface-mount QTH/QSH f
 
 Two versions are used in FPGA board. $ASP-122953-01$ Socket for the host boards and $ASP-122952-01$ Header for Mezzanine Cards (slave boards).
 
-Figure \ref{fig:b2_f7} is the diagram for HSMC header. 
-The JTAG and clock signals are also dedicated in Bank 1. In banks 2 and Bank 3, there are main CMOS/LVDS interface signals, including LVDS/COMS clocks, as well as both $12V$ and $3.3V$ power pins.
+Figure \ref{fig:b2_f7} is the diagram for HSMC header.
+The JTAG and clock signals are also dedicated in Bank 1. In Banks 2 and 3, there are main CMOS/LVDS interface signals, including LVDS/CMOS clocks, as well as both $12V$ and $3.3V$ power pins.
 
 \begin{figure}
  \centering
@@ -339,11 +339,11 @@ The JTAG and clock signals are also dedicated in Bank 1. In banks 2 and Bank 3, 
  \label{fig:b2_f7}
 \end{figure}
 
-The host board is any board with an FPGA connected to one or more HSMC interface. In this project it is DE2-115 developed board.
+The host board is any board with an FPGA connected to one or more HSMC interface. In this project it is the DE2-115 development board.
 The interconnect I/O pins available on the HSMC connector can have all possible I/O standard and
 logic features that can be supported by the host FPGA since FPGAs are configurable devices.
 
-The HSMC connectors provided the interface between host and slave boards. The ``header''
+The HSMC connectors provide the interface between host and slave boards. The ``header''
 part ($ASP-122952-01$) on slave board plugs into the ``socket'' part on the host board. The host
 board provides $+12V$ DC and $+3.3V$ DC power to the slave board via the HSMC connector.
 In addition to power and clock signals, the host board provides access to JTAG,
@@ -418,26 +418,26 @@ The FPGA hardware part consists of two main blocks: the Nios II SoPC and the Tes
 
 
 
-The \textit{Nios II SoPC} coordinates the whole system, reading and parsing the data from SD Card
+The \textit{Nios II SoPC} coordinates the whole system, reading and parsing the data from the SD Card
 into the SRAM for the Tester to read the data from it; retrieving the result that the
-Tester writes back to the SRAM and sending the data to the backend for archiving and reviewing for the users.
+Tester writes back to the SRAM and sending the data to the backend for archiving and reviewing from the users.
 
 Its tasks include:
 \begin{itemize}
- \item coordinate the data from multiple sources (SRAM, SD Card, Flash, Serial connection, SPI bus, Ethernet, etc.)
- \item control the testing process (which is executed by the Tester, frequency counter and ADC)
- \item send results to the backend
+ \item coordinating the data from multiple sources (SRAM, SD Card, Flash, Serial connection, SPI bus, Ethernet, etc.)
+ \item controlling the testing process (which is executed by the Tester, frequency counter and ADC)
+ \item sending results to the backend
 \end{itemize}
 
-The \textit{SRAM arbiter} provides arbited access to the on-board SRAM to the SoPC, tester module and ADC module via
+The \textit{SRAM arbiter} provides arbitrated access to the on-board SRAM to the SoPC, tester module and ADC module via
 an Avalon Memory Mapped Interface (Avalon-MM). It translates the Avalon-MM requests by the different modules into
 the signals needed by the asynchronous SRAM.
 
-The \textit{Tester} contains several HDL blocks which are responsible for the testing process.
+The \textit{Tester} contains several HDL blocks which are responsible for the testing process:
 \begin{itemize}
  \item read the command, request and test vector from SRAM
  \item generate the test input signals for every pin of the DUT
- \item monitor the output pins of the DUT and write the result into the memory when the it is valid
+ \item monitor the output pins of the DUT and write the result into the memory when it is valid
  \item offer a dynamically reconfigurable clock for the DUT and its relative interface
 \end{itemize}
 
@@ -469,7 +469,7 @@ Figure \ref{fig:bb_tester} shows a black box view of the tester module. It uses 
 to interface with the SRAM via the SRAM Arbiter decribed in a later section. The \texttt{enable} and \texttt{done}
 signals are used to interface with a module within the SoPC that controls the tester.
 
-The \textbf{tester} module also has the interface to the DUT, including outputs, inputs and the target select.
+The \textbf{tester} module also has the interface to the DUT (device under test), including outputs, inputs and the target select.
 
 \begin{figure}
  \centering
@@ -489,9 +489,11 @@ When the \texttt{wrfull} signal is low, asserting \texttt{wrreq} writes the data
 on the data lines into the FIFO.
 When the \texttt{rdempty} port is low, asserting \texttt{rdreq} issues a read request.
 Then the data will be output on the \texttt{q} port.
-The \texttt{aclr} signal is used for clearing the data stored in the DCFIFO. The figures below shows the timing and behaviour of the write and read process.
+The \texttt{aclr} signal is used for clearing the data stored in the DCFIFO.
 
-%XXX: MISSING FIGURE?
+%%The figure below shows the timing and behaviour of the write and read process.
+
+%XXX: MISSING FIGURE???
 
 
 
@@ -512,9 +514,9 @@ test vector output and result input to/from the \textbf{dut\_if}.
 
 
 
-\subsubsection{mem if}
-A module not shown in Figure \ref{fig:tester} arbitrates the memory access to the SRAM arbiter (and hence to the SRAM)
- between the ``stim'' and ``check'' module. Figure \ref{fig:bb_mem_if} shows a black box view. It has
+\subsubsection{mem\textunderscore if}
+The \textbf{mem\_if} module, not shown in Figure \ref{fig:tester}, arbitrates the memory access to the SRAM arbiter (and hence to the SRAM)
+ between the \textbf{stim} and \textbf{check} module. Figure \ref{fig:bb_mem_if} shows a black box view. It has
 an Avalon MM interface to the main SRAM arbiter, and two Avalon MM interfaces to the \textbf{stim} and
 \textbf{check} modules. Arbitration is done in a read-before-write fashion, so that the arbitration is always
 in favour of the \textbf{stim} module.
@@ -530,7 +532,7 @@ in favour of the \textbf{stim} module.
 
 \subsubsection{stim}
 The \textbf{stim} module is the main part of the controller. It reads requests written by the SoPC to the SRAM and
-processes them into either test vectors or local configuration commands. Figure \ref{fig:bb_stim} shows a black box
+processes them either into test vectors or local configuration commands. Figure \ref{fig:bb_stim} shows a black box
 view of the \textbf{stim} module.
 
 \begin{figure}
@@ -559,16 +561,16 @@ later.
 \end{figure}
 
 The \texttt{test\_vector} request contains a standard test vector. After the metadata there are 24 bits of input, making up
-the input vector applied to the DUT. This is followed by 24 bits of the expected result. Then a metadata2 field made up of
+the input vector applied to the DUT. This is followed by 24 bits of the expected result and a metadata2 field made up of
 several fields shown in figure \ref{fig:req_metadata_2}. The metadata2 carries information on whether a test passed or failed,
-whether it has been run, whether a trigger-type test has timed out and a count of how long it took to execute for tests that
-have variable latency. The timeout flag serves a double purpose: when the vector is first read, it defines whether a test
-is a fixed latency or variable latency test. After the test has run, it serves to indicate whether the test has timed out or not.
+whether it has been run, whether a trigger-type test has timed out and a count of how long it took to execute.
+The timeout flag serves a double purpose: when the vector is first read, it defines whether a test
+is a fixed latency or variable latency (triggered) test. After the test has run, it serves to indicate whether the test has timed out or not.
 
 Similarly the cycle count is used as an input initially, containing the cycle count for a fixed latency test and the maximum cycle
 count that a triggered test can take.
 
-These metadata2 fields are extracted and, alongside the input vector itself, are passed to the dut interface over the stimulus FIFO.
+These metadata2 fields are extracted and, alongside the input vector itself, are passed to the DUT interface over the stimulus FIFO.
 The expected result (output vector) is written to the check FIFO for use by the \textbf{check} module.
 
 The metadata2 field is followed by 24 bits of a don't care mask. This don't care mask is used in the \textbf{check} module to
@@ -619,7 +621,7 @@ interest when comparing them.
 
 The send DICMD request in Figure \ref{fig:req_send_dicmd} is used to pass arbitrary messages to the \textbf{dut\_if} module. The
 type of the message is contained in the metadata as shown in Figure \ref{fig:req_metadata}. The payload content depends on the
-message type. The two currentl defined commands are:
+message type. The two currently defined commands are:
 \begin{itemize}
  \item \texttt{DICMD\_SETUP\_MUXES} - the payload contains a bitmask of which of the input pins to the DUT are connected to the normal
 input vector and which ones are instead connected to the dut clock.
@@ -635,9 +637,9 @@ position of the output of the DUT needs to be 1 for a triggered test to be trigg
 \end{figure}
 
 
-The pll reconfiguration request in Figure \ref{req_pll_reconfig} is used to reconfigure the frequency
+The PLL reconfiguration request in Figure \ref{fig:req_pll_reconfig} is used to reconfigure the frequency
 of the dynamic PLL. The request contains the loop multiplier and divider factors as well as the
-post-scale counter. This information is passed to the pll reconfiguration module.
+post-scale counter. This information is passed to the PLL reconfiguration module.
 
 \begin{figure}[h]
  \centering
@@ -647,7 +649,7 @@ post-scale counter. This information is passed to the pll reconfiguration module
 \end{figure}
 
 
-The mem end request defines the end of the used memory. A mem end request will cause the stim module
+The mem end request defines the end of the used memory. A mem end request will cause the \textbf{stim} module
 to wait for all FIFOs to drain before becoming idle.
 \begin{figure}[h]
  \centering
@@ -663,18 +665,18 @@ one of \texttt{READ\_TV}, \texttt{SEND\_DICMD}, \texttt{SETUP\_BITMASK}, \texttt
 
 The action taken for each request type is outlined below:
 \begin{itemize}
- \item setup bit mask (SETUP\_BITMASK). In this task the bit mask and relative command type are sent to the ``check'' module through a register output, bypassing the FIFO between ``stim'' and ``check''.
+ \item setup bit mask (SETUP\_BITMASK). In this task the bit mask and relative command type are sent to the \textbf{check} module through a register output, bypassing the FIFO between \textbf{stim} and \textbf{check}.
 
- \item read test vector (READ\_TV, WR\_FIFPOS). The test vector is firstly read from memory in serial, then sent to the ``dut\_if'' for the input of the design and to the ``check'' for reference through FIFOs in this task.
+ \item read test vector (READ\_TV, WR\_FIFOS). The test vector is firstly read from memory in serial, then sent to the \textbf{dut\_if} for the input of the design and to the \textbf{check} for reference through FIFOs in this task.
 
- \item send command/data to dut\_if (SEND\_DICMD, WR\_DIFIFO). This task is used for assigning clock pins to the DUT inputs and setting up trigger pins to the DUT output pins. These are explained in the dut\_if section.
+ \item send command/data to \textbf{dut\_if} (SEND\_DICMD, WR\_DIFIFO). This task is used for assigning clock pins to the DUT inputs and setting up trigger pins to the DUT output pins. These are explained in the \textbf{dut\_if} section.
 
- \item switch design target (SWITCH\_TARGET, SWITCH\_VDD). As introduced previously, there are 16 designs at most on a single chip under test. Only one can be selected by powering up its exclusive VDD pin. In this task, a $4-bit$ signal indicating which design is selected is sent to the testing board. On the B1 board, a $4-16$ decoder will decode the information and integrated switches array will turn on only one design.
+ \item switch design target (SWITCH\_TARGET, SWITCH\_VDD). As introduced previously, there are 16 designs at most on a single chip under test. Only one can be selected by powering up its exclusive VDD pin. In this task, a $4-bit$ signal indicating which design is selected is sent to the testing board. On the B1 board, a $4-16$ decoder will decode the information and the integrated switches array will turn on only one design.
 
  \item start reconfiguring the dynamic PLL (START\_REPLL, PLL\_RECONFIG, PLL\_WAIT). In this task, the parameters for the PLL counters are read from the memory first. Then in the PLL\_RECONFIG state a trigger will be sent to the PLL\_INTERFACE module with those parameters to start the configuration process. Then the PLL\_WAIT state will halt the ``stim'' until the new PLL output frequency is stable.
 \end{itemize}
 
-After each task is done, the ``stim'' returns to the IDLE state, waiting for the next request. When a complete test is finished, the ``stim'' goes to an END state and resets itself to the start IDLE state.
+After each task is done, the \textbf{stim} returns to the IDLE state, waiting for the next request. When a complete test is finished, the \textbf{stim} goes to an END state and resets itself to the start IDLE state.
 
 The detailed state transition chart is shown in figure \ref{fig:hw_state_trans_chart}. Table \ref{tab:states_behaviour} contains a more detailed
 explanation of what occurs in which state, while Table \ref{tab:states_transitions} contains all the state transition conditions.
@@ -693,19 +695,19 @@ explanation of what occurs in which state, while Table \ref{tab:states_transitio
 \hline
 State & Behaviour \\
 \hline
-IDLE & reset variables (words\_stored, read\_requested) \\
-READ\_META & read metadata from memory \\
-READ\_TV & read test vector from memory \\
-SWITCH\_TARGET & waits until all FIFOS are drained, read target information from memory and store in new\_target\_sel \\
-SWITCH\_VDD & change target power based on the target\_sel data (updated by new\_target\_sel) \\
-WR\_FIFOS & send write request to FIFOs by sfifo\_wrreq, cfifo\_wrreq (effectively sending an input vector and expected result) \\
-SETUP\_BITMASK & read bitmask from memory, send sc\_cmd, sc\_data to check module \\
-SEND\_DICMD & read command data for DUT\_if \\
-WR\_DIFIFO & send write request to DUT\_if through dififo \\
-START\_REPLL & read data for PLL reconfiguration from memory \\
-PLL\_RECONFIG & send trigger to PLL to start the reconfiguration process \\
-PLL\_WAIT & put the stim waiting until the PLL clock is stable \\
-END & when all the FIFOs are empty, send done signal to upper level \\
+\texttt{IDLE} & reset variables (\texttt{words\_stored}, \texttt{read\_requested}) \\
+\texttt{READ\_META} & read metadata from memory \\
+\texttt{READ\_TV} & read test vector from memory \\
+\texttt{SWITCH\_TARGET} & waits until all FIFOS are drained, read target information from memory and store in \texttt{new\_target\_sel} \\
+\texttt{SWITCH\_VDD} & change target power based on the \texttt{target\_sel} data (updated by \texttt{new\_target\_sel}) \\
+\texttt{WR\_FIFOS} & send write request to FIFOs by \texttt{sfifo\_wrreq}, \texttt{cfifo\_wrreq} (effectively sending an input vector and expected result) \\
+\texttt{SETUP\_BITMASK} & read bitmask from memory, send \texttt{sc\_cmd}, \texttt{sc\_data} to check module \\
+\texttt{SEND\_DICMD} & read command data for \textbf{dut\_if} \\
+\texttt{WR\_DIFIFO} & send write request to \textbf{dut\_if} through dififo \\
+\texttt{START\_REPLL} & read data for PLL reconfiguration from memory \\
+\texttt{PLL\_RECONFIG} & send trigger to PLL to start the reconfiguration process \\
+\texttt{PLL\_WAIT} & put the \textbf{stim} waiting until the PLL clock is stable \\
+\texttt{END} & when all the FIFOs are empty, send done signal to upper level \\
 \hline
 \end{tabular}
 \caption{States Behaviour Table.}
@@ -718,43 +720,43 @@ END & when all the FIFOs are empty, send done signal to upper level \\
 \hline
 Source State & Destination State & Condition \\
 \hline
-END & IDLE & sfifo\_wrempty \&\& cfifo\_wrempty \&\& enable \\
+\texttt{END} & \texttt{IDLE} & \texttt{sfifo\_wrempty} \&\& \texttt{cfifo\_wrempty} \&\& \texttt{enable} \\
 \hline
-IDLE & READ\_META & $\sim$sfifo\_wrfull \&\& $\sim$cfifo\_wrfull \&\& $\sim$mem\_waitrequest \\
+\texttt{IDLE} & \texttt{READ\_META} & \texttt{$\sim$sfifo\_wrfull} \&\& \texttt{$\sim$cfifo\_wrfull} \&\& \texttt{$\sim$mem\_waitrequest} \\
 \hline
-READ\_META & END & words\_stored \&\& req\_type==REQ\_END \\
+\texttt{READ\_META} & \texttt{END} & \texttt{words\_stored} \&\& \texttt{req\_type} == \texttt{REQ\_END} \\
 \hline
-READ\_META & IDLE & words\_stored \&\& req\_type==REQ\_PLLRECONFIG \\
+\texttt{READ\_META} & \texttt{IDLE} & \texttt{words\_stored} \&\& \texttt{req\_type} == \texttt{REQ\_PLLRECONFIG} \\
 \hline
-READ\_META & READ\_META &  \\
+\texttt{READ\_META} & \texttt{READ\_META} &  \\
 \hline
-READ\_META & SWITCH\_TARGET & words\_stored \&\& req\_type==REQ\_SWITCH\_TARGET \\
+\texttt{READ\_META} & \texttt{SWITCH\_TARGET} & \texttt{words\_stored} \&\& \texttt{req\_type} == \texttt{REQ\_SWITCH\_TARGET} \\
 \hline
-READ\_META & READ\_TV & words\_stored \&\& req\_type==REQ\_TEST\_VECTOR \\
+\texttt{READ\_META} & \texttt{READ\_TV} & \texttt{words\_stored} \&\& \texttt{req\_type} == \texttt{REQ\_TEST\_VECTOR} \\
 \hline
-READ\_META & SEND\_DICMD & words\_stored \&\& req\_type==REQ\_SEND\_DICMD \\
+\texttt{READ\_META} & \texttt{SEND\_DICMD} & \texttt{words\_stored} \&\& req\_type == \texttt{REQ\_SEND\_DICMD} \\
 \hline
-READ\_META & SETUP\_BITMASK & words\_stored \&\& req\_type==REQ\_SETUP\_BITMASK \\
+\texttt{READ\_META} & \texttt{SETUP\_BITMASK} & \texttt{words\_stored} \&\& req\_type == \texttt{REQ\_SETUP\_BITMASK} \\
 \hline
-READ\_TV & WR\_FIFOS & words\_stored == tv\_len \\
+\texttt{READ\_TV} & \texttt{WR\_FIFOS} & \texttt{words\_stored} == 6 \\
 \hline
-SEND\_DICMD & WR\_DIFIFO & words\_stored == 3 \&\& $\sim$dififo\_wrfull \&\& sfifo\_wrempty \&\& cfifo\_wrempty \\
+\texttt{SEND\_DICMD} & \texttt{WR\_DIFIFO} & \texttt{words\_stored} == 3 \&\& \texttt{$\sim$dififo\_wrfull} \&\& \texttt{sfifo\_wrempty} \&\& \texttt{cfifo\_wrempty} \\
 \hline
-SETUP\_BITMASK & IDLE & words\_stored == 3 \\
+\texttt{SETUP\_BITMASK} & \texttt{IDLE} & \texttt{words\_stored} == 3 \\
 \hline
-START\_REPLL & PLL\_RECONFIG & words\_stored == 3 \&\& pll\_locked \\
+\texttt{START\_REPLL} & \texttt{PLL\_RECONFIG} & \texttt{words\_stored} == 3 \&\& \texttt{pll\_locked} \\
 \hline
-PLL\_RECONFIG & PLL\_WAIT &  \\
+\texttt{PLL\_RECONFIG} & \texttt{PLL\_WAIT} &  \\
 \hline
-PLL\_WAIT & IDLE & pll\_stable \\
+\texttt{PLL\_WAIT} & \texttt{IDLE} & \texttt{pll\_stable} \\
 \hline
-SWITCH\_TARGET & SWITCH\_VDD & sfifo\_wrempty \&\& cfifo\_wrempty \\
+\texttt{SWITCH\_TARGET} & \texttt{SWITCH\_VDD} & \texttt{sfifo\_wrempty} \&\& \texttt{cfifo\_wrempty} \\
 \hline
-SWITCH\_VDD & IDLE & waitcnt == 0 \\
+\texttt{SWITCH\_VDD} & \texttt{IDLE} & \texttt{waitcnt} == 0 \\
 \hline
-WR\_DIFIFO & IDLE &  \\
+\texttt{WR\_DIFIFO} & \texttt{IDLE} &  \\
 \hline
-WR\_FIFOS & IDLE &  \\
+\texttt{WR\_FIFOS} & \texttt{IDLE} &  \\
 \hline
 \end{tabular}
 \caption{Main States Transitions Table.}
@@ -784,7 +786,7 @@ Thanks to the use of FIFOs for both the expected result and actual result, the
 the data will match up, as everything happens in order, even though events occur
 across different clock domains. In other words the first word to be read from the
 check FIFO will match up with the first word read from the result FIFO, greatly
-simplfying the logic.
+simplifying the logic.
 
 The \textbf{check} module operates when both the check FIFO and the result FIFO aren't
 empty. It first transitions to a \texttt{READ\_FIFO} state during which a word
@@ -825,7 +827,7 @@ and result FIFO to the \textbf{test\_controller}. It connects to the DUT via an 
 \begin{figure}
  \centering
  \includegraphics[width=0.4\textwidth]{dut_if}
- \caption{Black box view of dut_if module}
+ \caption{Black box view of dut\_if module}
  \label{fig:bb_dut_if}
 \end{figure}
 
@@ -835,7 +837,7 @@ It uses the data from \textbf{stim} to generate the test vector and send it to t
 to the DUT has a multiplexer which, depending on a register in the dut interface will either connect the
 input to the reconfigurable clock or to the actual input vector as provided by the \textbf{stim} module.
 
-The value of this register can be modified by using a dicmd as explained in the \textbf{stim} module section.
+The value of this register can be modified by using a DICMD as explained in the \textbf{stim} module section.
 
 Since it is possible for the \textbf{dut\_if} to stall when the frequency is higher than the maximum sustained
 test throughput, the clock connected to the input pins of the DUT is gated. This way the clock is effectively
@@ -849,44 +851,49 @@ received from the DUT back to the result FIFO which is then later read by the \t
 
 However, the \texttt{EXECUTE} stage can take longer than one cycle to run. In this case, a pipeline bubble is inserted forward
 and a stall is signalled to the \texttt{FETCH} stage. This is the case when the test takes longer than one cycle to run, which
-is the case for triggered tests and for fixed latency tests with a greater than one cycle count. In the case of triggered
-tests, the \texttt{EXECUTE} stage will stall until the result from the DUT matches the trigger mask as passed in from the
-\textbf{stim} module via an earlier DICMD. In the case of fixed latency tests, a 
-
-
-
- After certain conditions are satisfied, the result is valid from the DUT, which is then sent to the check through ``rfifo''.
-
-The test vector is merged with clock pins before being sent to the DUT. The clock is from the reconfigurable clock domain. This process is, however, not necessary in every test. It depends on whether the design contains a clock input and whether the user defines it in the input data. A clock gating is also done in this part for optimizing power consumption.
-In deciding whether the result is valid, the ``dut\_if'' supports two modes:
+is the case for triggered tests and for fixed latency tests with a greater than one cycle count.
+In deciding whether the result is valid, the ``dut\_if'' supports two modes.
 
 \begin{enumerate}
  \item With a predefined clock cycle number (in metadata), the dut\_if sets up a counter to wait until the clock cycles are reached. Then the result is considered valid. If the clock cycle number is 0, the result is taken within the same clock cycle, which corresponds to a combinational logic circuit. Otherwise, the DUT should be a sequential design with a fixed clock cycle to output the valid result.
 
- \item With a set of pins which is defined as the trigger (e.g. a ``done'' or ``ready'' signal). The result is considered valid when the triggers change. This corresponds to asynchronous handshake behaviour. This is implemented by the trigger mask.
+ \item With a set of pins which is defined as the trigger (e.g. a \texttt{done} or \texttt{ready} signal). The result is considered valid when the triggers change. This corresponds to asynchronous handshake behaviour. This is implemented by the trigger mask.
 \end{enumerate}
 
 Those different modes of operation are set by the user in the metadata, depending on specific designs.
 
-The speed of the ``dut\_if'' is boosted by pipelining technique, including fetch, execute and writeback stages. The fetch stage checks whether the ``sfifo'' is empty and decide if the process should go to the next stage. The execute stage handles the testing process from sending the test vector to receiving the result vector. After a execute stage, the writeback stage is in place to write the data (result vector, metadata) to the memory. The pipelining enables the ``dut\_if'' to process the different stages of three tasks at the same time.
+In the case of triggered
+tests, the \texttt{EXECUTE} stage will stall until the result from the DUT matches the trigger mask as passed in from the
+\textbf{stim} module via an earlier DICMD. In the case of fixed latency tests, a counter increases every clock cycle and once
+that counter matches the wanted cycle count stored in the input vector provided by the \textbf{stim} module, the pipeline
+will unstall and continue operation. This same counter is also used to provide a timeout for triggered tests and in general
+keep track of how long a triggered test takes, even if it is triggered before the timeout.
+
+
+The speed of the \textbf{dut\_if} is boosted by pipelining technique, including fetch, execute and writeback stages. The fetch stage checks whether the \textbf{sfifo} is empty and decide if the process should go to the next stage.
+The effective throughput of the \textbf{dut\_if} module without considering the limitations of the \textbf{test\_controller} described earlier is one test per cycle for 1-cycle tests.
 
 \subsubsection{PLL INTERFACE}
+The reconfigurable clock domain uses the Altera IP cores ALTPLL and
+\\
+ALTPLL\_RECONFIG to realize the dynamically reconfigurable clock.
+The ALTPLL generates stable clock. The input clock frequency is divided and multiplied by the internal counters,
+resulting in a variable output frequency. The parameters are initialized by a scan chain.
+Reinitializing the PLL with a new scan chain is possible and can change the output frequency with different parameters.
+However the scan chain contains too much information that is not expected to change during the frequency reconfiguration process
+(counters that are not changed, current, phase information, etc.).
 
-The reconfigurable clock domain uses the Altera IP cores ALTPLL and ALTPLL\_RECONFIG to realize the dynamically reconfigurable clock. The ALTPLL generates stable clock. The input clock frequency is divided and multiplied by the internal counters, resulting in a variable output frequency. The parameters are initialized by a scan chain. Reinitializing the PLL with a new scan chain is possible and can change the output frequency with different parameters. However the scan chain contains too much information that is not expected to change during our process (counters that are not changed, current, phase information, etc.). ALTPLL\_RECONFIG module can change specific parameters based on a complete scan chain and reinitialize the ALTPLL.
+The ALTPLL\_RECONFIG module can change specific parameters based on a complete scan chain and reinitialize the ALTPLL without having to provide new values for each parameter.
 
 The ALTPLL\_RECONFIG module requires input to be in serial and specific timing requirements. The process is coordinated by REPLL\_CONTROL, responding to an input trigger, transferring the parallel input into serial, and offering a stable signal when the reconfiguration is done. All these modules are enveloped in PLL\_INTERFACE.
 
-The counters used here are M (feedback multiplier counter), N (pre-divider counter) and C (post-divider counter) counters. The output frequency = input frequency * M/(N*C). Currently the established minimum output frequency is $0.005\times$ the input clock frequency, which is $100MHz$ of the DE2 board by default. The maximum can reach $10\times$ the input clock, and theoretically can be increased. However, further testing is not done since $1GHz$ is already big enough for our hardware. Should further testing require lower frequency ($<500KHz$ ), another cascaded PLL\_INTERFACE module could be implemented as a possible solution.
-
-The formats of the data for different requests used in this part of the design are listed below.
-
-% Test Vector:
+The counters used here are M (feedback multiplier counter), N (pre-divider counter) and C (post-divider counter) counters. The output frequency = input frequency * M/(N*C). Currently the established minimum output frequency is $0.005\times$ the input clock frequency, which is $100MHz$ of the DE2 board by default. The maximum can reach $10\times$ the input clock, and theoretically can be increased. However, further testing is not done since $1GHz$ is already big enough for our hardware.
 
 
-
-
-
-
+\subsubsection{Verification}
+The complete \textbf{tester} module was verified using a testbench with an SRAM model initialized
+with a memory file generated by the \textbf{confrd} program from actual configuration files. This allowed
+for quick debugging and verification of the \textbf{tester} module without using actual hardware.
 
 
 \newpage
@@ -905,3 +912,84 @@ into Avalon-MM output signals.
 
 Due to the pipelined design, there is three-cycle latency for reads. However this results in a throughput of 1.6 Gbit/s.
 
+
+\newpage
+\section{ADC}
+The ADC module is used to control the external ADC and store its samples into SRAM.
+Figure \ref{figure:adc_blackbox} shows a black box view of the module.
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=0.4\textwidth]{adc_periph}
+\caption{Black box overview of the ADC module}
+\label{figure:adc_blackbox}
+\end{center}
+\end{figure}
+
+The module is enabled by asserting the \texttt{enable} signal for one clock cycle. When
+the module completes the sampling, it asserts the \texttt{done} signal until it is enabled
+again.
+
+The \texttt{enable} and \texttt{done} signals are connected to the ADC interface
+in the SoPC, as described in the SoPC section.
+
+
+Figure \ref{figure:state_adc} shows a simplified state diagram of the ADC module's state
+machine. The module starts up in the \texttt{END} state. While in this state, the
+ADC powerdown signal remains asserted, putting the ADC chip into low power mode. In this
+state the ADC clock enable signal is deasserted, so that the clock to the ADC is gated.
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=\textwidth]{state_adc}
+\caption{Simple state diagram of the ADC module}
+\label{figure:state_adc}
+\end{center}
+\end{figure}
+
+When the external \texttt{enable} signal is asserted, the module transitions into the
+\texttt{IDLE} state, where it stays until the SRAM arbiter deasserts the \texttt{mem\_waitrequest}
+signal. As soon as the SRAM is ready, the module transitions into the \texttt{POWERUP} state
+which ensures that the ADC has enough time after deasserting the powerdown signal to
+get back into normal operating mode.
+
+After the ADC has fully powered up, the module transitions between the \texttt{SAMPLE1} and
+\texttt{SAMPLE2} states, taking a sample during each and storing it into the upper and lower
+bytes of a 16-bit register, respectively.
+
+During the \texttt{SAMPLE2} state, this 16 bit register is written out to SRAM via the
+Avalon MM interface to the SRAM arbiter.
+
+As soon as the SRAM is full the module transitions back into the \texttt{END} state, in which
+the \texttt{done} signal is asserted notifying the ADC interface in the SoPC that the ADC
+module has finished sampling and the ADC is powered down.
+
+
+\newpage
+\section{FPGA Resource usage}
+\begin{table}[h!]
+\centering
+\begin{tabular}{ | p{2cm} | r | r | r | }
+ \hline
+   Module & Logic cells & DSP Elements & Memory bits \\
+ \hline
+   SoPC & 17453 & 4 & 1,218,729 \\
+ \hline
+   ADC & 62 & 0 & 0\\
+ \hline
+   SRAM Arbiter & 143 & 0 & 298,416 \\
+ \hline
+   stim & 213 & 0 & 0 \\
+ \hline
+   check & 122 & 0 & 0 \\
+ \hline
+   FIFOs & 235 & 0 & 2,544 \\
+ \hline
+   dut\_if & 149 & 0 & 0 \\
+ \hline
+ \hline
+   Total & 18999 & 4 & 1,221,417 \\
+ \hline
+\end{tabular}
+\caption{FPGA resource usage by module, only including the main modules}
+\label{table:resusage}
+\end{table}
