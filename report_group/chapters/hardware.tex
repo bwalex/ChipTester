@@ -964,4 +964,32 @@ the \texttt{done} signal is asserted notifying the ADC interface in the SoPC tha
 module has finished sampling and the ADC is powered down.
 
 
-
+\newpage
+\section{FPGA Resource usage}
+\begin{table}[h!]
+\centering
+\begin{tabular}{ | p{2cm} | r | r | r | }
+ \hline
+   Module & Logic cells & DSP Elements & Memory bits \\
+ \hline
+   SoPC & 17453 & 4 & 1,218,729 \\
+ \hline
+   ADC & 62 & 0 & 0\\
+ \hline
+   SRAM Arbiter & 143 & 0 & 298,416 \\
+ \hline
+   stim & 213 & 0 & 0 \\
+ \hline
+   check & 122 & 0 & 0 \\
+ \hline
+   FIFOs & 235 & 0 & 2,544 \\
+ \hline
+   dut\_if & 149 & 0 & 0 \\
+ \hline
+ \hline
+   Total & 18999 & 4 & 1,221,417 \\
+ \hline
+\end{tabular}
+\caption{FPGA resource usage by module, only including the main modules}
+\label{table:resusage}
+\end{table}
