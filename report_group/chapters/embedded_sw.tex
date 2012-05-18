@@ -3,11 +3,11 @@
 
 \section{Bootloader and Operating System}
 To take full advantage of the MMU, Linux was chosen as operating system running on the
-application processor. uCLinux was the distribution of choice since it is aimed at 
+application processor. uCLinux was the distribution of choice since it is aimed at
 embedded systems and optimum resource usage. A Linux 3.3-rc6 kernel was used.
 \\
 
-Since the Linux kernel can only boot from memory, a bootloader was required to 
+Since the Linux kernel can only boot from memory, a bootloader was required to
 load the Linux kernel image from the non-volatile CFI Flash into SDRAM. The bootloader
 used is a current development version of U-Boot.
 \\
@@ -38,7 +38,7 @@ of the MTD partitions and their respective size.
 \label{table:partitions}
 \end{table}
 
-The U-boot bootloader image is 
+The U-boot bootloader image is
 located in the first 256 kB, of which around 170 kB are used by u-boot. The CPU
 reset vector points to this address, so that u-boot always is loaded on CPU reset.
 The configuration for U-boot that contains information on how to boot the Linux system
@@ -63,7 +63,7 @@ The u-boot bootloader is located at the first 256 kB of the CFI Flash. The CPU's
 reset vector points to it, so that upon startup of the CPU, u-boot is executed.
 \\
 
-U-boot prompts the user to interrupt automatic boot during a 5 second countdown. If a 
+U-boot prompts the user to interrupt automatic boot during a 5 second countdown. If a
 user interrupts this process by connecting via UART and pressing a key, the u-boot
 prompt appears. Using this prompt u-boot's configuration can be modified and stored.
 \\
@@ -123,7 +123,7 @@ CPU   : Nios-II
 SYSID : abcdef00, Tue May 15 16:25:13 2012
 BOARD : my_nios2
 
-Hit any key to stop autoboot:  0 
+Hit any key to stop autoboot:  0
 ## Booting kernel from Legacy Image at ea050000 ...
    Image Name:   Linux-3.3.0-rc6
    Image Type:   NIOS II Linux Kernel Image (gzip compressed)
@@ -191,21 +191,21 @@ Starting syslogd
 Starting dhcpcd
 Starting crond
 Welcome to Team I's
-   _____ _     _    _______       _             
-  / ____| |   (_)  |__   __|     | |            
- | |    | |__  _ _ __ | | ___ ___| |_  ___ _ __ 
+   _____ _     _    _______       _
+  / ____| |   (_)  |__   __|     | |
+ | |    | |__  _ _ __ | | ___ ___| |_  ___ _ __
  | |    | '_ \| | '_ \| |/ _ | __| __|/ _ \ '__|
- | |____| | | | | |_) | |  __|__ \ |_|  __/ |   
-  \_____|_| |_|_| .__/|_|\___|___/\__|\___|_|   
-                | |                             
-                |_|                      
+ | |____| | | | | |_) | |  __|__ \ |_|  __/ |
+  \_____|_| |_|_| .__/|_|\___|___/\__|\___|_|
+                | |
+                |_|
 
 
 
 BusyBox v1.18.4 (2012-05-15 19:19:33 BST) hush - the humble shell
 Enter 'help' for a list of built-in commands.
 
-root:/> 
+root:/>
 \end{lstlisting}
 \caption{Boot log of system}
 \label{listing:bootlog}
@@ -217,7 +217,7 @@ The current generation of Linux kernels can use so-called device tree files to s
 interrupts and several other options of available peripherals. A device tree file is simply a list
 of all the modules connected to the system and their configuration. It is possible to specify each module's
 type, memory address range, interrupts, etc. Figure \ref{listing:dts} shows an excerpt of a devicetree file showing the
-configuration for an altera SPI master, an SD card connected to it, and the custom test runner module.
+configuration for an Altera SPI master, an SD card connected to it, and the custom test runner module.
 \\
 
 The memory mapped address range is specified using the \texttt{reg} keyword, the connected interrupt numbers
@@ -341,7 +341,7 @@ enable register of the device.
 \\
 
 The \texttt{ADC\_IOC\_GET\_DONE}, \texttt{TRUNNER\_IOC\_GET\_DONE},
-\texttt{ADC\_IOC\_GET\_MAGIC} and 
+\texttt{ADC\_IOC\_GET\_MAGIC} and
 \\
 \texttt{TRUNNER\_IOC\_GET\_MAGIC} read the done and
 ID (magic) registers of the devices, respectively.
@@ -520,7 +520,7 @@ are parsed by a separate parser, but the default line parser is not changed, so 
 the line following them is still parsed by the \texttt{vectors} parser.
 \\
 
-Table \ref{table:vec_keywords} describes all normal keywords while table 
+Table \ref{table:vec_keywords} describes all normal keywords while table
 \ref{table:dot_commands} describes all dot commands.
 Figure \ref{listing:testvec_example} shows an example test vector file.
 
@@ -745,7 +745,7 @@ are used for the HTTP API accesses to the backend.
 \newpage
 \section{SPI Flash Programmer and Model}
 The SPI Flash Programmer software is able to program the Spansion SPI Flash Memory
-on the secondary FPGA board via the the SPI framework present in Linux 
+on the secondary FPGA board via the the SPI framework present in Linux
 since kernel version 2.6.27.
 
 \begin{figure}[h!]
@@ -758,7 +758,7 @@ Usage: ./spi_flash [-DsbdlHOLC3] <file to program>
   -t            perform the operation(s) on the flash model
   -s --speed    max speed (Hz)
   -d --delay    delay (usec)
-  -b --bpw      bits per word 
+  -b --bpw      bits per word
   -l --loop     loopback
   -H --cpha     clock phase
   -O --cpol     clock polarity
@@ -784,7 +784,7 @@ To achieve these operations, the spi\_flash utility implements support for the S
     \begin{tabular}{ | l | p{12cm} |}
     \hline
     Byte & Description \\ \hline
-    0x06 & Write Enable Instruction, it is used every time a write or erase instruction 
+    0x06 & Write Enable Instruction, it is used every time a write or erase instruction
     is performed. It sets the WRITE ENABLE LATCH (WEL) in the status register to 1\\ \hline
     0x04 & Disables the write enable. Sets the WRITE ENABLE LATCH (WEL) in the status register to 0.\\ \hline
     0x50 & Enables the write for the volatile bits in the status register.\\ \hline
@@ -809,7 +809,7 @@ To achieve these operations, the spi\_flash utility implements support for the S
 
 \subsection{SPI Flash Model}
 To verify the correct operation of the SPI Flash Programmer, an SPI Flash
-Model was written independently for use with the programmer. It implements the same commands as shown in the 
+Model was written independently for use with the programmer. It implements the same commands as shown in the
 table \ref{tab:spi_commands}.
 
 When in test mode, the spi flash programmer communicates exclusively with the model
@@ -855,7 +855,7 @@ Once the file is downloaded it will try to decompress trying all of the followin
  \item TARball without compression
  \item TARball with gzip compression
  \item TARball with bzip2 compression
- \item TARball with LZMA compression 
+ \item TARball with LZMA compression
 \end{itemize}
 
 If all attempts fail, the script will give up and log the error remotely to the backend using the
@@ -882,7 +882,7 @@ script exits.
 If the configuration was written successfully, the \texttt{nCONFIG} pin is asserted, causing
 the FPGA to begin reconfiguration from the newly written flash. After waiting 10 seconds
 for the FPGA to finish reconfiguration, the FPGA's \texttt{nSTATUS} pin is checked to determine
-whether an error occured during reconfiguration. If so, the error is logged and the operation
+whether an error occurred during reconfiguration. If so, the error is logged and the operation
 is aborted.
 \\
 
@@ -972,7 +972,7 @@ The \texttt{umount2} tool is a simple implementation around the \texttt{umount} 
 It was written because the \texttt{umount} tool integrated in busybox failed to unmount
 on the Linux 3.3 kernel used for this project. As it was felt that the effort to debug
 the problem with the \texttt{umount} in busybox would outweigh the effort of writing the tool
-from scratch, the latter aproach was chosen.
+from scratch, the latter approach was chosen.
 \\
 
 \texttt{umount2} simply takes either the path of the device that is mounted or the path
@@ -995,7 +995,7 @@ and the filesystem unmounted using the aforementioned \texttt{umount2} tool.
 The \texttt{rc} script is the main script executed at startup. This script is based
 on a default script shipped with uClinux, but with a number of custom modifications.
 \\
- 
+
 It sets the hostname, configures the network via DHCP and sets up temporary memory file
 systems for several paths such as \texttt{/tmp}, \texttt{/media} and \texttt{/var/log}. The
 script also starts the syslogd logging daemon and the cron daemon to execute periodic tasks.
@@ -1015,7 +1015,7 @@ frequency to an Altera Cyclone IV PLL), generates a C header file that contains 
 for the loop multiplier, divider and post-scale counters to achieve every integer
 output frequency between 1MHz and 100 MHz. The output header file is also annotated with the
 error between the intended frequency and the actual achieved frequency. The calculation
-is done while maintaing valid values for the multiplier and divider so that the VCO
+is done while maintaining valid values for the multiplier and divider so that the VCO
 frequency stays in the valid range.
 \\
 
