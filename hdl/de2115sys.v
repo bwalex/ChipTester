@@ -370,7 +370,7 @@ module de2115sys(
     .waitrequest         (tr_sram_waitrequest),
 
     .target_sel          (SITE_SEL),
-    .mosi                (tr_mosi /* A */),
+    .mosi                (A),
     .miso                (Q)
   );
 
@@ -494,7 +494,7 @@ module de2115sys(
     .test_runner_conduit_enable             (tr_enable),
     .test_runner_conduit_busy               (sram_arb_msel[0]),
 
-    .freq_counter_external_in_signal        (temp_test),
+    .freq_counter_external_in_signal        (Q),
     .freq_counter_external_busy             (LEDG4),
 
     .adc_conduit_done                       (adc_done),
