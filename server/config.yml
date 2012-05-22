@@ -6,11 +6,11 @@ admin:
 #Maximum permission in the databse
 
 database:
-    type: mysql
-    user: root
-    password: chip1234
-    database_name: ChipTester
-    address: localhost
+    type: sqlite
+    user:
+    password:
+    database_name: test.db
+    address:
 
 #### Sending email configuration
 

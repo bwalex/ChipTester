@@ -5,10 +5,12 @@ require './plot.rb'
 
 
 database_config = YAML::load( File.open( "config.yml" ))
-config = database_config['database']['type'] + '://' + database_config['database']['user'] + ':' + database_config['database']['password'] + '@' + database_config['database']['address'] +  '/' + database_config['database']['database_name']
+
+
+
 
 #DataMapper.setup(:default, config)
-DataMapper.setup(:default, 'sqlite:test.db')
+DataMapper.setup(:default, configure_database(database_config))
 #Refer to config.yml to change the config line
 DataMapper::Logger.new($stdout, :debug)
 DataMapper::Model.raise_on_save_failure = true
@@ -238,7 +240,26 @@ def StoreFileUpload(email, team, file_name, valid_value)
 )  
   @uploaded_file.save
 end
- 
+
+def configure_database(database_config)
+  config = ''
+  if !database_config['database']['type'].nil?
+    config+= database_config['database']['type'] + ':'
+  end
+  if !database_config['database']['user'].nil?
+    config+= '//' + database_config['database']['user'] + ':'
+  end
+  if !database_config['database']['password'].nil?
+    config+=database_config['database']['password']
+  end
+  if !database_config['database']['address'].nil?
+    config+='@' + database_config['database']['address'] +  '/'
+  end
+  if !database_config['database']['database_name'].nil?
+    config+=database_config['database']['database_name']
+  end
+  return config
+end
 
 
 DataMapper.finalize
