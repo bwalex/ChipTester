@@ -3,11 +3,27 @@ require 'yaml'
 require 'bcrypt'
 require './plot.rb'
 
+def configure_database(database_config)
+  config = ''
+  if !database_config['database']['type'].nil?
+    config+= database_config['database']['type'] + ':'
+  end
+  if !database_config['database']['user'].nil?
+    config+= '//' + database_config['database']['user'] + ':'
+  end
+  if !database_config['database']['password'].nil?
+    config+=database_config['database']['password']
+  end
+  if !database_config['database']['address'].nil?
+    config+='@' + database_config['database']['address'] +  '/'
+  end
+  if !database_config['database']['database_name'].nil?
+    config+=database_config['database']['database_name']
+  end
+  return config
+end
 
 database_config = YAML::load( File.open( "config.yml" ))
-
-
-
 
 #DataMapper.setup(:default, config)
 DataMapper.setup(:default, configure_database(database_config))
@@ -241,25 +257,6 @@ def StoreFileUpload(email, team, file_name, valid_value)
   @uploaded_file.save
 end
 
-def configure_database(database_config)
-  config = ''
-  if !database_config['database']['type'].nil?
-    config+= database_config['database']['type'] + ':'
-  end
-  if !database_config['database']['user'].nil?
-    config+= '//' + database_config['database']['user'] + ':'
-  end
-  if !database_config['database']['password'].nil?
-    config+=database_config['database']['password']
-  end
-  if !database_config['database']['address'].nil?
-    config+='@' + database_config['database']['address'] +  '/'
-  end
-  if !database_config['database']['database_name'].nil?
-    config+=database_config['database']['database_name']
-  end
-  return config
-end
 
 
 DataMapper.finalize
