@@ -184,7 +184,6 @@ module de2115sys(
   wire   [23:0] tr_mosi;
   wire   [ 4:0] tr_target_sel;
 
-  wire          sigtap_clk;
 
   wire          SLAVE_FPGA_SPI_MOSI_int;
   wire          SLAVE_FPGA_SPI_SCLK_int;
@@ -196,7 +195,7 @@ module de2115sys(
   assign SLAVE_FPGA_SPI_SCLK = (SLAVE_FPGA_nCONFIG) ? 1'bz : SLAVE_FPGA_SPI_SCLK_int;
   assign SLAVE_FPGA_SPI_nCS  = (SLAVE_FPGA_nCONFIG) ? 1'bz : SLAVE_FPGA_SPI_nCS_int;
 
-  assign temp_test  = {tr_miso[23:3], dyn_clock, clock_10, tr_miso[0]};
+  //assign temp_test  = {Q[23:3], dyn_clock, Q[1], clock_10};
 
 
   assign SMA_CLKOUT = dyn_clock;
@@ -266,10 +265,6 @@ module de2115sys(
   assign LEDG = sopc_sram_waitrequest;
   assign LEDG0 = tr_sram_waitrequest;
 
-  sigtap_pll sigtap_clock (
-    .inclk0(sopc_sram_clock),
-    .c0(sigtap_clk)
-  );
 
   /* XXX: temporary PLL. should move as reconfig into tester mod */
   pll_10 pll10 (
@@ -353,7 +348,6 @@ module de2115sys(
   (
     .clock               (clock_100),
     .reset_n             (global_reset_n),
-    .fifo_clock          (clock_10),
 
     .dyn_clock           (dyn_clock),
 
@@ -376,7 +370,7 @@ module de2115sys(
 
 
   /* XXX: Effectively the DUT/CUT , a 1-bit left shifter */
-  assign tr_miso  = tr_mosi << 1;
+  //assign tr_miso  = tr_mosi << 1;
 
 
 

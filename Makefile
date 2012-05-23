@@ -65,12 +65,12 @@ prepare-dist:
 	cp uClinux-dist/images/rootfs.jffs2 dist/rootfs.jffs2
 
 prime-sof:
-	sof2flash.jar --epcs --input=$(SOF) --output=dist/sys.sof.flash
+	java -jar sof2flash.jar --epcs --input=$(SOF) --output=dist/sys.sof.flash
 
 prime-dist:
-	bin2flash.jar --input=dist/rootfs.jffs2 --output=dist/rootfs.jffs2.flash --location=0x00200000
-	bin2flash.jar --input=dist/u-boot.bin --output=dist/u-boot.bin.flash --location=0x00000000
-	bin2flash.jar --input=dist/vmImage --output=dist/vmImage.flash --location=0x00050000
+	java -jar $(BIN2FLASH_PATH) --input=dist/rootfs.jffs2 --output=dist/rootfs.jffs2.flash --location=0x00200000
+	java -jar $(BIN2FLASH_PATH) --input=dist/u-boot.bin --output=dist/u-boot.bin.flash --location=0x00000000
+	java -jar $(BIN2FLASH_PATH) --input=dist/vmImage --output=dist/vmImage.flash --location=0x00050000
 
 deploy-dist: prime-dist
 	LD_LIBRARY_PATH=$(LIBRARY_PATH) nios2-flash-programmer -M -b $(FLASH_BASE) -P dist/u-boot.bin.flash

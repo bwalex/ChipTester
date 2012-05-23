@@ -21,7 +21,6 @@ module tester #(
 )(
   input                    clock,
   input                    reset_n,
-  input                    fifo_clock,
 
   output                   dyn_clock,
 
