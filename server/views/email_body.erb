@@ -1,5 +1,19 @@
-<p>Results from the design <%= @result.design_name %></p>
-<table class="fullwidth">
+<p>Results from the team <%= @results.team.to_s() %></p>
+	<table class="fullwidth">
+			<tr>
+				<th>Team</th>
+				<th>Academic Year</th>
+				<th>Run Date</th>
+				<th>Virtual</th>
+      			</tr>
+     			<tr>
+				<td><%=@results.team.to_s() %></td>
+				<td><%=@results.academic_year.to_s() %></td>
+				<td><%=@results.created_at.strftime("%m/%d/%Y at %I:%M%p") %></td>
+				<td><%= @results.virtual ? "Yes" : "No" %></td>
+      			</tr>
+    		</table>
+	<table class="fullwidth">
 		<tr>
 			<th>Design Name</th>
 			<th>Run Date</th>

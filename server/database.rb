@@ -3,6 +3,7 @@ require 'yaml'
 require 'bcrypt'
 require './plot.rb'
 
+
 def configure_database(database_config)
   config = ''
   if !database_config['database']['type'].nil?
@@ -243,6 +244,7 @@ class AdcMeasurement
     plot_png(path, png_path)
   end
 end
+
 
 
 def StoreFileUpload(email, team, file_name, valid_value)

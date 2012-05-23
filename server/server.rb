@@ -277,8 +277,12 @@ end
 
 post '/api/done/:result_id' do
   @result = Result.get(params[:result_id])
-  if @result.mail_sent or @result.email == "" or config['email']['email_enable']
-      @result.update(:mail_sent => send_mail(@result))
+  if !@result.nil?
+    if @result.mail_sent or @result.email == "" or config['email']['email_enable']
+	@result.update(:mail_sent => send_mail(@result))
+    end
+  else
+    'No result associated to the team'
   end
 end
 
