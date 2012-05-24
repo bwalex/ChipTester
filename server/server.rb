@@ -357,6 +357,8 @@ post '/manage_results' do
 	    results_designs = Result.get(erase_id).design_results
 	    results_designs.each {|results_design|
 	    results_designs.test_vector_results.destroy
+	    results_designs.frequency_measurements.destroy
+	    results_designs.adc_measurements.destroy
 	  }        
 	  Result.get(erase_id).design_results.destroy
 	  Result.get(erase_id).destroy     
@@ -373,6 +375,8 @@ post '/manage_designs' do
       params['erase_design'].each {|erase_id|
       #@ Results.all(:id => erase_id).
       DesignResult.get(erase_id).test_vector_results.destroy
+      DesignResult.get(erase_id).frequency_measurements.destroy
+      DesignResult.get(erase_id).adc_measurements.destroy
       DesignResult.get(erase_id).destroy                            
     }
 	flash[:notice] = "The data has been erased successfully!"

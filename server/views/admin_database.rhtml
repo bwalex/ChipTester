@@ -92,6 +92,7 @@ function toggle(source,name) {
 		<form method="post" action="/manage_test_result">
 		<table class="fullwidth">
 		<tr>
+			<th><input type="checkbox" onClick="toggle(this,'erase_test_result[]')"/></th>
 			<th>Type</th>
 			<th>Input Vector</th>
 			<th>Expected Result</th>
